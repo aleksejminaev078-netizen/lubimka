@@ -4,44 +4,48 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Любимка — Потеряшки</title>
-  <meta name="theme-color" content="#FF6B35">
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-    crossorigin=""
-  >
+  <meta name="theme-color" content="#ff6b35">
   <style>
     :root {
-      --bg: #FFF8F5;
-      --card: #FFFFFF;
-      --text: #1F1A17;
-      --muted: #7C6F68;
-      --border: rgba(31, 26, 23, 0.08);
-      --orange: #FF6B35;
-      --orange-soft: #FFF1EA;
-      --red: #FF3B30;
-      --green: #34C759;
-      --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-      --radius: 20px;
-      --radius-sm: 16px;
-      --safe-bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+      --bg: #fff8f4;
+      --bg-soft: #fff1ea;
+      --surface: rgba(255, 255, 255, 0.88);
+      --surface-strong: #ffffff;
+      --line: rgba(34, 26, 21, 0.09);
+      --text: #211713;
+      --muted: #7b6f68;
+      --orange: #ff6b35;
+      --orange-deep: #f3531d;
+      --red: #ff5a52;
+      --green: #28b579;
+      --shadow: 0 24px 60px rgba(34, 26, 21, 0.12);
+      --shadow-soft: 0 14px 30px rgba(34, 26, 21, 0.08);
+      --safe-bottom: calc(env(safe-area-inset-bottom, 0px) + 28px);
     }
 
     * {
       box-sizing: border-box;
     }
 
-    html, body {
+    html,
+    body {
       margin: 0;
       min-height: 100%;
       font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--bg);
       color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 181, 152, 0.28), transparent 28%),
+        radial-gradient(circle at top right, rgba(255, 107, 53, 0.16), transparent 26%),
+        linear-gradient(180deg, #fff8f4 0%, #fff6f1 42%, #fffaf7 100%);
     }
 
     body {
-      padding: 0 16px calc(104px + var(--safe-bottom));
+      padding: 0 16px calc(110px + var(--safe-bottom));
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
     }
 
     button,
@@ -52,1173 +56,1693 @@
     }
 
     button {
-      border: none;
+      border: 0;
       background: none;
       cursor: pointer;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
     .page {
-      width: min(100%, 480px);
+      width: min(100%, 1160px);
       margin: 0 auto;
-      padding: 16px 0 0;
+      padding: 18px 0 0;
     }
 
-    .header {
-      display: grid;
-      grid-template-columns: 44px 1fr 44px;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .icon-btn,
-    .plus-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      background: var(--card);
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(255, 107, 53, 0.96), rgba(255, 141, 90, 0.92)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0));
+      color: #ffffff;
+      border-radius: 36px;
+      padding: 18px;
       box-shadow: var(--shadow);
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.14);
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 220px;
+      height: 220px;
+      top: -88px;
+      right: -28px;
+    }
+
+    .hero::after {
+      width: 180px;
+      height: 180px;
+      left: -64px;
+      bottom: -84px;
+    }
+
+    .topbar {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .auth-control {
+      position: relative;
+      display: flex;
+      align-items: center;
+      min-height: 48px;
+    }
+
+    .auth-login-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      color: var(--text);
-      font-size: 1.2rem;
+      min-width: 112px;
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      color: #ffffff;
+      font-weight: 700;
+      backdrop-filter: blur(12px);
     }
 
-    .plus-btn {
-      color: var(--orange);
-      font-size: 1.35rem;
-      font-weight: 800;
-    }
-
-    .title-wrap {
-      min-width: 0;
-      text-align: center;
-    }
-
-    .title-wrap h1 {
-      margin: 0;
-      font-size: 1.6rem;
-      line-height: 1.15;
-      letter-spacing: -0.03em;
-    }
-
-    .title-wrap p {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 0.92rem;
-    }
-
-    .page-note,
-    .map-card,
-    .post-card,
-    .empty-card,
-    .modal-sheet {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-
-    .page-note {
-      display: grid;
-      gap: 6px;
-      padding: 14px 16px;
-      margin-bottom: 12px;
-      border: 1px solid transparent;
-    }
-
-    .page-note strong {
-      font-size: 0.96rem;
-    }
-
-    .page-note span {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.45;
-    }
-
-    .page-note.is-info {
-      background: #FFF6F1;
-      border-color: rgba(255, 107, 53, 0.16);
-    }
-
-    .page-note.is-success {
-      background: #F2FFF6;
-      border-color: rgba(52, 199, 89, 0.18);
-    }
-
-    .page-note.is-error {
-      background: #FFF3F2;
-      border-color: rgba(255, 59, 48, 0.16);
-    }
-
-    .tabs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .tab-btn {
+    .user-menu {
       position: relative;
-      padding: 14px 12px 16px;
-      border-radius: 16px;
-      background: var(--card);
-      box-shadow: var(--shadow);
-      color: var(--muted);
+    }
+
+    .user-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 800;
+      box-shadow: 0 16px 28px rgba(0, 0, 0, 0.12);
+      backdrop-filter: blur(12px);
+    }
+
+    .user-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      min-width: 208px;
+      padding: 10px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--text);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(18px);
+      z-index: 30;
+    }
+
+    .user-dropdown a,
+    .user-dropdown button {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 12px 14px;
+      border-radius: 14px;
+      color: var(--text);
+      font-weight: 600;
+      background: transparent;
+      text-align: left;
+    }
+
+    .auth-login-btn[hidden],
+    .user-menu[hidden],
+    .user-dropdown[hidden],
+    .banner[hidden],
+    .empty-state[hidden],
+    .modal[hidden],
+    .modal-auth-note[hidden] {
+      display: none !important;
+    }
+
+    .top-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      color: #ffffff;
+      font-weight: 700;
+      backdrop-filter: blur(12px);
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(290px, 0.9fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .hero-copy,
+    .hero-side {
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(16px);
+      padding: 26px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      font-size: 0.92rem;
       font-weight: 700;
     }
 
-    .tab-btn.is-active {
-      color: var(--orange);
+    .hero h1 {
+      margin: 18px 0 12px;
+      font-size: clamp(2.2rem, 4vw, 3.7rem);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
     }
 
-    .tab-btn.is-active::after {
-      content: "";
-      position: absolute;
-      left: 16px;
-      right: 16px;
-      bottom: 8px;
-      height: 3px;
-      border-radius: 999px;
-      background: var(--orange);
+    .hero-lead {
+      margin: 0;
+      max-width: 680px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.05rem;
+      line-height: 1.7;
     }
 
-    .search-row {
-      margin-bottom: 14px;
-    }
-
-    .search-box {
+    .hero-actions {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 16px;
-      background: var(--card);
-      border-radius: 16px;
-      box-shadow: var(--shadow);
-    }
-
-    .search-box span {
-      font-size: 1rem;
-      color: var(--muted);
-    }
-
-    .search-box input {
-      width: 100%;
-      border: 0;
-      outline: 0;
-      background: transparent;
-      color: var(--text);
-      font-size: 0.98rem;
-    }
-
-    .search-box input::placeholder {
-      color: #A0948C;
-    }
-
-    .map-card {
-      display: grid;
+      flex-wrap: wrap;
       gap: 12px;
-      padding: 16px;
-      margin-bottom: 14px;
+      margin-top: 24px;
     }
 
-    .map-card-head {
+    .hero-button,
+    .ghost-button,
+    .mini-button,
+    .modal-button,
+    .tab-button,
+    .form-photo-button,
+    .empty-button,
+    .floating-sos {
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .hero-button,
+    .ghost-button,
+    .mini-button,
+    .modal-button,
+    .tab-button,
+    .form-photo-button,
+    .empty-button,
+    .contact-link,
+    .top-link,
+    .auth-login-btn,
+    .floating-sos {
+      outline: none;
+    }
+
+    .hero-button:hover,
+    .ghost-button:hover,
+    .mini-button:hover,
+    .modal-button:hover,
+    .tab-button:hover,
+    .form-photo-button:hover,
+    .empty-button:hover,
+    .floating-sos:hover,
+    .top-link:hover,
+    .auth-login-btn:hover,
+    .user-dropdown a:hover,
+    .user-dropdown button:hover {
+      transform: translateY(-1px);
+    }
+
+    .hero-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 58px;
+      padding: 0 26px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--orange-deep);
+      font-size: 1.02rem;
+      font-weight: 900;
+      box-shadow: 0 18px 36px rgba(61, 29, 17, 0.18);
+    }
+
+    .ghost-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 58px;
+      padding: 0 22px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .stat-card {
+      border-radius: 22px;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      min-height: 110px;
+    }
+
+    .stat-label {
+      display: block;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 0.9rem;
+    }
+
+    .stat-value {
+      display: block;
+      margin-top: 8px;
+      font-size: 2rem;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    .stat-help {
+      display: block;
+      margin-top: 8px;
+      color: rgba(255, 255, 255, 0.74);
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .hero-side {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 100%;
+    }
+
+    .map-placeholder-card {
+      border-radius: 26px;
+      padding: 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.1));
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    }
+
+    .map-placeholder-badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      font-weight: 800;
+    }
+
+    .map-placeholder-card h2 {
+      margin: 18px 0 10px;
+      font-size: 1.75rem;
+      line-height: 1.05;
+    }
+
+    .map-placeholder-card p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.88);
+      line-height: 1.65;
+    }
+
+    .map-placeholder-note {
+      border-radius: 20px;
+      padding: 16px 18px;
+      background: rgba(255, 255, 255, 0.16);
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+      line-height: 1.6;
+    }
+
+    .section {
+      margin-top: 20px;
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.66);
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-soft);
+      border-radius: 28px;
+      padding: 22px;
+    }
+
+    .section-head {
       display: flex;
       align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 1.4rem;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+
+    .section-lead {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .section-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: var(--bg-soft);
+      color: var(--orange-deep);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
+      gap: 14px;
+      align-items: center;
+    }
+
+    .tab-group {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 18px;
+      background: var(--bg-soft);
+      width: fit-content;
+    }
+
+    .tab-button {
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 14px;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .tab-button.is-active {
+      background: var(--surface-strong);
+      color: var(--orange-deep);
+      box-shadow: 0 12px 20px rgba(255, 107, 53, 0.12);
+    }
+
+    .search-field {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 56px;
+      padding: 0 18px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .search-field input {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      outline: none;
+    }
+
+    .banner {
+      margin-top: 16px;
+      border-radius: 20px;
+      padding: 16px 18px;
+      line-height: 1.6;
+      display: grid;
+      gap: 4px;
+      border: 1px solid transparent;
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .banner.is-success {
+      background: rgba(40, 181, 121, 0.12);
+      border-color: rgba(40, 181, 121, 0.18);
+      color: #166947;
+    }
+
+    .banner.is-error {
+      background: rgba(255, 90, 82, 0.1);
+      border-color: rgba(255, 90, 82, 0.16);
+      color: #8d251f;
+    }
+
+    .banner.is-info {
+      background: rgba(255, 107, 53, 0.09);
+      border-color: rgba(255, 107, 53, 0.14);
+      color: #944114;
+    }
+
+    .posts-grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .post-card {
+      overflow: hidden;
+      border-radius: 26px;
+      background: var(--surface-strong);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      box-shadow: var(--shadow-soft);
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .post-photo,
+    .post-photo-fallback {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+    }
+
+    .post-photo {
+      object-fit: cover;
+      background: linear-gradient(135deg, #ffe4d7, #fff2eb);
+    }
+
+    .post-photo-fallback {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #ffe4d7, #fff1ea);
+      color: var(--orange-deep);
+      font-size: 2.3rem;
+      font-weight: 900;
+    }
+
+    .post-body {
+      padding: 18px;
+      display: grid;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .post-meta-top,
+    .post-title-row,
+    .post-actions {
+      display: flex;
+      align-items: center;
       justify-content: space-between;
       gap: 12px;
     }
 
-    .map-card-head h2,
-    .empty-card h2,
-    .sheet-head h2 {
+    .post-title-row {
+      align-items: flex-start;
+    }
+
+    .post-status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 0 12px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .post-status.is-lost {
+      background: rgba(255, 90, 82, 0.12);
+      color: #bd241c;
+    }
+
+    .post-status.is-found {
+      background: rgba(40, 181, 121, 0.12);
+      color: #16724a;
+    }
+
+    .post-time {
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .post-title {
       margin: 0;
+      font-size: 1.22rem;
+      line-height: 1.15;
       letter-spacing: -0.03em;
     }
 
-    .map-card-head h2 {
-      font-size: 1.15rem;
-    }
-
-    .map-card-head p {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.45;
-    }
-
-    .map-count {
-      min-width: fit-content;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: var(--orange-soft);
-      color: var(--orange);
-      font-size: 0.82rem;
-      font-weight: 800;
-    }
-
-    .map-canvas {
-      width: 100%;
-      height: 290px;
-      border-radius: 18px;
-      overflow: hidden;
-      border: 1px solid rgba(31, 26, 23, 0.08);
-      background: #F8F1ED;
-    }
-
-    .map-canvas--picker {
-      height: 240px;
-    }
-
-    .leaflet-container {
-      font: inherit;
-      background: #F8F1ED;
-    }
-
-    .leaflet-popup-content-wrapper {
-      border-radius: 16px;
-    }
-
-    .leaflet-popup-content {
-      margin: 12px 14px;
-      line-height: 1.45;
-      font-size: 0.9rem;
-    }
-
-    .popup-title {
-      margin: 0 0 6px;
-      font-weight: 800;
-      font-size: 0.98rem;
-    }
-
-    .popup-text {
-      margin: 0;
-      color: var(--muted);
-    }
-
-    .popup-badge {
+    .post-kind {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      margin-bottom: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      color: #fff;
-      font-size: 0.78rem;
-      font-weight: 800;
-    }
-
-    .popup-badge.lost {
-      background: var(--red);
-    }
-
-    .popup-badge.found {
-      background: var(--green);
-    }
-
-    .map-toolbar,
-    .location-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .map-hint,
-    .helper,
-    .location-chip {
-      font-size: 0.82rem;
-      line-height: 1.45;
-    }
-
-    .map-hint,
-    .helper {
-      color: var(--muted);
-    }
-
-    .map-control-btn,
-    .secondary-btn {
-      min-height: 42px;
-      padding: 10px 14px;
-      border-radius: 14px;
-      background: #F8F1ED;
-      color: #5E524C;
-      font-weight: 700;
-    }
-
-    .location-chip {
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: #FFF3EE;
-      color: #7A5C4F;
-      font-weight: 600;
-    }
-
-    .location-chip.is-empty {
-      background: #F7F1EE;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .post-card {
-      position: relative;
-      display: grid;
-      grid-template-columns: 80px minmax(0, 1fr);
-      gap: 14px;
-      padding: 14px;
-      align-items: start;
-    }
-
-    .post-media {
-      width: 80px;
-      height: 80px;
+      min-height: 34px;
+      padding: 0 10px;
       border-radius: 12px;
-      overflow: hidden;
-      background: var(--orange-soft);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--orange);
-      font-size: 2rem;
-      font-weight: 700;
-      flex-shrink: 0;
+      background: var(--bg-soft);
+      color: var(--orange-deep);
+      font-size: 0.84rem;
+      font-weight: 800;
+      white-space: nowrap;
     }
 
-    .post-media img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
+    .post-summary {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+      white-space: pre-line;
     }
 
-    .post-body {
-      min-width: 0;
+    .post-details {
       display: grid;
-      gap: 8px;
+      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
+    .detail-chip {
+      min-height: 64px;
+      border-radius: 18px;
+      padding: 12px 14px;
+      background: var(--bg-soft);
+      display: grid;
       gap: 6px;
-      width: fit-content;
-      padding: 7px 10px;
-      border-radius: 999px;
+      align-content: start;
+    }
+
+    .detail-label {
+      color: var(--muted);
       font-size: 0.8rem;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-      color: #fff;
-    }
-
-    .badge.lost {
-      background: var(--red);
-    }
-
-    .badge.found {
-      background: var(--green);
-    }
-
-    .post-meta {
-      display: grid;
-      gap: 4px;
-      font-size: 0.95rem;
-      line-height: 1.4;
-    }
-
-    .post-meta strong {
       font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
-    .post-meta span {
-      color: var(--muted);
-    }
-
-    .post-description {
-      margin: 0;
-      color: #5E524C;
-      font-size: 0.9rem;
+    .detail-value {
+      color: var(--text);
+      font-weight: 700;
       line-height: 1.45;
+      word-break: break-word;
     }
 
-    .post-footer {
-      display: grid;
-      gap: 10px;
-      margin-top: 2px;
-    }
-
-    .post-date {
-      color: var(--muted);
-      font-size: 0.9rem;
-      white-space: nowrap;
-    }
-
-    .post-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .contact-btn,
-    .map-link-btn {
-      min-height: 38px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-weight: 700;
+    .contact-link,
+    .mini-button {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      white-space: nowrap;
-    }
-
-    .contact-btn {
-      background: var(--orange);
-      color: #fff;
-    }
-
-    .map-link-btn {
-      background: #F8F1ED;
-      color: #5E524C;
-    }
-
-    .delete-btn {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 30px;
-      height: 30px;
-      border-radius: 999px;
-      background: rgba(31, 26, 23, 0.06);
-      color: #544A44;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      line-height: 1;
-    }
-
-    .empty-card {
-      display: grid;
-      justify-items: center;
-      gap: 10px;
-      padding: 28px 20px;
-      text-align: center;
-      margin-top: 8px;
-    }
-
-    .empty-card .empty-emoji {
-      font-size: 2.2rem;
-    }
-
-    .empty-card h2 {
-      font-size: 1.2rem;
-    }
-
-    .empty-card p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.55;
-    }
-
-    .empty-card .empty-btn,
-    .fixed-submit-btn,
-    .upload-btn,
-    .submit-btn {
-      min-height: 48px;
-      border-radius: 16px;
-      background: var(--orange);
-      color: #fff;
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 14px;
       font-weight: 800;
-      box-shadow: 0 8px 18px rgba(255, 107, 53, 0.18);
+      white-space: nowrap;
     }
 
-    .empty-card .empty-btn,
-    .upload-btn,
-    .submit-btn {
-      width: 100%;
+    .contact-link {
+      background: var(--orange);
+      color: #ffffff;
+      box-shadow: 0 16px 24px rgba(255, 107, 53, 0.18);
     }
 
-    .empty-card .empty-btn,
-    .upload-btn {
-      max-width: 260px;
-      padding: 0 18px;
-    }
-
-    .fixed-submit-wrap {
-      position: fixed;
-      left: 16px;
-      right: 16px;
-      bottom: var(--safe-bottom);
-      z-index: 30;
-      display: flex;
-      justify-content: center;
+    .contact-link[href=""],
+    .contact-link[data-disabled="true"] {
       pointer-events: none;
+      background: #e9ddd6;
+      color: #8b7b73;
+      box-shadow: none;
     }
 
-    .fixed-submit-inner {
-      width: min(100%, 480px);
-      pointer-events: auto;
+    .mini-button {
+      background: var(--bg-soft);
+      color: var(--orange-deep);
     }
 
-    .fixed-submit-btn,
-    .submit-btn {
-      height: 52px;
+    .mini-button.danger {
+      background: rgba(255, 90, 82, 0.1);
+      color: #bd241c;
     }
 
-    .fixed-submit-btn {
-      width: 100%;
+    .empty-state {
+      margin-top: 18px;
+      border-radius: 28px;
+      padding: 36px 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.78));
+      border: 1px dashed rgba(255, 107, 53, 0.22);
+      text-align: center;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .empty-title {
+      margin: 0;
+      font-size: 1.45rem;
+      letter-spacing: -0.03em;
+    }
+
+    .empty-text {
+      margin: 10px auto 0;
+      max-width: 560px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .empty-button {
+      margin-top: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 52px;
+      padding: 0 20px;
+      border-radius: 999px;
+      background: var(--orange);
+      color: #ffffff;
+      font-weight: 900;
+      box-shadow: 0 18px 28px rgba(255, 107, 53, 0.2);
+    }
+
+    .floating-sos {
+      position: fixed;
+      right: 18px;
+      bottom: calc(18px + var(--safe-bottom));
+      z-index: 40;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 64px;
+      padding: 0 24px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--red), #ff6c63);
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 900;
+      box-shadow: 0 22px 46px rgba(255, 90, 82, 0.32);
     }
 
     .modal {
       position: fixed;
       inset: 0;
       z-index: 50;
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-      background: rgba(26, 18, 15, 0.34);
-      padding: 16px;
+      display: grid;
+      place-items: center;
+      padding: 18px;
     }
 
-    .modal.is-open {
-      display: flex;
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(19, 13, 10, 0.55);
+      backdrop-filter: blur(8px);
     }
 
-    .modal-sheet {
-      width: min(100%, 480px);
-      max-height: min(88vh, 860px);
+    .modal-dialog {
+      position: relative;
+      width: min(100%, 720px);
+      max-height: min(90vh, 980px);
       overflow: auto;
-      padding: 18px 16px 20px;
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 30px 70px rgba(34, 26, 21, 0.24);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      padding: 22px;
     }
 
-    .sheet-head {
+    .modal-head {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 1.6rem;
+      letter-spacing: -0.04em;
+    }
+
+    .modal-subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .modal-close {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--bg-soft);
+      color: var(--orange-deep);
+      font-size: 1.2rem;
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    .modal-auth-note {
+      margin-bottom: 18px;
+      border-radius: 20px;
+      padding: 16px 18px;
+      background: rgba(255, 107, 53, 0.08);
+      border: 1px solid rgba(255, 107, 53, 0.14);
+      color: #944114;
+      line-height: 1.6;
+      display: grid;
       gap: 10px;
-      margin-bottom: 16px;
     }
 
-    .sheet-head h2 {
-      font-size: 1.3rem;
-    }
-
-    .sheet-close {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      background: rgba(31, 26, 23, 0.06);
-      color: #544A44;
-      font-size: 1rem;
+    .auth-note-actions,
+    .photo-actions,
+    .modal-footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .form-grid {
       display: grid;
-      gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
     }
 
     .field {
       display: grid;
-      gap: 7px;
-    }
-
-    .field label {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #564A43;
-    }
-
-    .field input,
-    .field textarea,
-    .field select {
-      width: 100%;
-      border: 1px solid rgba(31, 26, 23, 0.1);
-      border-radius: 14px;
-      padding: 13px 14px;
-      background: #fff;
-      color: var(--text);
-      outline: none;
-    }
-
-    .field textarea {
-      min-height: 90px;
-      resize: vertical;
-    }
-
-    .segmented {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
       gap: 8px;
     }
 
-    .segmented input {
-      display: none;
+    .field.full {
+      grid-column: 1 / -1;
     }
 
-    .segmented label {
-      display: flex;
+    .field label {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      min-height: 54px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--text);
+      outline: none;
+      resize: vertical;
+    }
+
+    .field textarea {
+      min-height: 120px;
+    }
+
+    .field-help {
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.55;
+    }
+
+    .photo-card {
+      border-radius: 22px;
+      background: var(--bg-soft);
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .form-photo-button {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       min-height: 48px;
+      padding: 0 16px;
       border-radius: 14px;
-      background: #F8F1ED;
-      color: #6C5F58;
-      font-weight: 700;
-      cursor: pointer;
-      padding: 0 12px;
+      background: #ffffff;
+      color: var(--orange-deep);
+      font-weight: 800;
+      box-shadow: 0 10px 24px rgba(255, 107, 53, 0.08);
     }
 
-    .segmented input:checked + label {
-      background: var(--orange-soft);
-      color: var(--orange);
-      box-shadow: inset 0 0 0 1px rgba(255, 107, 53, 0.18);
-    }
-
-    .upload-preview {
-      display: none;
-      gap: 10px;
-      align-items: center;
-      padding: 10px 12px;
-      background: #FFF3EE;
-      border-radius: 14px;
-    }
-
-    .upload-preview.is-visible {
-      display: flex;
-    }
-
-    .upload-preview img {
-      width: 64px;
-      height: 64px;
-      border-radius: 12px;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
-
-    .upload-preview-content {
-      min-width: 0;
-      display: grid;
-      gap: 4px;
-    }
-
-    .upload-preview-content strong {
-      font-size: 0.95rem;
-    }
-
-    .upload-preview-content span {
-      font-size: 0.85rem;
+    .form-photo-button.secondary,
+    .modal-button.ghost {
+      background: transparent;
       color: var(--muted);
-      overflow-wrap: anywhere;
+      border: 1px solid rgba(34, 26, 21, 0.08);
+      box-shadow: none;
     }
 
-    .submit-btn[disabled],
-    .fixed-submit-btn[disabled],
-    .upload-btn[disabled],
-    .map-control-btn[disabled],
-    .secondary-btn[disabled] {
-      opacity: 0.65;
-      cursor: not-allowed;
-      filter: grayscale(0.1);
+    .photo-preview {
+      display: none;
+      overflow: hidden;
+      border-radius: 20px;
+      background: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.7);
     }
 
-    [hidden] {
-      display: none !important;
+    .photo-preview.has-image {
+      display: block;
     }
 
-    @media (hover: hover) {
-      .contact-btn:hover,
-      .empty-btn:hover,
-      .submit-btn:hover,
-      .fixed-submit-btn:hover,
-      .upload-btn:hover,
-      .plus-btn:hover,
-      .map-link-btn:hover,
-      .map-control-btn:hover,
-      .secondary-btn:hover {
-        filter: brightness(0.98);
+    .photo-preview img {
+      display: block;
+      width: 100%;
+      max-height: 280px;
+      object-fit: cover;
+    }
+
+    .modal-footer {
+      justify-content: flex-end;
+      margin-top: 22px;
+    }
+
+    .modal-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 54px;
+      padding: 0 22px;
+      border-radius: 16px;
+      font-weight: 900;
+    }
+
+    .modal-button.primary {
+      background: var(--orange);
+      color: #ffffff;
+      box-shadow: 0 18px 30px rgba(255, 107, 53, 0.22);
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .toolbar,
+      .posts-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-stats {
+        grid-template-columns: 1fr;
       }
     }
 
-    @media (max-width: 480px) {
-      .page {
-        width: 100%;
+    @media (max-width: 720px) {
+      body {
+        padding-inline: 12px;
       }
 
-      .post-card {
-        grid-template-columns: 80px minmax(0, 1fr);
+      .hero,
+      .section,
+      .modal-dialog {
+        border-radius: 24px;
       }
 
+      .hero-copy,
+      .hero-side,
+      .map-placeholder-card {
+        padding: 20px;
+      }
+
+      .topbar,
+      .section-head,
+      .modal-head,
       .post-actions {
         flex-direction: column;
         align-items: stretch;
       }
 
-      .contact-btn,
-      .map-link-btn,
-      .map-control-btn,
-      .secondary-btn {
-        width: 100%;
+      .form-grid,
+      .post-details {
+        grid-template-columns: 1fr;
       }
 
-      .map-card-head {
-        flex-direction: column;
+      .floating-sos {
+        left: 12px;
+        right: 12px;
+        justify-content: center;
       }
     }
   </style>
 </head>
 <body>
   <div class="page">
-    <header class="header">
-      <a class="icon-btn" href="index.html" aria-label="Вернуться на главную">←</a>
-      <div class="title-wrap">
-        <h1>🐾 Потеряшки</h1>
-        <p>Объявления о пропавших и найденных питомцах на общей карте</p>
-      </div>
-      <button class="plus-btn" type="button" id="openModalTop" aria-label="Подать объявление">➕</button>
-    </header>
+    <header class="hero">
+      <div class="topbar">
+        <div class="auth-control">
+          <a class="auth-login-btn" id="loginButton" href="/auth?next=/lost">Войти</a>
 
-    <div class="page-note is-info" id="pageNotice">
-      <strong>Загружаем карту и объявления…</strong>
-      <span>Карту видят все пользователи. Для публикации нового объявления понадобится вход в аккаунт.</span>
-    </div>
-
-    <div class="tabs" role="tablist" aria-label="Переключение объявлений">
-      <button class="tab-btn is-active" type="button" data-tab="lost" aria-selected="true">🔴 Потерялись</button>
-      <button class="tab-btn" type="button" data-tab="found" aria-selected="false">🟢 Нашлись</button>
-    </div>
-
-    <div class="search-row">
-      <label class="search-box" for="searchInput">
-        <span>🔎</span>
-        <input id="searchInput" type="search" placeholder="Поиск по городу, району, имени или породе">
-      </label>
-    </div>
-
-    <section class="map-card" aria-labelledby="mapTitle">
-      <div class="map-card-head">
-        <div>
-          <h2 id="mapTitle">Карта потеряшек</h2>
-          <p>На карте показываются объявления из текущего раздела. Нажмите на маркер, чтобы быстро посмотреть подробности.</p>
-        </div>
-        <div class="map-count" id="mapCount">0 объявлений</div>
-      </div>
-      <div class="map-toolbar">
-        <button class="map-control-btn" type="button" id="refreshPostsButton">Обновить объявления</button>
-        <span class="map-hint" id="mapHint">Если объявление добавлено недавно, карта обновится автоматически при перезагрузке списка.</span>
-      </div>
-      <div class="map-canvas" id="lostMap" aria-label="Карта объявлений"></div>
-    </section>
-
-    <section>
-      <div class="list" id="postsList"></div>
-      <div class="empty-card" id="emptyState" hidden>
-        <div class="empty-emoji">🐾</div>
-        <h2>Пока объявлений нет</h2>
-        <p>Будьте первым — отметьте точку на карте и помогите питомцу быстрее найтись.</p>
-        <button class="empty-btn" type="button" id="openModalEmpty">➕ Подать объявление</button>
-      </div>
-    </section>
-  </div>
-
-  <div class="fixed-submit-wrap">
-    <div class="fixed-submit-inner">
-      <button class="fixed-submit-btn" type="button" id="openModalBottom">➕ Подать объявление</button>
-    </div>
-  </div>
-
-  <div class="modal" id="postModal" aria-hidden="true">
-    <div class="modal-sheet">
-      <div class="sheet-head">
-        <h2>➕ Подать объявление</h2>
-        <button class="sheet-close" type="button" id="closeModal" aria-label="Закрыть">✕</button>
-      </div>
-
-      <div class="page-note is-info" id="modalNotice">
-        <strong>Чтобы опубликовать объявление, войдите в аккаунт.</strong>
-        <span>Смотреть карту и список можно без входа, но создавать и удалять свои объявления могут только авторизованные пользователи.</span>
-      </div>
-
-      <form class="form-grid" id="postForm">
-        <div class="field">
-          <label>Статус объявления</label>
-          <div class="segmented">
-            <input id="statusLost" type="radio" name="status" value="lost" checked>
-            <label for="statusLost">🔴 Потерялся</label>
-            <input id="statusFound" type="radio" name="status" value="found">
-            <label for="statusFound">🟢 Нашёлся</label>
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="petType">Вид питомца</label>
-          <select id="petType" name="petType">
-            <option value="cat">Кошка</option>
-            <option value="dog">Собака</option>
-            <option value="other">Другое животное</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="petName">Имя питомца</label>
-          <input id="petName" name="petName" type="text" placeholder="Например, Барсик" required>
-        </div>
-
-        <div class="field">
-          <label for="petBreed">Порода</label>
-          <input id="petBreed" name="petBreed" type="text" placeholder="Например, Мейн-кун" required>
-        </div>
-
-        <div class="field">
-          <label for="petLocation">Город / район</label>
-          <input id="petLocation" name="petLocation" type="text" placeholder="Например, Центр, Москва" required>
-        </div>
-
-        <div class="field">
-          <label for="petContact">Контакты для связи</label>
-          <input id="petContact" name="petContact" type="text" placeholder="Телефон, Telegram или email" required>
-        </div>
-
-        <div class="field">
-          <label for="petDescription">Описание</label>
-          <textarea id="petDescription" name="petDescription" placeholder="Кратко опишите, где пропал или был найден питомец"></textarea>
-        </div>
-
-        <div class="field">
-          <label>Отметьте точку на карте</label>
-          <div class="map-canvas map-canvas--picker" id="formMap" aria-label="Карта выбора точки"></div>
-          <div class="location-actions">
-            <button class="map-control-btn" type="button" id="useCurrentLocation">Использовать моё местоположение</button>
-            <button class="secondary-btn" type="button" id="clearSelectedLocation">Очистить точку</button>
-          </div>
-          <div class="location-chip is-empty" id="locationChip">Точка ещё не выбрана. Нажмите на карту или используйте определение геопозиции.</div>
-          <div class="helper" id="locationHint">Без точки на карте объявление не опубликуется.</div>
-          <input id="petLatitude" name="petLatitude" type="hidden" required>
-          <input id="petLongitude" name="petLongitude" type="hidden" required>
-        </div>
-
-        <div class="field">
-          <label for="petPhoto">Фото питомца</label>
-          <input id="petPhoto" name="petPhoto" type="file" accept="image/*" hidden>
-          <button class="upload-btn" type="button" id="pickPhoto">Выбрать фото с телефона / компьютера</button>
-          <div class="upload-preview" id="uploadPreview">
-            <img id="uploadPreviewImage" alt="Предпросмотр фото">
-            <div class="upload-preview-content">
-              <strong id="uploadPreviewName">Фото выбрано</strong>
-              <span id="uploadPreviewHint">Изображение будет добавлено в карточку объявления</span>
+          <div class="user-menu" id="userMenu" hidden>
+            <button class="user-avatar" id="userAvatar" type="button" aria-label="Открыть меню пользователя" aria-haspopup="true" aria-expanded="false">Л</button>
+            <div class="user-dropdown" id="userDropdown" hidden>
+              <a href="profile.html">Мой профиль</a>
+              <a href="pets.html">Мои питомцы</a>
+              <button type="button" id="logoutButton">Выйти</button>
             </div>
           </div>
-          <div class="helper">Фото необязательно. Если его нет, в карточке будет показан эмодзи питомца.</div>
         </div>
 
-        <button class="submit-btn" type="submit" id="submitPostButton">Опубликовать объявление</button>
+        <a class="top-link" href="/">На главную</a>
+      </div>
+
+      <div class="hero-grid">
+        <section class="hero-copy">
+          <span class="eyebrow">Любимка помогает искать и возвращать питомцев</span>
+          <h1>Потеряшки без лишнего шума</h1>
+          <p class="hero-lead">
+            Мы полностью убрали карту и собрали удобную ленту объявлений: быстрее добавить питомца,
+            проще заметить важные детали и сразу выйти на связь с владельцем.
+          </p>
+          <div class="hero-actions">
+            <button class="hero-button" id="heroPublishButton" type="button">SOS+ Подать объявление</button>
+            <button class="ghost-button" id="heroFoundButton" type="button">Нашёл питомца</button>
+          </div>
+          <div class="hero-stats">
+            <article class="stat-card">
+              <span class="stat-label">Потерялись</span>
+              <span class="stat-value" id="lostCount">0</span>
+              <span class="stat-help">Активные карточки с пометкой «Потерялся».</span>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Найдены</span>
+              <span class="stat-value" id="foundCount">0</span>
+              <span class="stat-help">Объявления, где питомца уже заметили или нашли.</span>
+            </article>
+            <article class="stat-card">
+              <span class="stat-label">Онлайн сейчас</span>
+              <span class="stat-value" id="totalCount">0</span>
+              <span class="stat-help">Всего объявлений в ленте после загрузки страницы.</span>
+            </article>
+          </div>
+        </section>
+
+        <aside class="hero-side">
+          <div class="map-placeholder-card">
+            <span class="map-placeholder-badge">Скоро внедрим карту</span>
+            <div>
+              <h2>Вместо карты — акцент на объявлениях</h2>
+              <p>
+                Сейчас важнее быстро опубликовать карточку, оставить контакты и увидеть последние случаи в одном месте.
+                Когда карта вернётся, она будет встроена аккуратно и без лишних визуальных артефактов.
+              </p>
+            </div>
+            <div class="map-placeholder-note">
+              Пока можно искать по имени, породе, району и сразу звонить по контакту из карточки.
+            </div>
+          </div>
+        </aside>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Лента объявлений</h2>
+          <p class="section-lead">
+            Переключайтесь между потерянными и найденными питомцами, фильтруйте карточки по тексту и публикуйте новые случаи через большую кнопку <strong>SOS+</strong>.
+          </p>
+        </div>
+        <div class="section-pill" id="authStatePill">Гость</div>
+      </div>
+
+      <div class="toolbar">
+        <div class="tab-group" role="tablist" aria-label="Тип объявлений">
+          <button class="tab-button is-active" type="button" id="tabLost" data-tab="lost" aria-selected="true">Потерялись</button>
+          <button class="tab-button" type="button" id="tabFound" data-tab="found" aria-selected="false">Найдены</button>
+        </div>
+
+        <label class="search-field" aria-label="Поиск по объявлениям">
+          <span>Поиск</span>
+          <input id="searchInput" type="search" placeholder="Имя, порода, район или описание">
+        </label>
+      </div>
+
+      <div class="banner" id="statusBanner" hidden></div>
+      <div class="posts-grid" id="postsGrid"></div>
+
+      <div class="empty-state" id="emptyState" hidden>
+        <h3 class="empty-title">Пока ничего не найдено</h3>
+        <p class="empty-text" id="emptyText">Смените вкладку, уточните поиск или добавьте первое объявление — оно сразу появится в ленте.</p>
+        <button class="empty-button" id="emptyPublishButton" type="button">SOS+ Добавить объявление</button>
+      </div>
+    </section>
+  </div>
+
+  <button class="floating-sos" id="floatingSosButton" type="button">SOS+ Добавить питомца</button>
+
+  <div class="modal" id="postModal" hidden>
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <div>
+          <h2 class="modal-title" id="modalTitle">Новое объявление</h2>
+          <p class="modal-subtitle">Оставьте только важное: кто потерялся или найден, как выглядит питомец и как с вами связаться.</p>
+        </div>
+        <button class="modal-close" id="closeModalButton" type="button" aria-label="Закрыть окно">×</button>
+      </div>
+
+      <div class="modal-auth-note" id="modalAuthNote" hidden>
+        <div>Чтобы публиковать объявления, нужно войти в аккаунт. Если вы уже вошли на главной странице, состояние подтянется здесь автоматически после обновления сессии.</div>
+        <div class="auth-note-actions">
+          <button class="mini-button" id="refreshSessionButton" type="button">Проверить вход ещё раз</button>
+          <button class="mini-button" id="authRedirectButton" type="button">Перейти ко входу</button>
+        </div>
+      </div>
+
+      <form id="postForm">
+        <div class="form-grid">
+          <div class="field">
+            <label for="statusField">Тип объявления</label>
+            <select id="statusField" name="status" required>
+              <option value="lost">Потерялся</option>
+              <option value="found">Нашёлся / найден</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="petTypeField">Кто это?</label>
+            <select id="petTypeField" name="petType" required>
+              <option value="cat">Кошка</option>
+              <option value="dog">Собака</option>
+              <option value="other">Другой питомец</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="petNameField">Имя питомца</label>
+            <input id="petNameField" name="petName" type="text" maxlength="80" placeholder="Например, Барсик" required>
+          </div>
+
+          <div class="field">
+            <label for="petBreedField">Порода или приметы</label>
+            <input id="petBreedField" name="petBreed" type="text" maxlength="120" placeholder="Шпиц, рыжий окрас, красный ошейник">
+          </div>
+
+          <div class="field full">
+            <label for="petLocationField">Где это произошло</label>
+            <input id="petLocationField" name="petLocation" type="text" maxlength="160" placeholder="Город, район, улица, ориентир" required>
+            <div class="field-help">Карта скрыта, поэтому текстовый адрес особенно важен.</div>
+          </div>
+
+          <div class="field">
+            <label for="petContactField">Телефон для связи</label>
+            <input id="petContactField" name="petContact" type="tel" maxlength="40" placeholder="+7 (___) ___-__-__" required>
+          </div>
+
+          <div class="field">
+            <label for="contactNameField">Контактное имя</label>
+            <input id="contactNameField" name="contactNamePreview" type="text" maxlength="120" placeholder="Подтянется из профиля" disabled>
+          </div>
+
+          <div class="field full">
+            <label for="petDescriptionField">Описание</label>
+            <textarea id="petDescriptionField" name="petDescription" maxlength="1200" placeholder="Опишите окрас, характер, состояние, когда пропал или где был найден."></textarea>
+          </div>
+
+          <div class="field full">
+            <div class="photo-card">
+              <div>
+                <label for="photoInput">Фото питомца</label>
+                <div class="field-help">Фото необязательно, но заметно повышает шанс, что питомца узнают.</div>
+              </div>
+              <div class="photo-actions">
+                <button class="form-photo-button" id="pickPhotoButton" type="button">Выбрать фото</button>
+                <button class="form-photo-button secondary" id="clearPhotoButton" type="button">Убрать фото</button>
+              </div>
+              <input class="visually-hidden" id="photoInput" type="file" accept="image/*">
+              <div class="photo-preview" id="photoPreview"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="modal-button ghost" id="cancelModalButton" type="button">Отмена</button>
+          <button class="modal-button primary" id="submitPostButton" type="submit">Опубликовать</button>
+        </div>
       </form>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-    crossorigin=""
-  ></script>
   <script>
     const SUPABASE_URL = window.SUPABASE_URL || 'https://afnlrgfamcaxnnpqgxev.supabase.co';
     const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmbmxyZ2ZhbWNheG5ucHFneGV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NzAwMjQsImV4cCI6MjA5MTM0NjAyNH0.O9g34xXE0K4GKzaMN857wPEHMTUK8V5LnhLS_V0yhDw';
     const LOST_POSTS_TABLE = 'lost_posts';
     const LOST_PHOTO_BUCKET = 'pets';
-    const MAX_PHOTO_SIZE_BYTES = 3 * 1024 * 1024;
-    const DEFAULT_MAP_CENTER = [55.751244, 37.618423];
-    const DEFAULT_MAP_ZOOM = 10;
-    const AUTO_REFRESH_INTERVAL_MS = 30000;
-    const YANDEX_MAPS_API_KEY = window.YANDEX_MAPS_API_KEY || '';
-    const AUTH_SESSION_WAIT_MS = 5000;
-    const AUTH_SESSION_POLL_MS = 250;
-    const FALLBACK_TILE_URL = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
-    const FALLBACK_TILE_ATTRIBUTION = '&copy; OpenStreetMap contributors &copy; CARTO';
-    const FALLBACK_TILE_SUBDOMAINS = 'abcd';
-    const FALLBACK_MAP_HINT = 'Карта работает на нейтральной светлой подложке.';
-    const YANDEX_MAP_HINT = 'Карта работает на Яндекс.Картах.';
-    const YANDEX_FALLBACK_HINT = 'Карта работает на нейтральной светлой подложке. Чтобы переключиться на Яндекс.Карты, добавьте API-ключ Яндекс.Карт.';
+    const MAX_PHOTO_SIZE_BYTES = 2 * 1024 * 1024;
+    const IMAGE_MAX_EDGE = 1600;
+    const DEFAULT_LOCATION_FALLBACK = { latitude: 55.751244, longitude: 37.618423 };
 
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true
-      }
-    });
-
-    const postsList = document.getElementById('postsList');
-    const emptyState = document.getElementById('emptyState');
-    const searchInput = document.getElementById('searchInput');
+    const loginButton = document.getElementById('loginButton');
+    const userMenu = document.getElementById('userMenu');
+    const userAvatar = document.getElementById('userAvatar');
+    const userDropdown = document.getElementById('userDropdown');
+    const logoutButton = document.getElementById('logoutButton');
+    const authStatePill = document.getElementById('authStatePill');
+    const lostCountNode = document.getElementById('lostCount');
+    const foundCountNode = document.getElementById('foundCount');
+    const totalCountNode = document.getElementById('totalCount');
     const tabButtons = Array.from(document.querySelectorAll('[data-tab]'));
-    const modal = document.getElementById('postModal');
+    const searchInput = document.getElementById('searchInput');
+    const postsGrid = document.getElementById('postsGrid');
+    const emptyState = document.getElementById('emptyState');
+    const emptyText = document.getElementById('emptyText');
+    const statusBanner = document.getElementById('statusBanner');
+    const heroPublishButton = document.getElementById('heroPublishButton');
+    const heroFoundButton = document.getElementById('heroFoundButton');
+    const emptyPublishButton = document.getElementById('emptyPublishButton');
+    const floatingSosButton = document.getElementById('floatingSosButton');
+    const postModal = document.getElementById('postModal');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const closeModalButton = document.getElementById('closeModalButton');
+    const cancelModalButton = document.getElementById('cancelModalButton');
+    const modalAuthNote = document.getElementById('modalAuthNote');
+    const refreshSessionButton = document.getElementById('refreshSessionButton');
+    const authRedirectButton = document.getElementById('authRedirectButton');
     const postForm = document.getElementById('postForm');
-    const pageNotice = document.getElementById('pageNotice');
-    const modalNotice = document.getElementById('modalNotice');
-    const mapCount = document.getElementById('mapCount');
-    const mapHint = document.getElementById('mapHint');
-    const refreshPostsButton = document.getElementById('refreshPostsButton');
-    const openButtons = [
-      document.getElementById('openModalTop'),
-      document.getElementById('openModalBottom'),
-      document.getElementById('openModalEmpty')
-    ].filter(Boolean);
-    const closeModalButton = document.getElementById('closeModal');
-    const pickPhotoButton = document.getElementById('pickPhoto');
-    const photoInput = document.getElementById('petPhoto');
-    const uploadPreview = document.getElementById('uploadPreview');
-    const uploadPreviewImage = document.getElementById('uploadPreviewImage');
-    const uploadPreviewName = document.getElementById('uploadPreviewName');
+    const statusField = document.getElementById('statusField');
+    const contactNameField = document.getElementById('contactNameField');
     const submitPostButton = document.getElementById('submitPostButton');
-    const locationChip = document.getElementById('locationChip');
-    const locationHint = document.getElementById('locationHint');
-    const latitudeInput = document.getElementById('petLatitude');
-    const longitudeInput = document.getElementById('petLongitude');
-    const useCurrentLocationButton = document.getElementById('useCurrentLocation');
-    const clearSelectedLocationButton = document.getElementById('clearSelectedLocation');
+    const pickPhotoButton = document.getElementById('pickPhotoButton');
+    const clearPhotoButton = document.getElementById('clearPhotoButton');
+    const photoInput = document.getElementById('photoInput');
+    const photoPreview = document.getElementById('photoPreview');
 
-    let activeTab = 'lost';
+    let supabaseClient = null;
     let currentUser = null;
+    let activeTab = 'lost';
+    let searchQuery = '';
     let posts = [];
-    let selectedPhotoFile = null;
-    let previewObjectUrl = '';
     let isSubmitting = false;
-    let isLoadingPosts = false;
-    let pageMap = null;
-    let formMap = null;
-    let pageMarkersLayer = null;
-    let selectedLocationMarker = null;
-    let markerById = new Map();
-    let autoRefreshTimer = null;
-    let mapProvider = 'leaflet';
-    let yandexApiLoadingPromise = null;
+    let selectedPhotoFile = null;
 
-    initializePage();
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
 
-    async function initializePage() {
+    function closeUserDropdown() {
+      userDropdown.hidden = true;
+      userAvatar.setAttribute('aria-expanded', 'false');
+    }
+
+    function openUserDropdown() {
+      userDropdown.hidden = false;
+      userAvatar.setAttribute('aria-expanded', 'true');
+    }
+
+    function getUserInitial(user) {
+      const candidate = user?.user_metadata?.full_name || user?.email || '';
+      return candidate.trim().charAt(0).toUpperCase() || 'Л';
+    }
+
+    function getDisplayName(user) {
+      return user?.user_metadata?.full_name || user?.email || 'Пользователь';
+    }
+
+    function getPetTypeLabel(type) {
+      if (type === 'dog') return 'Собака';
+      if (type === 'cat') return 'Кошка';
+      return 'Другой питомец';
+    }
+
+    function getStatusLabel(status) {
+      return status === 'found' ? 'Найден' : 'Потерялся';
+    }
+
+    function formatDate(value) {
       try {
-        await initMaps();
+        return new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(value));
       } catch (error) {
-        console.error('Не удалось инициализировать карту:', error);
-        setNotice(pageNotice, 'Карта не загрузилась', 'Не удалось подключить карту. Проверьте интернет-соединение и обновите страницу.', 'error');
-      }
-
-      attachEvents();
-      bootstrap();
-    }
-
-    async function initMaps() {
-      if (YANDEX_MAPS_API_KEY) {
-        try {
-          await initYandexMaps();
-          mapProvider = 'yandex';
-          mapHint.textContent = YANDEX_MAP_HINT;
-          return;
-        } catch (error) {
-          console.warn('Не удалось запустить Яндекс.Карты, используем резервную карту:', error);
-        }
-      }
-
-      initLeafletMaps();
-      mapProvider = 'leaflet';
-
-      if (!YANDEX_MAPS_API_KEY) {
-        mapHint.textContent = YANDEX_FALLBACK_HINT;
+        return 'Сейчас';
       }
     }
 
-    function initLeafletMaps() {
-      if (!window.L) {
-        throw new Error('Leaflet не загрузился.');
-      }
-
-      pageMap = L.map('lostMap', {
-        zoomControl: true,
-        attributionControl: true
-      }).setView(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
-
-      L.tileLayer(FALLBACK_TILE_URL, {
-        maxZoom: 20,
-        subdomains: FALLBACK_TILE_SUBDOMAINS,
-        attribution: FALLBACK_TILE_ATTRIBUTION
-      }).addTo(pageMap);
-
-      pageMarkersLayer = L.layerGroup().addTo(pageMap);
-
-      formMap = L.map('formMap', {
-        zoomControl: true,
-        attributionControl: true
-      }).setView(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
-
-      L.tileLayer(FALLBACK_TILE_URL, {
-        maxZoom: 20,
-        subdomains: FALLBACK_TILE_SUBDOMAINS,
-        attribution: FALLBACK_TILE_ATTRIBUTION
-      }).addTo(formMap);
-
-      formMap.on('click', (event) => {
-        setSelectedLocation(event.latlng.lat, event.latlng.lng, true);
-      });
-    }
-
-    async function initYandexMaps() {
-      await loadYandexMapsApi();
-
-      pageMap = new ymaps.Map('lostMap', {
-        center: DEFAULT_MAP_CENTER,
-        zoom: DEFAULT_MAP_ZOOM,
-        controls: ['zoomControl']
-      }, {
-        suppressMapOpenBlock: true
-      });
-
-      formMap = new ymaps.Map('formMap', {
-        center: DEFAULT_MAP_CENTER,
-        zoom: DEFAULT_MAP_ZOOM,
-        controls: ['zoomControl']
-      }, {
-        suppressMapOpenBlock: true
-      });
-
-      formMap.events.add('click', (event) => {
-        const coords = event.get('coords') || [];
-        setSelectedLocation(coords[0], coords[1], true);
-      });
-    }
-
-    function loadYandexMapsApi() {
-      if (window.ymaps) {
-        return new Promise((resolve) => {
-          window.ymaps.ready(resolve);
-        });
-      }
-
-      if (yandexApiLoadingPromise) {
-        return yandexApiLoadingPromise;
-      }
-
-      yandexApiLoadingPromise = new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = `https://api-maps.yandex.ru/2.1/?apikey=${encodeURIComponent(YANDEX_MAPS_API_KEY)}&lang=ru_RU`;
-        script.async = true;
-        script.onload = () => {
-          if (!window.ymaps) {
-            reject(new Error('API Яндекс.Карт загрузился с ошибкой.'));
-            return;
-          }
-          window.ymaps.ready(resolve);
-        };
-        script.onerror = () => reject(new Error('Не удалось загрузить API Яндекс.Карт.'));
-        document.head.appendChild(script);
-      });
-
-      return yandexApiLoadingPromise;
-    }
-
-    function buildAuthUrl() {
-      const returnTo = `${window.location.pathname || '/lost'}${window.location.search}${window.location.hash}`;
-      const authUrl = new URL('/auth', window.location.origin);
-      authUrl.searchParams.set('next', returnTo);
-      return authUrl.toString();
+    function formatPhoneHref(phone) {
+      const raw = String(phone || '').trim();
+      const normalized = raw.replace(/[^+\d]/g, '');
+      return normalized ? `tel:${normalized}` : '';
     }
 
     function redirectToAuth() {
-      window.location.assign(buildAuthUrl());
+      window.location.href = `/auth?next=${encodeURIComponent('/lost')}`;
     }
 
-    async function waitForInitializedSession(timeoutMs = AUTH_SESSION_WAIT_MS, pollIntervalMs = AUTH_SESSION_POLL_MS) {
-      const startedAt = Date.now();
-      let lastError = null;
-
-      while (Date.now() - startedAt < timeoutMs) {
-        try {
-          const { data, error } = await supabaseClient.auth.getSession();
-          if (error) {
-            lastError = error;
-          }
-          if (data?.session?.user) {
-            return { eventName: 'SESSION_READY', session: data.session, error: null };
-          }
-        } catch (error) {
-          lastError = error;
+    function clearStoredSupabaseSession() {
+      if (!SUPABASE_URL) return;
+      const projectRef = new URL(SUPABASE_URL).hostname.split('.')[0];
+      const prefix = `sb-${projectRef}-`;
+      [window.localStorage, window.sessionStorage].forEach((storage) => {
+        if (!storage) return;
+        const keys = [];
+        for (let index = 0; index < storage.length; index += 1) {
+          const key = storage.key(index);
+          if (key) keys.push(key);
         }
-
-        await new Promise((resolve) => window.setTimeout(resolve, pollIntervalMs));
-      }
-
-      try {
-        const { data, error } = await supabaseClient.auth.getSession();
-        return {
-          eventName: 'SESSION_TIMEOUT',
-          session: data?.session || null,
-          error: error || lastError || null
-        };
-      } catch (error) {
-        return {
-          eventName: 'SESSION_TIMEOUT',
-          session: null,
-          error: error || lastError || null
-        };
-      }
+        keys.forEach((key) => {
+          if (key.startsWith(prefix) && key.includes('auth-token')) {
+            storage.removeItem(key);
+          }
+        });
+      });
     }
 
-    async function resolveCurrentUser(options = {}) {
-      const timeoutMs = Number.isFinite(options.timeoutMs) ? options.timeoutMs : AUTH_SESSION_WAIT_MS;
-      const pollIntervalMs = Number.isFinite(options.pollIntervalMs) ? options.pollIntervalMs : AUTH_SESSION_POLL_MS;
-      const sessionState = await waitForInitializedSession(timeoutMs, pollIntervalMs);
-      currentUser = sessionState.session?.user || null;
+    function setBanner(type, title, text) {
+      statusBanner.hidden = false;
+      statusBanner.className = `banner is-${type}`;
+      statusBanner.innerHTML = `<strong>${escapeHtml(title)}</strong><span>${escapeHtml(text)}</span>`;
+    }
 
+    function clearBanner() {
+      statusBanner.hidden = true;
+      statusBanner.className = 'banner';
+      statusBanner.textContent = '';
+    }
+
+    function updateModalAuthState() {
+      const showAuthNote = !currentUser;
+      modalAuthNote.hidden = !showAuthNote;
+      submitPostButton.textContent = currentUser ? 'Опубликовать' : 'Войти для публикации';
+      contactNameField.value = currentUser ? getDisplayName(currentUser) : 'Авторизация нужна для публикации';
+    }
+
+    function renderAuthState(session) {
+      currentUser = session?.user || null;
       if (!currentUser) {
-        updateAuthNotices();
+        loginButton.hidden = false;
+        userMenu.hidden = true;
+        authStatePill.textContent = 'Гость';
+        closeUserDropdown();
+        updateModalAuthState();
+        renderPosts();
+        return;
+      }
+      userAvatar.textContent = getUserInitial(currentUser);
+      userAvatar.title = getDisplayName(currentUser);
+      loginButton.hidden = true;
+      userMenu.hidden = false;
+      authStatePill.textContent = `Мой профиль · ${getDisplayName(currentUser)}`;
+      updateModalAuthState();
+      renderPosts();
+    }
+
+    function normalizePost(row) {
+      return {
+        id: String(row?.id || ''),
+        userId: String(row?.user_id || ''),
+        status: row?.status === 'found' ? 'found' : 'lost',
+        petName: String(row?.pet_name || 'Без имени').trim() || 'Без имени',
+        petType: String(row?.pet_type || 'other').trim() || 'other',
+        breed: String(row?.breed || row?.color || '').trim(),
+        description: String(row?.description || '').trim(),
+        locationText: String(row?.location_text || '').trim(),
+        photoUrl: String(row?.photo_url || '').trim(),
+        contactName: String(row?.contact_name || '').trim(),
+        contactPhone: String(row?.contact_phone || '').trim(),
+        reward: String(row?.reward || '').trim(),
+        createdAt: row?.created_at || new Date().toISOString()
+      };
+    }
+
+    async function hydrateSession() {
+      if (!supabaseClient) return null;
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) {
+        renderAuthState(null);
         return null;
       }
-
-      try {
-        const { data, error } = await supabaseClient.auth.getUser();
-        if (!error && data?.user) {
-          currentUser = data.user;
-        }
-      } catch (error) {
-        console.warn('Не удалось обновить данные пользователя:', error);
-      }
-
-      updateAuthNotices();
-      return currentUser;
+      renderAuthState(data.session || null);
+      return data?.session?.user || null;
     }
 
-    function attachEvents() {
-      openButtons.forEach((button) => {
-        button.addEventListener('click', () => openModal());
+    async function ensureCurrentUser() {
+      if (currentUser) return currentUser;
+      await hydrateSession();
+      if (currentUser) return currentUser;
+      const { data, error } = await supabaseClient.auth.getUser();
+      if (!error && data?.user) {
+        renderAuthState({ user: data.user });
+        return data.user;
+      }
+      return null;
+    }
+
+    function getFilteredPosts() {
+      return posts.filter((post) => {
+        if (post.status !== activeTab) return false;
+        if (!searchQuery) return true;
+        const haystack = [post.petName, post.breed, post.description, post.locationText, post.contactName, post.contactPhone, getPetTypeLabel(post.petType)].join(' ').toLowerCase();
+        return haystack.includes(searchQuery);
+      });
+    }
+
+    function updateCounters() {
+      const lost = posts.filter((post) => post.status === 'lost').length;
+      const found = posts.filter((post) => post.status === 'found').length;
+      lostCountNode.textContent = String(lost);
+      foundCountNode.textContent = String(found);
+      totalCountNode.textContent = String(posts.length);
+    }
+
+    function buildPostCard(post) {
+      const isOwner = currentUser && currentUser.id === post.userId;
+      const contactHref = formatPhoneHref(post.contactPhone);
+      return `
+        <article class="post-card">
+          ${post.photoUrl ? `<img class="post-photo" src="${escapeHtml(post.photoUrl)}" alt="${escapeHtml(post.petName)}">` : `<div class="post-photo-fallback" aria-hidden="true">🐾</div>`}
+          <div class="post-body">
+            <div class="post-meta-top">
+              <span class="post-status ${post.status === 'found' ? 'is-found' : 'is-lost'}">${escapeHtml(getStatusLabel(post.status))}</span>
+              <span class="post-time">${escapeHtml(formatDate(post.createdAt))}</span>
+            </div>
+            <div class="post-title-row">
+              <h3 class="post-title">${escapeHtml(post.petName)}</h3>
+              <span class="post-kind">${escapeHtml(getPetTypeLabel(post.petType))}</span>
+            </div>
+            <p class="post-summary">${escapeHtml(post.description || 'Описание пока не добавлено.')}</p>
+            <div class="post-details">
+              <div class="detail-chip"><span class="detail-label">Приметы</span><span class="detail-value">${escapeHtml(post.breed || 'Не указаны')}</span></div>
+              <div class="detail-chip"><span class="detail-label">Район</span><span class="detail-value">${escapeHtml(post.locationText || 'Не указан')}</span></div>
+              <div class="detail-chip"><span class="detail-label">Контакт</span><span class="detail-value">${escapeHtml(post.contactName || 'Контакт не указан')}</span></div>
+              <div class="detail-chip"><span class="detail-label">Вознаграждение</span><span class="detail-value">${escapeHtml(post.reward || 'Не указано')}</span></div>
+            </div>
+            <div class="post-actions">
+              <a class="contact-link" href="${escapeHtml(contactHref)}" ${contactHref ? '' : 'data-disabled="true"'}>${post.contactPhone ? `Позвонить: ${escapeHtml(post.contactPhone)}` : 'Телефон не указан'}</a>
+              ${isOwner ? `<button class="mini-button danger" type="button" data-delete-id="${escapeHtml(post.id)}">Удалить</button>` : `<button class="mini-button" type="button" data-reuse-status="${post.status === 'lost' ? 'found' : 'lost'}">${post.status === 'lost' ? 'Я нашёл похожего' : 'Добавить своё объявление'}</button>`}
+            </div>
+          </div>
+        </article>`;
+    }
+
+    function renderPosts() {
+      updateCounters();
+      const filtered = getFilteredPosts();
+      postsGrid.innerHTML = filtered.map(buildPostCard).join('');
+      const hasPosts = filtered.length > 0;
+      postsGrid.hidden = !hasPosts;
+      emptyState.hidden = hasPosts;
+      if (!hasPosts) {
+        emptyText.textContent = searchQuery
+          ? 'По текущему запросу ничего не найдено. Попробуйте изменить формулировку или добавить новое объявление.'
+          : activeTab === 'lost'
+            ? 'Сейчас в этом разделе нет активных карточек. Нажмите SOS+, чтобы добавить первое объявление.'
+            : 'Пока нет объявлений о найденных питомцах. Вы можете добавить такую карточку первыми.';
+      }
+    }
+
+    async function loadPosts(showSuccessBanner = false) {
+      try {
+        const { data, error } = await supabaseClient
+          .from(LOST_POSTS_TABLE)
+          .select('id, user_id, status, pet_name, pet_type, breed, color, description, location_text, latitude, longitude, photo_url, contact_name, contact_phone, reward, created_at, updated_at')
+          .order('created_at', { ascending: false });
+        if (error) throw error;
+        posts = Array.isArray(data) ? data.map(normalizePost) : [];
+        renderPosts();
+        if (showSuccessBanner) {
+          setBanner('success', 'Лента обновлена', 'Новое объявление уже доступно в общем списке.');
+        } else if (statusBanner.hidden || !statusBanner.classList.contains('is-success')) {
+          clearBanner();
+        }
+      } catch (error) {
+        posts = [];
+        renderPosts();
+        setBanner('error', 'Лента пока недоступна', error?.message || 'Не удалось получить объявления из базы.');
+      }
+    }
+
+    function openModal(targetStatus = 'lost') {
+      statusField.value = targetStatus === 'found' ? 'found' : 'lost';
+      updateModalAuthState();
+      postModal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => document.getElementById('petNameField')?.focus(), 60);
+    }
+
+    function closeModal() {
+      postModal.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    function updatePhotoPreview(file) {
+      if (!file) {
+        photoPreview.classList.remove('has-image');
+        photoPreview.innerHTML = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        photoPreview.classList.add('has-image');
+        photoPreview.innerHTML = `<img src="${reader.result}" alt="Предпросмотр фото питомца">`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearSelectedPhoto() {
+      selectedPhotoFile = null;
+      photoInput.value = '';
+      updatePhotoPreview(null);
+    }
+
+    async function prepareImageFile(file) {
+      if (!file) return null;
+      if (file.size <= MAX_PHOTO_SIZE_BYTES && /^image\//i.test(file.type)) return file;
+      const imageBitmap = await createImageBitmap(file);
+      const scale = Math.min(1, IMAGE_MAX_EDGE / Math.max(imageBitmap.width, imageBitmap.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(imageBitmap.width * scale));
+      canvas.height = Math.max(1, Math.round(imageBitmap.height * scale));
+      const context = canvas.getContext('2d');
+      context.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.86));
+      if (!blob) throw new Error('Не удалось обработать изображение.');
+      return new File([blob], (file.name || 'lost-pet').replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg', lastModified: Date.now() });
+    }
+
+    async function uploadLostPhoto(file, postId) {
+      const extension = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+      const filePath = `${currentUser.id}/lost-${postId}-${Date.now()}.${extension}`;
+      const { error: uploadError } = await supabaseClient.storage.from(LOST_PHOTO_BUCKET).upload(filePath, file, { cacheControl: '3600', upsert: true });
+      if (uploadError) throw uploadError;
+      const { data } = supabaseClient.storage.from(LOST_PHOTO_BUCKET).getPublicUrl(filePath);
+      return { photo_url: data?.publicUrl || '' };
+    }
+
+    function extractStoragePathFromPublicUrl(url) {
+      if (!url) return '';
+      try {
+        const marker = `/storage/v1/object/public/${LOST_PHOTO_BUCKET}/`;
+        const index = url.indexOf(marker);
+        if (index === -1) return '';
+        return decodeURIComponent(url.slice(index + marker.length).split('?')[0]);
+      } catch (error) {
+        return '';
+      }
+    }
+
+    async function handlePhotoChange(event) {
+      const file = event.target.files?.[0];
+      if (!file) {
+        clearSelectedPhoto();
+        return;
+      }
+      try {
+        const preparedFile = await prepareImageFile(file);
+        selectedPhotoFile = preparedFile;
+        updatePhotoPreview(preparedFile);
+      } catch (error) {
+        alert('Не удалось обработать фото. Попробуйте выбрать другое изображение.');
+        clearSelectedPhoto();
+      }
+    }
+
+    async function handleFormSubmit(event) {
+      event.preventDefault();
+      if (isSubmitting) return;
+
+      const user = await ensureCurrentUser();
+      if (!user) {
+        updateModalAuthState();
+        setBanner('error', 'Нужен вход в аккаунт', 'Страница не видит активную сессию. Перейдите ко входу и вернитесь сюда автоматически.');
+        if (window.confirm('Чтобы подать объявление, нужно войти в аккаунт. Перейти на страницу входа?')) {
+          redirectToAuth();
+        }
+        return;
+      }
+
+      const formData = new FormData(postForm);
+      const postId = window.crypto?.randomUUID?.() || `lost_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      const payload = {
+        id: postId,
+        user_id: user.id,
+        status: formData.get('status') === 'found' ? 'found' : 'lost',
+        pet_name: String(formData.get('petName') || '').trim(),
+        pet_type: String(formData.get('petType') || 'other').trim() || 'other',
+        breed: String(formData.get('petBreed') || '').trim(),
+        description: String(formData.get('petDescription') || '').trim(),
+        location_text: String(formData.get('petLocation') || '').trim(),
+        latitude: DEFAULT_LOCATION_FALLBACK.latitude,
+        longitude: DEFAULT_LOCATION_FALLBACK.longitude,
+        photo_url: '',
+        contact_name: getDisplayName(user),
+        contact_phone: String(formData.get('petContact') || '').trim()
+      };
+
+      if (!payload.pet_name || !payload.location_text || !payload.contact_phone) {
+        setBanner('error', 'Заполните обязательные поля', 'Имя питомца, район и телефон нужны для публикации объявления.');
+        return;
+      }
+
+      isSubmitting = true;
+      submitPostButton.disabled = true;
+      submitPostButton.textContent = 'Публикуем…';
+
+      try {
+        if (selectedPhotoFile) {
+          const uploaded = await uploadLostPhoto(selectedPhotoFile, postId);
+          payload.photo_url = uploaded.photo_url || '';
+        }
+
+        const { data, error } = await supabaseClient
+          .from(LOST_POSTS_TABLE)
+          .insert(payload)
+          .select('id, user_id, status, pet_name, pet_type, breed, color, description, location_text, photo_url, contact_name, contact_phone, reward, created_at')
+          .single();
+
+        if (error) throw error;
+
+        postForm.reset();
+        clearSelectedPhoto();
+        closeModal();
+        activeTab = payload.status;
+        tabButtons.forEach((button) => {
+          const isActive = button.dataset.tab === activeTab;
+          button.classList.toggle('is-active', isActive);
+          button.setAttribute('aria-selected', String(isActive));
+        });
+        searchQuery = '';
+        searchInput.value = '';
+        posts = [normalizePost(data || payload), ...posts.filter((post) => post.id !== payload.id)];
+        renderPosts();
+        setBanner('success', 'Объявление опубликовано', 'Карточка успешно сохранена и уже видна в ленте.');
+        await loadPosts(false);
+      } catch (error) {
+        const message = String(error?.message || 'Не удалось опубликовать объявление.');
+        const authHint = /jwt|row-level security|permission|not authenticated/i.test(message) ? ' Сессия входа не подтвердилась. Попробуйте обновить страницу и войти снова.' : '';
+        const uploadHint = /storage|bucket|object/i.test(message) ? ' Ошибка похожа на проблему загрузки изображения. Попробуйте отправить объявление без фото.' : '';
+        setBanner('error', 'Ошибка публикации', message + authHint + uploadHint);
+      } finally {
+        isSubmitting = false;
+        submitPostButton.disabled = false;
+        updateModalAuthState();
+      }
+    }
+
+    async function handleDelete(postId) {
+      const user = await ensureCurrentUser();
+      if (!user) {
+        setBanner('error', 'Нужен вход в аккаунт', 'Удаление доступно только авторизованному владельцу карточки.');
+        return;
+      }
+      const target = posts.find((post) => post.id === postId);
+      if (!target) return;
+      if (!window.confirm('Удалить это объявление?')) return;
+      try {
+        const { error } = await supabaseClient.from(LOST_POSTS_TABLE).delete().eq('id', postId).eq('user_id', user.id);
+        if (error) throw error;
+        const storagePath = extractStoragePathFromPublicUrl(target.photoUrl);
+        if (storagePath) {
+          await supabaseClient.storage.from(LOST_PHOTO_BUCKET).remove([storagePath]);
+        }
+        posts = posts.filter((post) => post.id !== postId);
+        renderPosts();
+        setBanner('success', 'Объявление удалено', 'Карточка больше не отображается в ленте.');
+      } catch (error) {
+        setBanner('error', 'Не удалось удалить карточку', error?.message || 'Повторите попытку позже.');
+      }
+    }
+
+    function bindEvents() {
+      userAvatar.addEventListener('click', () => {
+        if (userDropdown.hidden) openUserDropdown(); else closeUserDropdown();
       });
 
-      closeModalButton.addEventListener('click', closeModal);
-      modal.addEventListener('click', (event) => {
-        if (event.target === modal) {
-          closeModal();
+      document.addEventListener('click', (event) => {
+        if (!userMenu.hidden && !userMenu.contains(event.target)) {
+          closeUserDropdown();
         }
       });
 
       document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+        if (event.key === 'Escape') {
+          closeUserDropdown();
           closeModal();
         }
       });
 
+      logoutButton.addEventListener('click', async () => {
+        logoutButton.disabled = true;
+        try {
+          await supabaseClient?.auth?.signOut();
+        } catch (error) {
+        }
+        clearStoredSupabaseSession();
+        renderAuthState(null);
+        logoutButton.disabled = false;
+        window.location.replace('/auth?logout=1');
+      });
+
       tabButtons.forEach((button) => {
         button.addEventListener('click', () => {
-          activeTab = button.dataset.tab || 'lost';
+          activeTab = button.dataset.tab === 'found' ? 'found' : 'lost';
           tabButtons.forEach((tabButton) => {
             const isActive = tabButton === button;
             tabButton.classList.toggle('is-active', isActive);
@@ -1228,722 +1752,73 @@
         });
       });
 
-      searchInput.addEventListener('input', renderPosts);
-      refreshPostsButton.addEventListener('click', () => loadPostsFromServer(true));
-      pickPhotoButton.addEventListener('click', () => {
-        if (isSubmitting) return;
-        photoInput.click();
+      searchInput.addEventListener('input', (event) => {
+        searchQuery = String(event.target.value || '').trim().toLowerCase();
+        renderPosts();
       });
+
+      const openLostModal = () => openModal('lost');
+      const openFoundModal = () => openModal('found');
+      heroPublishButton.addEventListener('click', openLostModal);
+      floatingSosButton.addEventListener('click', openLostModal);
+      emptyPublishButton.addEventListener('click', openLostModal);
+      heroFoundButton.addEventListener('click', openFoundModal);
+      modalBackdrop.addEventListener('click', closeModal);
+      closeModalButton.addEventListener('click', closeModal);
+      cancelModalButton.addEventListener('click', closeModal);
+      refreshSessionButton.addEventListener('click', async () => {
+        await hydrateSession();
+        if (currentUser) setBanner('success', 'Сессия обновлена', 'Аккаунт найден. Теперь можно публиковать объявление.');
+        else setBanner('info', 'Сессия не найдена', 'Если вы только что вошли, попробуйте открыть страницу входа и вернуться обратно.');
+      });
+      authRedirectButton.addEventListener('click', redirectToAuth);
+      pickPhotoButton.addEventListener('click', () => photoInput.click());
+      clearPhotoButton.addEventListener('click', clearSelectedPhoto);
       photoInput.addEventListener('change', handlePhotoChange);
-      useCurrentLocationButton.addEventListener('click', handleUseCurrentLocation);
-      clearSelectedLocationButton.addEventListener('click', clearSelectedLocation);
       postForm.addEventListener('submit', handleFormSubmit);
-      postsList.addEventListener('click', handleListClick);
 
-      supabaseClient.auth.onAuthStateChange((_eventName, session) => {
-        currentUser = session?.user || null;
-        updateAuthNotices();
+      postsGrid.addEventListener('click', (event) => {
+        const deleteButton = event.target.closest('[data-delete-id]');
+        if (deleteButton) {
+          handleDelete(deleteButton.dataset.deleteId);
+          return;
+        }
+        const reuseButton = event.target.closest('[data-reuse-status]');
+        if (reuseButton) {
+          openModal(reuseButton.dataset.reuseStatus === 'found' ? 'found' : 'lost');
+        }
       });
 
-      window.addEventListener('focus', () => {
-        resolveCurrentUser({ timeoutMs: 1200, pollIntervalMs: 150 }).catch((error) => {
-          console.warn('Не удалось обновить сессию после возврата на вкладку:', error);
-        });
+      window.addEventListener('focus', () => hydrateSession().catch(() => {}));
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') hydrateSession().catch(() => {});
       });
     }
 
     async function bootstrap() {
-      updateAuthNotices();
-      setLoadingState(true);
-
-      try {
-        await resolveCurrentUser();
-      } catch (error) {
-        console.warn('Не удалось восстановить пользовательскую сессию:', error);
-        currentUser = null;
-        updateAuthNotices();
+      bindEvents();
+      if (!window.supabase?.createClient) {
+        setBanner('error', 'Не загрузился модуль авторизации', 'Обновите страницу и попробуйте ещё раз.');
+        return;
       }
-      await loadPostsFromServer();
-      autoRefreshTimer = window.setInterval(() => {
-        loadPostsFromServer(false, true);
-      }, AUTO_REFRESH_INTERVAL_MS);
-    }
-
-    function openModal() {
-      modal.classList.add('is-open');
-      modal.setAttribute('aria-hidden', 'false');
-      updateAuthNotices();
-      resolveCurrentUser({ timeoutMs: 1200, pollIntervalMs: 150 }).catch((error) => {
-        console.warn('Не удалось уточнить сессию перед публикацией:', error);
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        }
       });
-      window.setTimeout(() => {
-        syncFormMapViewport();
-        focusSelectedLocationOnFormMap();
-        document.getElementById('petName').focus();
-      }, 80);
-    }
-
-    function closeModal() {
-      modal.classList.remove('is-open');
-      modal.setAttribute('aria-hidden', 'true');
-    }
-
-    function syncFormMapViewport() {
-      if (!formMap) return;
-      if (mapProvider === 'yandex') {
-        formMap.container?.fitToViewport?.();
-        return;
-      }
-      formMap.invalidateSize?.();
-    }
-
-    function focusSelectedLocationOnFormMap() {
-      if (!selectedLocationMarker || !formMap) return;
-      if (mapProvider === 'yandex') {
-        const coords = selectedLocationMarker.geometry?.getCoordinates?.();
-        if (coords) {
-          formMap.setCenter(coords, Math.max(formMap.getZoom(), 14), { duration: 200 });
-        }
-        return;
-      }
-      formMap.setView(selectedLocationMarker.getLatLng(), Math.max(formMap.getZoom(), 14));
-    }
-
-    function setNotice(node, title, text, variant = 'info') {
-      if (!node) return;
-      node.className = `page-note is-${variant}`;
-      node.innerHTML = `<strong>${escapeHtml(title)}</strong><span>${escapeHtml(text)}</span>`;
-    }
-
-    function updateAuthNotices() {
-      if (currentUser) {
-        const userLabel = currentUser.user_metadata?.full_name || currentUser.email || 'авторизованный пользователь';
-        setNotice(pageNotice, 'Вы вошли в аккаунт', `${userLabel}. Вы можете добавлять свои объявления и удалять только свои карточки.`, 'success');
-        setNotice(modalNotice, 'Публикация доступна', 'Заполните поля, выберите точку на карте и опубликуйте объявление. Его увидят все посетители раздела.', 'success');
-        submitPostButton.disabled = false;
-      } else {
-        setNotice(pageNotice, 'Карту видят все пользователи', 'Чтобы добавить своё объявление на общую карту, сначала войдите в аккаунт. Просматривать список и точки можно без входа.', 'info');
-        setNotice(modalNotice, 'Для публикации нужен вход', 'После входа в аккаунт вы сможете публиковать объявления и удалять свои карточки. Карта и чужие объявления доступны всем.', 'info');
-        submitPostButton.disabled = false;
-      }
-    }
-
-    function setLoadingState(isLoading) {
-      isLoadingPosts = isLoading;
-      refreshPostsButton.disabled = isLoading;
-      refreshPostsButton.textContent = isLoading ? 'Обновляем…' : 'Обновить объявления';
-    }
-
-    async function loadPostsFromServer(showStatus = false, silent = false) {
-      setLoadingState(true);
-      if (!silent) {
-        mapHint.textContent = 'Загружаем актуальные объявления и точки на карте…';
-      }
-
-      try {
-        const { data, error } = await supabaseClient
-          .from(LOST_POSTS_TABLE)
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          throw error;
-        }
-
-        posts = Array.isArray(data) ? data.map(normalizePost).filter(Boolean) : [];
-        renderPosts();
-
-        if (showStatus) {
-          mapHint.textContent = `Объявления обновлены: ${new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}.`;
-        } else if (!silent) {
-          mapHint.textContent = 'Карта показывает объявления из выбранного раздела и поиска.';
-        }
-      } catch (error) {
-        console.error('Не удалось загрузить объявления:', error);
-        posts = [];
-        renderPosts();
-        setNotice(pageNotice, 'Не удалось загрузить объявления', error?.message || 'Повторите попытку чуть позже.', 'error');
-        mapHint.textContent = 'Ошибка загрузки. Попробуйте обновить список объявлений.';
-      } finally {
-        setLoadingState(false);
-      }
-    }
-
-    function normalizePost(row) {
-      if (!row || typeof row !== 'object') return null;
-      const latitude = Number(row.latitude);
-      const longitude = Number(row.longitude);
-      return {
-        id: String(row.id || ''),
-        authorId: row.user_id || '',
-        status: row.status === 'found' ? 'found' : 'lost',
-        petType: row.pet_type || 'cat',
-        name: String(row.pet_name || '').trim(),
-        breed: String(row.breed || '').trim(),
-        location: String(row.location_text || '').trim(),
-        contact: String(row.contact_phone || '').trim(),
-        description: String(row.description || '').trim(),
-        photoUrl: String(row.photo_url || '').trim(),
-        photoPath: String(row.photo_path || '').trim(),
-        latitude: Number.isFinite(latitude) ? latitude : null,
-        longitude: Number.isFinite(longitude) ? longitude : null,
-        createdAt: row.created_at || new Date().toISOString()
-      };
-    }
-
-    function getFilteredPosts() {
-      const query = searchInput.value.trim().toLowerCase();
-      return posts.filter((post) => {
-        const sameTab = post.status === activeTab;
-        const searchable = `${post.location} ${post.name} ${post.breed} ${post.description}`.toLowerCase();
-        const matchesQuery = !query || searchable.includes(query);
-        return sameTab && matchesQuery;
+      supabaseClient.auth.onAuthStateChange((event, session) => {
+        renderAuthState(session || null);
+        if (event === 'SIGNED_OUT') closeUserDropdown();
       });
+      await hydrateSession();
+      await loadPosts(false);
     }
 
-    function renderPosts() {
-      const filteredPosts = getFilteredPosts();
-      postsList.innerHTML = filteredPosts.map(renderPostCard).join('');
-      emptyState.hidden = filteredPosts.length > 0;
-      mapCount.textContent = `${filteredPosts.length} ${pluralize(filteredPosts.length, ['объявление', 'объявления', 'объявлений'])}`;
-      renderMapMarkers(filteredPosts);
-    }
-
-    function renderMapMarkers(filteredPosts) {
-      const points = filteredPosts.filter((post) => Number.isFinite(post.latitude) && Number.isFinite(post.longitude));
-
-      if (mapProvider === 'yandex') {
-        renderYandexMarkers(points);
-        return;
-      }
-
-      renderLeafletMarkers(points);
-    }
-
-    function renderLeafletMarkers(points) {
-      if (!pageMap || !pageMarkersLayer) return;
-      pageMarkersLayer.clearLayers();
-      markerById = new Map();
-
-      points.forEach((post) => {
-        const marker = L.circleMarker([post.latitude, post.longitude], {
-          radius: 10,
-          color: post.status === 'found' ? '#34C759' : '#FF3B30',
-          fillColor: post.status === 'found' ? '#34C759' : '#FF3B30',
-          fillOpacity: 0.88,
-          weight: 3
-        }).addTo(pageMarkersLayer);
-
-        marker.bindPopup(renderPopupContent(post));
-        markerById.set(post.id, marker);
-      });
-
-      if (!points.length) {
-        pageMap.setView(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
-        return;
-      }
-
-      if (points.length === 1) {
-        pageMap.setView([points[0].latitude, points[0].longitude], 13);
-        return;
-      }
-
-      const bounds = L.latLngBounds(points.map((post) => [post.latitude, post.longitude]));
-      pageMap.fitBounds(bounds, { padding: [24, 24], maxZoom: 13 });
-    }
-
-    function renderYandexMarkers(points) {
-      if (!pageMap || !window.ymaps) return;
-      pageMap.geoObjects.removeAll();
-      markerById = new Map();
-
-      points.forEach((post) => {
-        const marker = new ymaps.Placemark([post.latitude, post.longitude], {
-          balloonContent: renderPopupContent(post),
-          hintContent: post.name || 'Объявление'
-        }, {
-          preset: post.status === 'found' ? 'islands#greenCircleDotIcon' : 'islands#redCircleDotIcon'
-        });
-
-        pageMap.geoObjects.add(marker);
-        markerById.set(post.id, marker);
-      });
-
-      if (!points.length) {
-        pageMap.setCenter(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
-        return;
-      }
-
-      if (points.length === 1) {
-        pageMap.setCenter([points[0].latitude, points[0].longitude], 13, { duration: 200 });
-        return;
-      }
-
-      const bounds = getBoundsFromPoints(points.map((post) => [post.latitude, post.longitude]));
-      if (bounds) {
-        pageMap.setBounds(bounds, { checkZoomRange: true, zoomMargin: 24 });
-      }
-    }
-
-    function getBoundsFromPoints(points) {
-      if (!Array.isArray(points) || !points.length) return null;
-      const latitudes = points.map((point) => Number(point[0])).filter(Number.isFinite);
-      const longitudes = points.map((point) => Number(point[1])).filter(Number.isFinite);
-      if (!latitudes.length || !longitudes.length) return null;
-      return [
-        [Math.min(...latitudes), Math.min(...longitudes)],
-        [Math.max(...latitudes), Math.max(...longitudes)]
-      ];
-    }
-
-    function renderPopupContent(post) {
-      const badgeText = post.status === 'found' ? '🟢 Нашёлся' : '🔴 Потерялся';
-      const badgeClass = post.status === 'found' ? 'found' : 'lost';
-      const meta = [post.breed || 'Порода не указана', post.location || 'Место не указано'].filter(Boolean).join(' · ');
-      return `
-        <div>
-          <div class="popup-badge ${badgeClass}">${badgeText}</div>
-          <p class="popup-title">${escapeHtml(post.name || 'Без имени')}</p>
-          <p class="popup-text">${escapeHtml(meta)}</p>
-        </div>
-      `;
-    }
-
-    function renderPostCard(post) {
-      const badgeClass = post.status === 'found' ? 'found' : 'lost';
-      const badgeText = post.status === 'found' ? '🟢 Нашёлся' : '🔴 Потерялся';
-      const media = post.photoUrl
-        ? `<div class="post-media"><img src="${escapeHtml(post.photoUrl)}" alt="${escapeHtml(post.name || 'Фото питомца')}"></div>`
-        : `<div class="post-media">${getAnimalEmoji(post.petType)}</div>`;
-      const deleteButton = currentUser && post.authorId === currentUser.id
-        ? `<button class="delete-btn" type="button" data-delete-id="${escapeHtml(post.id)}" aria-label="Удалить объявление">✕</button>`
-        : '';
-      const descriptionMarkup = post.description
-        ? `<p class="post-description">${escapeHtml(post.description)}</p>`
-        : '';
-
-      return `
-        <article class="post-card">
-          ${deleteButton}
-          ${media}
-          <div class="post-body">
-            <div class="badge ${badgeClass}">${badgeText}</div>
-            <div class="post-meta">
-              <div><strong>Имя:</strong> <span>${escapeHtml(post.name || 'Не указано')}</span></div>
-              <div><strong>Порода:</strong> <span>${escapeHtml(post.breed || 'Не указана')}</span></div>
-              <div><strong>Район:</strong> <span>${escapeHtml(post.location || 'Не указан')}</span></div>
-            </div>
-            ${descriptionMarkup}
-            <div class="post-footer">
-              <div class="post-date">📅 ${formatRelativeDate(post.createdAt)}</div>
-              <div class="post-actions">
-                <button class="map-link-btn" type="button" data-focus-id="${escapeHtml(post.id)}">📍 На карте</button>
-                <button class="contact-btn" type="button" data-contact="${escapeHtml(post.contact)}">📞 Связаться</button>
-              </div>
-            </div>
-          </div>
-        </article>
-      `;
-    }
-
-    function handlePhotoChange(event) {
-      const file = event.target.files && event.target.files[0];
-      if (!file) {
-        clearSelectedPhoto();
-        return;
-      }
-
-      const validationMessage = validatePhotoFile(file);
-      if (validationMessage) {
-        alert(validationMessage);
-        photoInput.value = '';
-        clearSelectedPhoto();
-        return;
-      }
-
-      if (previewObjectUrl) {
-        URL.revokeObjectURL(previewObjectUrl);
-      }
-
-      selectedPhotoFile = file;
-      previewObjectUrl = URL.createObjectURL(file);
-      uploadPreview.classList.add('is-visible');
-      uploadPreviewImage.src = previewObjectUrl;
-      uploadPreviewName.textContent = file.name;
-    }
-
-    function validatePhotoFile(file) {
-      if (!file.type.startsWith('image/')) {
-        return 'Можно выбрать только изображение.';
-      }
-      if (file.size > MAX_PHOTO_SIZE_BYTES) {
-        return 'Фото должно быть не больше 3 МБ.';
-      }
-      return '';
-    }
-
-    function clearSelectedPhoto() {
-      selectedPhotoFile = null;
-      uploadPreview.classList.remove('is-visible');
-      uploadPreviewImage.removeAttribute('src');
-      uploadPreviewName.textContent = 'Фото выбрано';
-      if (previewObjectUrl) {
-        URL.revokeObjectURL(previewObjectUrl);
-        previewObjectUrl = '';
-      }
-    }
-
-    function setSelectedLocation(latitude, longitude, shouldPan = false) {
-      if (!formMap) return;
-      const lat = Number(latitude);
-      const lng = Number(longitude);
-      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-
-      latitudeInput.value = lat.toFixed(6);
-      longitudeInput.value = lng.toFixed(6);
-      locationChip.classList.remove('is-empty');
-      locationChip.textContent = `Точка выбрана: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-      locationHint.textContent = 'Можно перетащить маркер или нажать в другое место на карте.';
-
-      if (mapProvider === 'yandex' && window.ymaps) {
-        if (!selectedLocationMarker) {
-          selectedLocationMarker = new ymaps.Placemark([lat, lng], {}, {
-            preset: 'islands#redDotIcon',
-            draggable: true
-          });
-          formMap.geoObjects.add(selectedLocationMarker);
-          selectedLocationMarker.events.add('dragend', () => {
-            const nextPosition = selectedLocationMarker.geometry.getCoordinates();
-            setSelectedLocation(nextPosition[0], nextPosition[1], false);
-          });
-        } else {
-          selectedLocationMarker.geometry.setCoordinates([lat, lng]);
-        }
-
-        if (shouldPan) {
-          formMap.setCenter([lat, lng], Math.max(formMap.getZoom(), 14), { duration: 200 });
-        }
-        return;
-      }
-
-      if (!selectedLocationMarker) {
-        selectedLocationMarker = L.marker([lat, lng], { draggable: true }).addTo(formMap);
-        selectedLocationMarker.on('dragend', (event) => {
-          const nextPosition = event.target.getLatLng();
-          setSelectedLocation(nextPosition.lat, nextPosition.lng, false);
-        });
-      } else {
-        selectedLocationMarker.setLatLng([lat, lng]);
-      }
-
-      if (shouldPan) {
-        formMap.setView([lat, lng], Math.max(formMap.getZoom(), 14));
-      }
-    }
-
-    function clearSelectedLocation() {
-      latitudeInput.value = '';
-      longitudeInput.value = '';
-      locationChip.classList.add('is-empty');
-      locationChip.textContent = 'Точка ещё не выбрана. Нажмите на карту или используйте определение геопозиции.';
-      locationHint.textContent = 'Без точки на карте объявление не опубликуется.';
-      if (selectedLocationMarker) {
-        if (mapProvider === 'yandex') {
-          formMap?.geoObjects?.remove(selectedLocationMarker);
-        } else {
-          formMap?.removeLayer(selectedLocationMarker);
-        }
-        selectedLocationMarker = null;
-      }
-      if (mapProvider === 'yandex') {
-        formMap?.setCenter(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
-        return;
-      }
-      formMap?.setView(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
-    }
-
-    function handleUseCurrentLocation() {
-      if (!navigator.geolocation) {
-        alert('Ваш браузер не поддерживает определение геопозиции. Выберите точку вручную на карте.');
-        return;
-      }
-
-      useCurrentLocationButton.disabled = true;
-      useCurrentLocationButton.textContent = 'Определяем…';
-
-      navigator.geolocation.getCurrentPosition((position) => {
-        setSelectedLocation(position.coords.latitude, position.coords.longitude, true);
-        useCurrentLocationButton.disabled = false;
-        useCurrentLocationButton.textContent = 'Использовать моё местоположение';
-      }, (error) => {
-        console.warn('Не удалось определить геопозицию:', error);
-        alert('Не удалось определить местоположение. Разрешите доступ к геопозиции или выберите точку вручную.');
-        useCurrentLocationButton.disabled = false;
-        useCurrentLocationButton.textContent = 'Использовать моё местоположение';
-      }, {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      });
-    }
-
-    async function handleFormSubmit(event) {
-      event.preventDefault();
-      if (isSubmitting) return;
-
-      if (!currentUser) {
-        try {
-          await resolveCurrentUser({ timeoutMs: 1500, pollIntervalMs: 150 });
-        } catch (error) {
-          console.warn('Не удалось повторно проверить сессию перед публикацией:', error);
-        }
-      }
-
-      if (!currentUser) {
-        const shouldOpenAuth = window.confirm('Чтобы публиковать объявления на общей карте, нужно войти в аккаунт. Перейти на страницу входа?');
-        if (shouldOpenAuth) {
-          redirectToAuth();
-        }
-        return;
-      }
-
-      const formData = new FormData(postForm);
-      const latitude = Number(formData.get('petLatitude'));
-      const longitude = Number(formData.get('petLongitude'));
-
-      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-        alert('Сначала отметьте точку на карте.');
-        return;
-      }
-
-      const postId = window.crypto?.randomUUID?.() || `lost_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-      let photoUrl = '';
-      let photoPath = '';
-
-      isSubmitting = true;
-      submitPostButton.disabled = true;
-      submitPostButton.textContent = 'Публикуем…';
-
-      try {
-        if (selectedPhotoFile) {
-          const uploadedPhoto = await uploadLostPhoto(selectedPhotoFile, postId);
-          photoUrl = uploadedPhoto.photo_url;
-          photoPath = uploadedPhoto.photo_path;
-        }
-
-        const payload = {
-          id: postId,
-          user_id: currentUser.id,
-          status: formData.get('status') === 'found' ? 'found' : 'lost',
-          pet_name: String(formData.get('petName') || '').trim(),
-          pet_type: String(formData.get('petType') || 'cat').trim(),
-          breed: String(formData.get('petBreed') || '').trim(),
-          description: String(formData.get('petDescription') || '').trim(),
-          location_text: String(formData.get('petLocation') || '').trim(),
-          latitude,
-          longitude,
-          photo_url: photoUrl,
-          photo_path: photoPath,
-          contact_name: currentUser.user_metadata?.full_name || currentUser.email || '',
-          contact_phone: String(formData.get('petContact') || '').trim()
-        };
-
-        const { error } = await supabaseClient.from(LOST_POSTS_TABLE).insert(payload);
-        if (error) {
-          throw error;
-        }
-
-        postForm.reset();
-        clearSelectedPhoto();
-        clearSelectedLocation();
-        photoInput.value = '';
-        activeTab = payload.status;
-        tabButtons.forEach((button) => {
-          const isActive = button.dataset.tab === activeTab;
-          button.classList.toggle('is-active', isActive);
-          button.setAttribute('aria-selected', String(isActive));
-        });
-        closeModal();
-        mapHint.textContent = 'Объявление опубликовано и добавлено на карту.';
-        await loadPostsFromServer(true);
-      } catch (error) {
-        console.error('Не удалось опубликовать объявление:', error);
-        const message = String(error?.message || '');
-        const authHint = message.toLowerCase().includes('row-level security')
-          ? ' Проверьте, что вы вошли в аккаунт.'
-          : '';
-        const uploadHint = message.toLowerCase().includes('storage') || message.toLowerCase().includes('bucket')
-          ? ' Проверьте настройки загрузки в Storage для bucket pets.'
-          : '';
-        const networkHint = message.toLowerCase().includes('failed to fetch')
-          ? ' Похоже, слишком тяжёлый запрос или недоступна загрузка файла. Я перевёл публикацию на Storage, поэтому после обновления страницы попробуйте ещё раз.'
-          : '';
-        alert((message || 'Не удалось опубликовать объявление.') + authHint + (uploadHint ? ` ${uploadHint}` : '') + networkHint);
-      } finally {
-        isSubmitting = false;
-        updateAuthNotices();
-        submitPostButton.textContent = 'Опубликовать объявление';
-      }
-    }
-
-    async function handleListClick(event) {
-      const deleteButton = event.target.closest('[data-delete-id]');
-      if (deleteButton) {
-        const postId = deleteButton.dataset.deleteId;
-        await handleDeletePost(postId);
-        return;
-      }
-
-      const focusButton = event.target.closest('[data-focus-id]');
-      if (focusButton) {
-        focusPostOnMap(focusButton.dataset.focusId || '');
-        return;
-      }
-
-      const contactButton = event.target.closest('[data-contact]');
-      if (contactButton) {
-        openContact(contactButton.dataset.contact || '');
-      }
-    }
-
-    async function handleDeletePost(postId) {
-      const post = posts.find((item) => item.id === postId);
-      if (!post) return;
-      if (!currentUser || post.authorId !== currentUser.id) {
-        alert('Удалять можно только свои объявления.');
-        return;
-      }
-
-      const isConfirmed = window.confirm(`Удалить объявление «${post.name || 'без имени'}»?`);
-      if (!isConfirmed) return;
-
-      try {
-        const { error } = await supabaseClient
-          .from(LOST_POSTS_TABLE)
-          .delete()
-          .eq('id', postId)
-          .eq('user_id', currentUser.id);
-
-        if (error) {
-          throw error;
-        }
-
-        mapHint.textContent = 'Объявление удалено.';
-        await loadPostsFromServer(true);
-      } catch (error) {
-        console.error('Не удалось удалить объявление:', error);
-        alert(error?.message || 'Не удалось удалить объявление.');
-      }
-    }
-
-    function focusPostOnMap(postId) {
-      const marker = markerById.get(postId);
-      if (!marker || !pageMap) {
-        alert('Для этого объявления точка на карте недоступна.');
-        return;
-      }
-
-      if (mapProvider === 'yandex') {
-        const coordinates = marker.geometry?.getCoordinates?.();
-        if (!coordinates) {
-          alert('Для этого объявления точка на карте недоступна.');
-          return;
-        }
-        pageMap.setCenter(coordinates, Math.max(pageMap.getZoom(), 14), { duration: 200 });
-        marker.balloon?.open?.();
-      } else {
-        const latLng = marker.getLatLng();
-        pageMap.setView(latLng, Math.max(pageMap.getZoom(), 14));
-        marker.openPopup();
-      }
-
-      document.getElementById('mapTitle')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    function openContact(value) {
-      const normalized = String(value || '').trim();
-      if (!normalized) return;
-      if (/^[+\d\s()-]{6,}$/.test(normalized)) {
-        window.location.href = `tel:${normalized.replace(/\s+/g, '')}`;
-        return;
-      }
-      if (normalized.includes('@')) {
-        window.location.href = `mailto:${normalized}`;
-        return;
-      }
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(normalized).then(() => {
-          alert(`Контакт скопирован: ${normalized}`);
-        }).catch(() => {
-          alert(`Связаться: ${normalized}`);
-        });
-        return;
-      }
-      alert(`Связаться: ${normalized}`);
-    }
-
-    async function uploadLostPhoto(file, postId) {
-      const extension = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
-      const filePath = `${currentUser.id}/lost-${postId}-${Date.now()}.${extension}`;
-
-      const { error: uploadError } = await supabaseClient
-        .storage
-        .from(LOST_PHOTO_BUCKET)
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true
-        });
-
-      if (uploadError) {
-        throw uploadError;
-      }
-
-      const { data } = supabaseClient.storage.from(LOST_PHOTO_BUCKET).getPublicUrl(filePath);
-
-      return {
-        photo_path: filePath,
-        photo_url: data?.publicUrl || ''
-      };
-    }
-
-    function formatRelativeDate(dateString) {
-      const createdAt = new Date(dateString).getTime();
-      if (Number.isNaN(createdAt)) return 'только что';
-      const diffMs = Date.now() - createdAt;
-      const diffMinutes = Math.max(1, Math.floor(diffMs / 60000));
-      if (diffMinutes < 60) {
-        return `${diffMinutes} ${pluralize(diffMinutes, ['минуту', 'минуты', 'минут'])} назад`;
-      }
-      const diffHours = Math.floor(diffMinutes / 60);
-      if (diffHours < 24) {
-        return `${diffHours} ${pluralize(diffHours, ['час', 'часа', 'часов'])} назад`;
-      }
-      const diffDays = Math.floor(diffHours / 24);
-      return `${diffDays} ${pluralize(diffDays, ['день', 'дня', 'дней'])} назад`;
-    }
-
-    function pluralize(value, forms) {
-      const mod10 = value % 10;
-      const mod100 = value % 100;
-      if (mod10 === 1 && mod100 !== 11) return forms[0];
-      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
-      return forms[2];
-    }
-
-    function getAnimalEmoji(type) {
-      if (type === 'dog') return '🐶';
-      if (type === 'cat') return '🐱';
-      return '🐾';
-    }
-
-    function escapeHtml(value) {
-      return String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
+    bootstrap().catch((error) => {
+      setBanner('error', 'Страница запустилась с ошибкой', error?.message || 'Обновите вкладку и попробуйте снова.');
+    });
   </script>
 </body>
 </html>
