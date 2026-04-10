@@ -1051,11 +1051,11 @@
 
       <div class="hero-grid">
         <section class="hero-copy">
-          <span class="eyebrow">Любимка помогает искать и возвращать питомцев</span>
-          <h1>Потеряшки без лишнего шума</h1>
+          <span class="eyebrow">Любимка помогает находить потерявшихся и найденных питомцев</span>
+          <h1>Потеряшки рядом: быстрее заметить, легче вернуть домой</h1>
           <p class="hero-lead">
-            Мы полностью убрали карту и собрали удобную ленту объявлений: быстрее добавить питомца,
-            проще заметить важные детали и сразу выйти на связь с владельцем.
+            Здесь собраны объявления о потерянных и найденных питомцах. Добавьте карточку, укажите район,
+            приметы и телефон — так людям будет проще заметить объявление и быстрее помочь в поиске.
           </p>
           <div class="hero-actions">
             <button class="hero-button" id="heroPublishButton" type="button">SOS+ Подать объявление</button>
@@ -1082,16 +1082,17 @@
 
         <aside class="hero-side">
           <div class="map-placeholder-card">
-            <span class="map-placeholder-badge">Скоро внедрим карту</span>
+            <span class="map-placeholder-badge">Сайт улучшается</span>
             <div>
-              <h2>Вместо карты — акцент на объявлениях</h2>
+              <h2>Скоро добавим карту для удобного поиска</h2>
               <p>
-                Сейчас важнее быстро опубликовать карточку, оставить контакты и увидеть последние случаи в одном месте.
-                Когда карта вернётся, она будет встроена аккуратно и без лишних визуальных артефактов.
+                Сейчас основной акцент сделан на быстрых объявлениях: важно сразу разместить карточку,
+                показать приметы питомца и дать контакты для связи. Мы продолжаем улучшать этот раздел,
+                и в будущих обновлениях здесь появится карта, чтобы искать потеряшек было ещё легче.
               </p>
             </div>
             <div class="map-placeholder-note">
-              Пока можно искать по имени, породе, району и сразу звонить по контакту из карточки.
+              Пока можно искать по имени, породе и району, а затем сразу связываться по телефону из карточки.
             </div>
           </div>
         </aside>
@@ -1567,11 +1568,61 @@
       return new File([blob], (file.name || 'lost-pet').replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg', lastModified: Date.now() });
     }
 
+    function wait(ms) {
+      return new Promise((resolve) => window.setTimeout(resolve, ms));
+    }
+
+    async function refreshSessionIfPossible() {
+      if (!supabaseClient?.auth) return currentUser;
+      try {
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        const currentSession = sessionData?.session || null;
+        if (currentSession?.refresh_token) {
+          const { data, error } = await supabaseClient.auth.refreshSession();
+          if (!error && data?.session) {
+            renderAuthState(data.session);
+            return data.session.user || currentUser;
+          }
+        }
+        if (currentSession?.user) {
+          renderAuthState(currentSession);
+          return currentSession.user;
+        }
+      } catch (error) {
+        console.warn('Не удалось обновить сессию перед публикацией:', error);
+      }
+      return currentUser;
+    }
+
+    async function retrySupabaseOperation(label, operation, attempts = 2) {
+      let lastError = null;
+      for (let attempt = 1; attempt <= attempts; attempt += 1) {
+        try {
+          const result = await operation();
+          if (result?.error) throw result.error;
+          return result;
+        } catch (error) {
+          lastError = error;
+          const message = String(error?.message || error || '');
+          const isFetchIssue = /failed to fetch|networkerror|load failed|network request failed/i.test(message);
+          if (attempt < attempts && isFetchIssue) {
+            await refreshSessionIfPossible();
+            await wait(500 * attempt);
+            continue;
+          }
+          throw error;
+        }
+      }
+      throw lastError || new Error(`Не удалось выполнить: ${label}`);
+    }
+
     async function uploadLostPhoto(file, postId) {
+      const owner = currentUser || await ensureCurrentUser();
+      if (!owner?.id) throw new Error('Не удалось определить владельца для загрузки фото. Обновите страницу и войдите снова.');
       const extension = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
-      const filePath = `${currentUser.id}/lost-${postId}-${Date.now()}.${extension}`;
-      const { error: uploadError } = await supabaseClient.storage.from(LOST_PHOTO_BUCKET).upload(filePath, file, { cacheControl: '3600', upsert: true });
-      if (uploadError) throw uploadError;
+      const filePath = `${owner.id}/lost-${postId}-${Date.now()}.${extension}`;
+      const uploadResult = await retrySupabaseOperation('загрузку фото', () => supabaseClient.storage.from(LOST_PHOTO_BUCKET).upload(filePath, file, { cacheControl: '3600', upsert: true }), 2);
+      if (uploadResult?.error) throw uploadResult.error;
       const { data } = supabaseClient.storage.from(LOST_PHOTO_BUCKET).getPublicUrl(filePath);
       return { photo_url: data?.publicUrl || '' };
     }
@@ -1608,7 +1659,7 @@
       event.preventDefault();
       if (isSubmitting) return;
 
-      const user = await ensureCurrentUser();
+      let user = await ensureCurrentUser();
       if (!user) {
         updateModalAuthState();
         setBanner('error', 'Нужен вход в аккаунт', 'Страница не видит активную сессию. Перейдите ко входу и вернитесь сюда автоматически.');
@@ -1617,6 +1668,8 @@
         }
         return;
       }
+
+      user = await refreshSessionIfPossible() || user;
 
       const formData = new FormData(postForm);
       const postId = window.crypto?.randomUUID?.() || `lost_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -1651,13 +1704,15 @@
           payload.photo_url = uploaded.photo_url || '';
         }
 
-        const { data, error } = await supabaseClient
-          .from(LOST_POSTS_TABLE)
-          .insert(payload)
-          .select('id, user_id, status, pet_name, pet_type, breed, color, description, location_text, photo_url, contact_name, contact_phone, reward, created_at')
-          .single();
-
-        if (error) throw error;
+        const { data } = await retrySupabaseOperation(
+          'публикацию объявления',
+          () => supabaseClient
+            .from(LOST_POSTS_TABLE)
+            .insert(payload)
+            .select('id, user_id, status, pet_name, pet_type, breed, color, description, location_text, photo_url, contact_name, contact_phone, reward, created_at')
+            .single(),
+          2
+        );
 
         postForm.reset();
         clearSelectedPhoto();
@@ -1678,7 +1733,8 @@
         const message = String(error?.message || 'Не удалось опубликовать объявление.');
         const authHint = /jwt|row-level security|permission|not authenticated/i.test(message) ? ' Сессия входа не подтвердилась. Попробуйте обновить страницу и войти снова.' : '';
         const uploadHint = /storage|bucket|object/i.test(message) ? ' Ошибка похожа на проблему загрузки изображения. Попробуйте отправить объявление без фото.' : '';
-        setBanner('error', 'Ошибка публикации', message + authHint + uploadHint);
+        const fetchHint = /failed to fetch|networkerror|load failed|network request failed/i.test(message) ? ' Соединение с сервером временно прервалось. Попробуйте повторить отправку ещё раз через несколько секунд.' : '';
+        setBanner('error', 'Ошибка публикации', message + authHint + uploadHint + fetchHint);
       } finally {
         isSubmitting = false;
         submitPostButton.disabled = false;
