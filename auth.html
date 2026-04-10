@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Любимка — Авторизация</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #ffffff;
+      color: #1f2937;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .auth-shell {
+      width: 100%;
+      max-width: 460px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      color: #111827;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 24px;
+    }
+    .brand-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: #FF8C42;
+      box-shadow: 0 0 0 8px rgba(255, 140, 66, 0.14);
+    }
+    .card {
+      border: 1px solid #f1f5f9;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+      background: #ffffff;
+    }
+    .title {
+      margin: 0 0 8px;
+      font-size: 28px;
+      font-weight: 800;
+      color: #111827;
+    }
+    .subtitle {
+      margin: 0 0 24px;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: #fff7f1;
+      padding: 6px;
+      border-radius: 999px;
+      margin-bottom: 24px;
+    }
+    .tab-button {
+      border: none;
+      background: transparent;
+      color: #6b7280;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 12px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+    .tab-button.active {
+      background: #FF8C42;
+      color: #ffffff;
+      box-shadow: 0 10px 24px rgba(255, 140, 66, 0.24);
+    }
+    .panel {
+      display: none;
+    }
+    .panel.active {
+      display: block;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .field label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+    }
+    .field input {
+      width: 100%;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font: inherit;
+      color: #111827;
+      background: #ffffff;
+      outline: none;
+    }
+    .field input:focus {
+      border-color: #FF8C42;
+      box-shadow: 0 0 0 4px rgba(255, 140, 66, 0.14);
+    }
+    .submit-button {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      background: #FF8C42;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 15px 18px;
+      cursor: pointer;
+      transition: 0.2s ease;
+      margin-top: 8px;
+    }
+    .submit-button:hover {
+      opacity: 0.92;
+    }
+    .helper {
+      margin-top: 18px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #6b7280;
+    }
+    .status {
+      min-height: 24px;
+      margin-top: 16px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .status.error { color: #dc2626; }
+    .status.success { color: #16a34a; }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      color: #6b7280;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    @media (max-width: 560px) {
+      .card { padding: 22px; border-radius: 20px; }
+      .title { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-shell">
+    <a class="brand" href="index.html">
+      <span class="brand-dot"></span>
+      <span>Любимка</span>
+    </a>
+
+    <div class="card">
+      <h1 class="title">Авторизация</h1>
+      <p class="subtitle">Войдите в аккаунт или создайте новый профиль, чтобы продолжить работу с Любимкой.</p>
+
+      <div class="tabs">
+        <button class="tab-button active" type="button" data-tab="login">Вход</button>
+        <button class="tab-button" type="button" data-tab="register">Регистрация</button>
+      </div>
+
+      <section class="panel active" id="login-panel">
+        <form id="login-form">
+          <div class="field">
+            <label for="login-email">Email</label>
+            <input id="login-email" name="email" type="email" placeholder="you@example.com" required>
+          </div>
+          <div class="field">
+            <label for="login-password">Пароль</label>
+            <input id="login-password" name="password" type="password" placeholder="Введите пароль" required>
+          </div>
+          <button class="submit-button" type="submit">Войти</button>
+        </form>
+      </section>
+
+      <section class="panel" id="register-panel">
+        <form id="register-form">
+          <div class="field">
+            <label for="register-name">Имя</label>
+            <input id="register-name" name="name" type="text" placeholder="Как к вам обращаться" required>
+          </div>
+          <div class="field">
+            <label for="register-email">Email</label>
+            <input id="register-email" name="email" type="email" placeholder="you@example.com" required>
+          </div>
+          <div class="field">
+            <label for="register-password">Пароль</label>
+            <input id="register-password" name="password" type="password" placeholder="Минимум 6 символов" required minlength="6">
+          </div>
+          <button class="submit-button" type="submit">Зарегистрироваться</button>
+        </form>
+      </section>
+
+      <div id="status" class="status" aria-live="polite"></div>
+      <p class="helper">Для реальной авторизации укажите свои значения <strong>SUPABASE_URL</strong> и <strong>SUPABASE_ANON_KEY</strong> внизу файла или через глобальные переменные окна.</p>
+    </div>
+
+    <a class="back-link" href="index.html">← Вернуться на главную</a>
+  </div>
+
+  <script>
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const panels = {
+      login: document.getElementById('login-panel'),
+      register: document.getElementById('register-panel')
+    };
+    const statusNode = document.getElementById('status');
+
+    function setStatus(message, type = '') {
+      statusNode.textContent = message;
+      statusNode.className = `status ${type}`.trim();
+    }
+
+    function switchTab(tab) {
+      tabButtons.forEach((button) => {
+        button.classList.toggle('active', button.dataset.tab === tab);
+      });
+      Object.entries(panels).forEach(([key, panel]) => {
+        panel.classList.toggle('active', key === tab);
+      });
+      setStatus('');
+    }
+
+    tabButtons.forEach((button) => {
+      button.addEventListener('click', () => switchTab(button.dataset.tab));
+    });
+
+    const SUPABASE_URL = window.SUPABASE_URL || 'https://YOUR_PROJECT.supabase.co';
+    const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+    const supabaseClientReady =
+      typeof window.supabase !== 'undefined' &&
+      !SUPABASE_URL.includes('YOUR_PROJECT') &&
+      SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY';
+
+    const supabase = supabaseClientReady
+      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null;
+
+    document.getElementById('login-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      const email = String(form.get('email') || '').trim();
+      const password = String(form.get('password') || '').trim();
+
+      if (!supabase) {
+        setStatus('Подключите рабочие ключи Supabase, чтобы включить вход.', 'error');
+        return;
+      }
+
+      setStatus('Выполняется вход...');
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        setStatus(error.message, 'error');
+        return;
+      }
+
+      setStatus('Вход выполнен успешно.', 'success');
+      window.location.href = 'index.html';
+    });
+
+    document.getElementById('register-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      const name = String(form.get('name') || '').trim();
+      const email = String(form.get('email') || '').trim();
+      const password = String(form.get('password') || '').trim();
+
+      if (!supabase) {
+        setStatus('Подключите рабочие ключи Supabase, чтобы включить регистрацию.', 'error');
+        return;
+      }
+
+      setStatus('Создаём аккаунт...');
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: name }
+        }
+      });
+
+      if (error) {
+        setStatus(error.message, 'error');
+        return;
+      }
+
+      setStatus('Регистрация прошла успешно. Проверьте почту для подтверждения.', 'success');
+      event.currentTarget.reset();
+    });
+  </script>
+</body>
+</html>
