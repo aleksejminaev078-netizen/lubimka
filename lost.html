@@ -942,6 +942,14 @@
     const DEFAULT_MAP_ZOOM = 10;
     const AUTO_REFRESH_INTERVAL_MS = 30000;
     const YANDEX_MAPS_API_KEY = window.YANDEX_MAPS_API_KEY || '';
+    const AUTH_SESSION_WAIT_MS = 5000;
+    const AUTH_SESSION_POLL_MS = 250;
+    const FALLBACK_TILE_URL = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+    const FALLBACK_TILE_ATTRIBUTION = '&copy; OpenStreetMap contributors &copy; CARTO';
+    const FALLBACK_TILE_SUBDOMAINS = 'abcd';
+    const FALLBACK_MAP_HINT = 'Карта работает на нейтральной светлой подложке.';
+    const YANDEX_MAP_HINT = 'Карта работает на Яндекс.Картах.';
+    const YANDEX_FALLBACK_HINT = 'Карта работает на нейтральной светлой подложке. Чтобы переключиться на Яндекс.Карты, добавьте API-ключ Яндекс.Карт.';
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: {
@@ -1016,7 +1024,7 @@
         try {
           await initYandexMaps();
           mapProvider = 'yandex';
-          mapHint.textContent = 'Карта работает на Яндекс.Картах.';
+          mapHint.textContent = YANDEX_MAP_HINT;
           return;
         } catch (error) {
           console.warn('Не удалось запустить Яндекс.Карты, используем резервную карту:', error);
@@ -1027,7 +1035,7 @@
       mapProvider = 'leaflet';
 
       if (!YANDEX_MAPS_API_KEY) {
-        mapHint.textContent = 'Карта работает на OpenStreetMap. Чтобы переключиться на Яндекс.Карты, добавьте API-ключ Яндекс.Карт.';
+        mapHint.textContent = YANDEX_FALLBACK_HINT;
       }
     }
 
@@ -1041,9 +1049,10 @@
         attributionControl: true
       }).setView(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap'
+      L.tileLayer(FALLBACK_TILE_URL, {
+        maxZoom: 20,
+        subdomains: FALLBACK_TILE_SUBDOMAINS,
+        attribution: FALLBACK_TILE_ATTRIBUTION
       }).addTo(pageMap);
 
       pageMarkersLayer = L.layerGroup().addTo(pageMap);
@@ -1053,9 +1062,10 @@
         attributionControl: true
       }).setView(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap'
+      L.tileLayer(FALLBACK_TILE_URL, {
+        maxZoom: 20,
+        subdomains: FALLBACK_TILE_SUBDOMAINS,
+        attribution: FALLBACK_TILE_ATTRIBUTION
       }).addTo(formMap);
 
       formMap.on('click', (event) => {
@@ -1117,6 +1127,77 @@
       return yandexApiLoadingPromise;
     }
 
+    function buildAuthUrl() {
+      const returnTo = `${window.location.pathname || '/lost'}${window.location.search}${window.location.hash}`;
+      const authUrl = new URL('/auth', window.location.origin);
+      authUrl.searchParams.set('next', returnTo);
+      return authUrl.toString();
+    }
+
+    function redirectToAuth() {
+      window.location.assign(buildAuthUrl());
+    }
+
+    async function waitForInitializedSession(timeoutMs = AUTH_SESSION_WAIT_MS, pollIntervalMs = AUTH_SESSION_POLL_MS) {
+      const startedAt = Date.now();
+      let lastError = null;
+
+      while (Date.now() - startedAt < timeoutMs) {
+        try {
+          const { data, error } = await supabaseClient.auth.getSession();
+          if (error) {
+            lastError = error;
+          }
+          if (data?.session?.user) {
+            return { eventName: 'SESSION_READY', session: data.session, error: null };
+          }
+        } catch (error) {
+          lastError = error;
+        }
+
+        await new Promise((resolve) => window.setTimeout(resolve, pollIntervalMs));
+      }
+
+      try {
+        const { data, error } = await supabaseClient.auth.getSession();
+        return {
+          eventName: 'SESSION_TIMEOUT',
+          session: data?.session || null,
+          error: error || lastError || null
+        };
+      } catch (error) {
+        return {
+          eventName: 'SESSION_TIMEOUT',
+          session: null,
+          error: error || lastError || null
+        };
+      }
+    }
+
+    async function resolveCurrentUser(options = {}) {
+      const timeoutMs = Number.isFinite(options.timeoutMs) ? options.timeoutMs : AUTH_SESSION_WAIT_MS;
+      const pollIntervalMs = Number.isFinite(options.pollIntervalMs) ? options.pollIntervalMs : AUTH_SESSION_POLL_MS;
+      const sessionState = await waitForInitializedSession(timeoutMs, pollIntervalMs);
+      currentUser = sessionState.session?.user || null;
+
+      if (!currentUser) {
+        updateAuthNotices();
+        return null;
+      }
+
+      try {
+        const { data, error } = await supabaseClient.auth.getUser();
+        if (!error && data?.user) {
+          currentUser = data.user;
+        }
+      } catch (error) {
+        console.warn('Не удалось обновить данные пользователя:', error);
+      }
+
+      updateAuthNotices();
+      return currentUser;
+    }
+
     function attachEvents() {
       openButtons.forEach((button) => {
         button.addEventListener('click', () => openModal());
@@ -1163,6 +1244,12 @@
         currentUser = session?.user || null;
         updateAuthNotices();
       });
+
+      window.addEventListener('focus', () => {
+        resolveCurrentUser({ timeoutMs: 1200, pollIntervalMs: 150 }).catch((error) => {
+          console.warn('Не удалось обновить сессию после возврата на вкладку:', error);
+        });
+      });
     }
 
     async function bootstrap() {
@@ -1170,14 +1257,12 @@
       setLoadingState(true);
 
       try {
-        const { data, error } = await supabaseClient.auth.getUser();
-        currentUser = !error && data?.user ? data.user : null;
+        await resolveCurrentUser();
       } catch (error) {
-        console.warn('Не удалось получить пользователя:', error);
+        console.warn('Не удалось восстановить пользовательскую сессию:', error);
         currentUser = null;
+        updateAuthNotices();
       }
-
-      updateAuthNotices();
       await loadPostsFromServer();
       autoRefreshTimer = window.setInterval(() => {
         loadPostsFromServer(false, true);
@@ -1188,6 +1273,9 @@
       modal.classList.add('is-open');
       modal.setAttribute('aria-hidden', 'false');
       updateAuthNotices();
+      resolveCurrentUser({ timeoutMs: 1200, pollIntervalMs: 150 }).catch((error) => {
+        console.warn('Не удалось уточнить сессию перед публикацией:', error);
+      });
       window.setTimeout(() => {
         syncFormMapViewport();
         focusSelectedLocationOnFormMap();
@@ -1604,9 +1692,17 @@
       if (isSubmitting) return;
 
       if (!currentUser) {
+        try {
+          await resolveCurrentUser({ timeoutMs: 1500, pollIntervalMs: 150 });
+        } catch (error) {
+          console.warn('Не удалось повторно проверить сессию перед публикацией:', error);
+        }
+      }
+
+      if (!currentUser) {
         const shouldOpenAuth = window.confirm('Чтобы публиковать объявления на общей карте, нужно войти в аккаунт. Перейти на страницу входа?');
         if (shouldOpenAuth) {
-          window.location.href = 'auth.html?next=lost.html';
+          redirectToAuth();
         }
         return;
       }
