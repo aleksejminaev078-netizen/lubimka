@@ -233,6 +233,38 @@
     const registerForm = document.getElementById('register-form');
     const SUPABASE_URL = window.SUPABASE_URL || 'https://afnlrgfamcaxnnpqgxev.supabase.co';
     const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmbmxyZ2ZhbWNheG5ucHFneGV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NzAwMjQsImV4cCI6MjA5MTM0NjAyNH0.O9g34xXE0K4GKzaMN857wPEHMTUK8V5LnhLS_V0yhDw';
+    const supabaseProjectRef = new URL(SUPABASE_URL).hostname.split('.')[0];
+    const supabaseStorageKeyPrefix = `sb-${supabaseProjectRef}-`;
+    const searchParams = new URLSearchParams(window.location.search);
+    const isLogoutRedirect = searchParams.get('logout') === '1';
+
+    function clearStoredSupabaseSession() {
+      [window.localStorage, window.sessionStorage].forEach((storage) => {
+        if (!storage) {
+          return;
+        }
+
+        const keys = [];
+        for (let index = 0; index < storage.length; index += 1) {
+          const key = storage.key(index);
+          if (key) {
+            keys.push(key);
+          }
+        }
+
+        keys.forEach((key) => {
+          if (key.startsWith(supabaseStorageKeyPrefix) && key.includes('auth-token')) {
+            storage.removeItem(key);
+          }
+        });
+      });
+    }
+
+    if (isLogoutRedirect) {
+      clearStoredSupabaseSession();
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: {
         persistSession: true,
@@ -376,6 +408,11 @@
 
       if (error) {
         setStatus('Не удалось проверить текущую сессию. Обновите страницу и попробуйте снова.', 'error');
+        return;
+      }
+
+      if (isLogoutRedirect) {
+        setStatus('Вы вышли из аккаунта.', 'success');
         return;
       }
 
