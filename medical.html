@@ -968,7 +968,42 @@
     }
 
     function redirectToAuth() {
-      window.location.href = 'auth.html';
+      const returnTo = `${window.location.pathname.split('/').pop() || 'medical.html'}${window.location.search}${window.location.hash}`;
+      const authUrl = new URL('auth.html', window.location.href);
+      authUrl.searchParams.set('next', returnTo);
+      window.location.replace(authUrl.toString());
+    }
+
+    async function waitForInitializedSession(timeoutMs = 5000, pollIntervalMs = 250) {
+      const startedAt = Date.now();
+      let lastError = null;
+
+      while (Date.now() - startedAt < timeoutMs) {
+        try {
+          const { data, error } = await supabaseClient.auth.getSession();
+          if (error) {
+            lastError = error;
+          }
+          if (data?.session?.user) {
+            return { eventName: 'SESSION_READY', session: data.session, error: null };
+          }
+        } catch (error) {
+          lastError = error;
+        }
+
+        await new Promise((resolve) => window.setTimeout(resolve, pollIntervalMs));
+      }
+
+      try {
+        const { data, error } = await supabaseClient.auth.getSession();
+        return {
+          eventName: 'SESSION_TIMEOUT',
+          session: data?.session || null,
+          error: error || lastError || null
+        };
+      } catch (error) {
+        return { eventName: 'SESSION_TIMEOUT', session: null, error: error || lastError || null };
+      }
     }
 
     function setStatus(target, message = '', tone = '') {
@@ -1438,12 +1473,26 @@
 
     (async () => {
       recordDateInput.value = formatDateForInput();
-      const { data, error } = await supabaseClient.auth.getUser();
-      if (error || !data.user) {
+
+      const { session, error: sessionError } = await waitForInitializedSession();
+      if (sessionError) {
         redirectToAuth();
         return;
       }
-      currentUser = data.user;
+
+      if (!session?.user) {
+        redirectToAuth();
+        return;
+      }
+
+      const { data, error } = await supabaseClient.auth.getUser();
+      currentUser = !error && data.user ? data.user : session.user;
+
+      if (!currentUser) {
+        redirectToAuth();
+        return;
+      }
+
       const metadata = getUserMetadata(currentUser);
       pets = normalizePets(metadata.pets);
       medicalRecords = normalizeMedicalRecords(metadata.medical_records);

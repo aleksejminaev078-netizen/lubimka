@@ -272,7 +272,29 @@
         detectSessionInUrl: true
       }
     });
-    const emailRedirectTo = new URL('auth.html', window.location.href).toString();
+
+    function resolvePostAuthTarget() {
+      const params = new URLSearchParams(window.location.search);
+      const next = params.get('next');
+      if (!next) return 'index.html';
+
+      try {
+        const targetUrl = new URL(next, window.location.href);
+        if (targetUrl.origin !== window.location.origin) {
+          return 'index.html';
+        }
+        return `${targetUrl.pathname.split('/').pop() || 'index.html'}${targetUrl.search}${targetUrl.hash}`;
+      } catch (error) {
+        return 'index.html';
+      }
+    }
+
+    const postAuthTarget = isLogoutRedirect ? 'auth.html' : resolvePostAuthTarget();
+    const emailRedirectUrl = new URL('auth.html', window.location.href);
+    if (!isLogoutRedirect && postAuthTarget !== 'index.html') {
+      emailRedirectUrl.searchParams.set('next', postAuthTarget);
+    }
+    const emailRedirectTo = emailRedirectUrl.toString();
 
     function setStatus(message, type = '') {
       statusNode.textContent = message;
@@ -324,7 +346,7 @@
     }
 
     function redirectToHome() {
-      window.location.replace('index.html');
+      window.location.replace(postAuthTarget);
     }
 
     tabButtons.forEach((button) => {
