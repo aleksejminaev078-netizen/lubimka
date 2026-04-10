@@ -884,7 +884,7 @@
           <div id="pets-list" class="pets-list"></div>
           <div class="utility-grid utility-grid-compact">
             <button id="download-data-button" class="utility-button" type="button">↓ Скачать данные</button>
-            <button id="upload-data-button" class="utility-button" type="button">📄 Загрузить данные</button>
+            <button id="header-add-record-button" class="primary-button" type="button">➕ Добавить запись</button>
             <input id="archive-input" type="file" accept="application/json" hidden>
           </div>
           <div id="sidebar-status" class="status" aria-live="polite"></div>
@@ -1123,7 +1123,7 @@
     const recordsPanelNode = document.getElementById('records-panel');
     const sidebarAddRecordButton = document.getElementById('sidebar-add-record-button');
     const downloadDataButton = document.getElementById('download-data-button');
-    const uploadDataButton = document.getElementById('upload-data-button');
+    const headerAddRecordButton = document.getElementById('header-add-record-button');
     const archiveInput = document.getElementById('archive-input');
     const openRecordModalButton = document.getElementById('open-record-modal-button');
     const openPetDetailsModalButton = document.getElementById('open-pet-details-modal-button');
@@ -1971,6 +1971,7 @@
       mainLayout.classList.toggle('hidden', !hasPets);
       openRecordModalButton.disabled = !hasPets;
       sidebarAddRecordButton.disabled = !hasPets;
+      headerAddRecordButton.disabled = !hasPets;
       openPetDetailsModalButton.disabled = !hasPets;
       historyAddRecordButton.disabled = !hasPets;
       downloadDataButton.disabled = !hasPets;
@@ -2121,7 +2122,6 @@
     });
 
     downloadDataButton.addEventListener('click', downloadDataArchive);
-    uploadDataButton.addEventListener('click', () => archiveInput.click());
     archiveInput.addEventListener('change', async (event) => {
       const file = event.target.files && event.target.files[0];
       if (!file) return;
@@ -2134,7 +2134,7 @@
       }
     });
 
-    [openRecordModalButton, sidebarAddRecordButton, historyAddRecordButton].forEach((button) => button.addEventListener('click', openRecordModal));
+    [openRecordModalButton, sidebarAddRecordButton, historyAddRecordButton, headerAddRecordButton].forEach((button) => button.addEventListener('click', openRecordModal));
     openPetDetailsModalButton.addEventListener('click', openPetDetailsModal);
     analysisEditWeightButton.addEventListener('click', openPetDetailsModal);
     addReminderButton.addEventListener('click', () => setStatus(historyStatusNode, 'Напоминания подготовлены в интерфейсе, но отдельный сценарий сохранения пока не добавлен.', 'success'));
