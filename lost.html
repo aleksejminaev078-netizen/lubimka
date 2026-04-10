@@ -936,10 +936,12 @@
     const SUPABASE_URL = window.SUPABASE_URL || 'https://afnlrgfamcaxnnpqgxev.supabase.co';
     const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmbmxyZ2ZhbWNheG5ucHFneGV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NzAwMjQsImV4cCI6MjA5MTM0NjAyNH0.O9g34xXE0K4GKzaMN857wPEHMTUK8V5LnhLS_V0yhDw';
     const LOST_POSTS_TABLE = 'lost_posts';
+    const LOST_PHOTO_BUCKET = 'pets';
     const MAX_PHOTO_SIZE_BYTES = 3 * 1024 * 1024;
     const DEFAULT_MAP_CENTER = [55.751244, 37.618423];
     const DEFAULT_MAP_ZOOM = 10;
     const AUTO_REFRESH_INTERVAL_MS = 30000;
+    const YANDEX_MAPS_API_KEY = window.YANDEX_MAPS_API_KEY || '';
 
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth: {
@@ -992,15 +994,46 @@
     let selectedLocationMarker = null;
     let markerById = new Map();
     let autoRefreshTimer = null;
+    let mapProvider = 'leaflet';
+    let yandexApiLoadingPromise = null;
 
-    initMaps();
-    attachEvents();
-    bootstrap();
+    initializePage();
 
-    function initMaps() {
-      if (!window.L) {
+    async function initializePage() {
+      try {
+        await initMaps();
+      } catch (error) {
+        console.error('Не удалось инициализировать карту:', error);
         setNotice(pageNotice, 'Карта не загрузилась', 'Не удалось подключить карту. Проверьте интернет-соединение и обновите страницу.', 'error');
-        return;
+      }
+
+      attachEvents();
+      bootstrap();
+    }
+
+    async function initMaps() {
+      if (YANDEX_MAPS_API_KEY) {
+        try {
+          await initYandexMaps();
+          mapProvider = 'yandex';
+          mapHint.textContent = 'Карта работает на Яндекс.Картах.';
+          return;
+        } catch (error) {
+          console.warn('Не удалось запустить Яндекс.Карты, используем резервную карту:', error);
+        }
+      }
+
+      initLeafletMaps();
+      mapProvider = 'leaflet';
+
+      if (!YANDEX_MAPS_API_KEY) {
+        mapHint.textContent = 'Карта работает на OpenStreetMap. Чтобы переключиться на Яндекс.Карты, добавьте API-ключ Яндекс.Карт.';
+      }
+    }
+
+    function initLeafletMaps() {
+      if (!window.L) {
+        throw new Error('Leaflet не загрузился.');
       }
 
       pageMap = L.map('lostMap', {
@@ -1028,6 +1061,60 @@
       formMap.on('click', (event) => {
         setSelectedLocation(event.latlng.lat, event.latlng.lng, true);
       });
+    }
+
+    async function initYandexMaps() {
+      await loadYandexMapsApi();
+
+      pageMap = new ymaps.Map('lostMap', {
+        center: DEFAULT_MAP_CENTER,
+        zoom: DEFAULT_MAP_ZOOM,
+        controls: ['zoomControl']
+      }, {
+        suppressMapOpenBlock: true
+      });
+
+      formMap = new ymaps.Map('formMap', {
+        center: DEFAULT_MAP_CENTER,
+        zoom: DEFAULT_MAP_ZOOM,
+        controls: ['zoomControl']
+      }, {
+        suppressMapOpenBlock: true
+      });
+
+      formMap.events.add('click', (event) => {
+        const coords = event.get('coords') || [];
+        setSelectedLocation(coords[0], coords[1], true);
+      });
+    }
+
+    function loadYandexMapsApi() {
+      if (window.ymaps) {
+        return new Promise((resolve) => {
+          window.ymaps.ready(resolve);
+        });
+      }
+
+      if (yandexApiLoadingPromise) {
+        return yandexApiLoadingPromise;
+      }
+
+      yandexApiLoadingPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = `https://api-maps.yandex.ru/2.1/?apikey=${encodeURIComponent(YANDEX_MAPS_API_KEY)}&lang=ru_RU`;
+        script.async = true;
+        script.onload = () => {
+          if (!window.ymaps) {
+            reject(new Error('API Яндекс.Карт загрузился с ошибкой.'));
+            return;
+          }
+          window.ymaps.ready(resolve);
+        };
+        script.onerror = () => reject(new Error('Не удалось загрузить API Яндекс.Карт.'));
+        document.head.appendChild(script);
+      });
+
+      return yandexApiLoadingPromise;
     }
 
     function attachEvents() {
@@ -1102,10 +1189,8 @@
       modal.setAttribute('aria-hidden', 'false');
       updateAuthNotices();
       window.setTimeout(() => {
-        formMap?.invalidateSize();
-        if (selectedLocationMarker) {
-          formMap?.setView(selectedLocationMarker.getLatLng(), Math.max(formMap.getZoom(), 14));
-        }
+        syncFormMapViewport();
+        focusSelectedLocationOnFormMap();
         document.getElementById('petName').focus();
       }, 80);
     }
@@ -1113,6 +1198,27 @@
     function closeModal() {
       modal.classList.remove('is-open');
       modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function syncFormMapViewport() {
+      if (!formMap) return;
+      if (mapProvider === 'yandex') {
+        formMap.container?.fitToViewport?.();
+        return;
+      }
+      formMap.invalidateSize?.();
+    }
+
+    function focusSelectedLocationOnFormMap() {
+      if (!selectedLocationMarker || !formMap) return;
+      if (mapProvider === 'yandex') {
+        const coords = selectedLocationMarker.geometry?.getCoordinates?.();
+        if (coords) {
+          formMap.setCenter(coords, Math.max(formMap.getZoom(), 14), { duration: 200 });
+        }
+        return;
+      }
+      formMap.setView(selectedLocationMarker.getLatLng(), Math.max(formMap.getZoom(), 14));
     }
 
     function setNotice(node, title, text, variant = 'info') {
@@ -1190,6 +1296,7 @@
         contact: String(row.contact_phone || '').trim(),
         description: String(row.description || '').trim(),
         photoUrl: String(row.photo_url || '').trim(),
+        photoPath: String(row.photo_path || '').trim(),
         latitude: Number.isFinite(latitude) ? latitude : null,
         longitude: Number.isFinite(longitude) ? longitude : null,
         createdAt: row.created_at || new Date().toISOString()
@@ -1215,11 +1322,20 @@
     }
 
     function renderMapMarkers(filteredPosts) {
+      const points = filteredPosts.filter((post) => Number.isFinite(post.latitude) && Number.isFinite(post.longitude));
+
+      if (mapProvider === 'yandex') {
+        renderYandexMarkers(points);
+        return;
+      }
+
+      renderLeafletMarkers(points);
+    }
+
+    function renderLeafletMarkers(points) {
       if (!pageMap || !pageMarkersLayer) return;
       pageMarkersLayer.clearLayers();
       markerById = new Map();
-
-      const points = filteredPosts.filter((post) => Number.isFinite(post.latitude) && Number.isFinite(post.longitude));
 
       points.forEach((post) => {
         const marker = L.circleMarker([post.latitude, post.longitude], {
@@ -1246,6 +1362,50 @@
 
       const bounds = L.latLngBounds(points.map((post) => [post.latitude, post.longitude]));
       pageMap.fitBounds(bounds, { padding: [24, 24], maxZoom: 13 });
+    }
+
+    function renderYandexMarkers(points) {
+      if (!pageMap || !window.ymaps) return;
+      pageMap.geoObjects.removeAll();
+      markerById = new Map();
+
+      points.forEach((post) => {
+        const marker = new ymaps.Placemark([post.latitude, post.longitude], {
+          balloonContent: renderPopupContent(post),
+          hintContent: post.name || 'Объявление'
+        }, {
+          preset: post.status === 'found' ? 'islands#greenCircleDotIcon' : 'islands#redCircleDotIcon'
+        });
+
+        pageMap.geoObjects.add(marker);
+        markerById.set(post.id, marker);
+      });
+
+      if (!points.length) {
+        pageMap.setCenter(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
+        return;
+      }
+
+      if (points.length === 1) {
+        pageMap.setCenter([points[0].latitude, points[0].longitude], 13, { duration: 200 });
+        return;
+      }
+
+      const bounds = getBoundsFromPoints(points.map((post) => [post.latitude, post.longitude]));
+      if (bounds) {
+        pageMap.setBounds(bounds, { checkZoomRange: true, zoomMargin: 24 });
+      }
+    }
+
+    function getBoundsFromPoints(points) {
+      if (!Array.isArray(points) || !points.length) return null;
+      const latitudes = points.map((point) => Number(point[0])).filter(Number.isFinite);
+      const longitudes = points.map((point) => Number(point[1])).filter(Number.isFinite);
+      if (!latitudes.length || !longitudes.length) return null;
+      return [
+        [Math.min(...latitudes), Math.min(...longitudes)],
+        [Math.max(...latitudes), Math.max(...longitudes)]
+      ];
     }
 
     function renderPopupContent(post) {
@@ -1357,6 +1517,27 @@
       locationChip.textContent = `Точка выбрана: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
       locationHint.textContent = 'Можно перетащить маркер или нажать в другое место на карте.';
 
+      if (mapProvider === 'yandex' && window.ymaps) {
+        if (!selectedLocationMarker) {
+          selectedLocationMarker = new ymaps.Placemark([lat, lng], {}, {
+            preset: 'islands#redDotIcon',
+            draggable: true
+          });
+          formMap.geoObjects.add(selectedLocationMarker);
+          selectedLocationMarker.events.add('dragend', () => {
+            const nextPosition = selectedLocationMarker.geometry.getCoordinates();
+            setSelectedLocation(nextPosition[0], nextPosition[1], false);
+          });
+        } else {
+          selectedLocationMarker.geometry.setCoordinates([lat, lng]);
+        }
+
+        if (shouldPan) {
+          formMap.setCenter([lat, lng], Math.max(formMap.getZoom(), 14), { duration: 200 });
+        }
+        return;
+      }
+
       if (!selectedLocationMarker) {
         selectedLocationMarker = L.marker([lat, lng], { draggable: true }).addTo(formMap);
         selectedLocationMarker.on('dragend', (event) => {
@@ -1379,8 +1560,16 @@
       locationChip.textContent = 'Точка ещё не выбрана. Нажмите на карту или используйте определение геопозиции.';
       locationHint.textContent = 'Без точки на карте объявление не опубликуется.';
       if (selectedLocationMarker) {
-        formMap?.removeLayer(selectedLocationMarker);
+        if (mapProvider === 'yandex') {
+          formMap?.geoObjects?.remove(selectedLocationMarker);
+        } else {
+          formMap?.removeLayer(selectedLocationMarker);
+        }
         selectedLocationMarker = null;
+      }
+      if (mapProvider === 'yandex') {
+        formMap?.setCenter(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
+        return;
       }
       formMap?.setView(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
     }
@@ -1431,8 +1620,9 @@
         return;
       }
 
-      const postId = `lost_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      const postId = window.crypto?.randomUUID?.() || `lost_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
       let photoUrl = '';
+      let photoPath = '';
 
       isSubmitting = true;
       submitPostButton.disabled = true;
@@ -1440,7 +1630,9 @@
 
       try {
         if (selectedPhotoFile) {
-          photoUrl = await fileToDataUrl(selectedPhotoFile);
+          const uploadedPhoto = await uploadLostPhoto(selectedPhotoFile, postId);
+          photoUrl = uploadedPhoto.photo_url;
+          photoPath = uploadedPhoto.photo_path;
         }
 
         const payload = {
@@ -1455,6 +1647,7 @@
           latitude,
           longitude,
           photo_url: photoUrl,
+          photo_path: photoPath,
           contact_name: currentUser.user_metadata?.full_name || currentUser.email || '',
           contact_phone: String(formData.get('petContact') || '').trim()
         };
@@ -1479,10 +1672,17 @@
         await loadPostsFromServer(true);
       } catch (error) {
         console.error('Не удалось опубликовать объявление:', error);
-        const authHint = String(error?.message || '').toLowerCase().includes('row-level security')
+        const message = String(error?.message || '');
+        const authHint = message.toLowerCase().includes('row-level security')
           ? ' Проверьте, что вы вошли в аккаунт.'
           : '';
-        alert((error?.message || 'Не удалось опубликовать объявление.') + authHint);
+        const uploadHint = message.toLowerCase().includes('storage') || message.toLowerCase().includes('bucket')
+          ? ' Проверьте настройки загрузки в Storage для bucket pets.'
+          : '';
+        const networkHint = message.toLowerCase().includes('failed to fetch')
+          ? ' Похоже, слишком тяжёлый запрос или недоступна загрузка файла. Я перевёл публикацию на Storage, поэтому после обновления страницы попробуйте ещё раз.'
+          : '';
+        alert((message || 'Не удалось опубликовать объявление.') + authHint + (uploadHint ? ` ${uploadHint}` : '') + networkHint);
       } finally {
         isSubmitting = false;
         updateAuthNotices();
@@ -1546,9 +1746,21 @@
         alert('Для этого объявления точка на карте недоступна.');
         return;
       }
-      const latLng = marker.getLatLng();
-      pageMap.setView(latLng, Math.max(pageMap.getZoom(), 14));
-      marker.openPopup();
+
+      if (mapProvider === 'yandex') {
+        const coordinates = marker.geometry?.getCoordinates?.();
+        if (!coordinates) {
+          alert('Для этого объявления точка на карте недоступна.');
+          return;
+        }
+        pageMap.setCenter(coordinates, Math.max(pageMap.getZoom(), 14), { duration: 200 });
+        marker.balloon?.open?.();
+      } else {
+        const latLng = marker.getLatLng();
+        pageMap.setView(latLng, Math.max(pageMap.getZoom(), 14));
+        marker.openPopup();
+      }
+
       document.getElementById('mapTitle')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
@@ -1574,13 +1786,28 @@
       alert(`Связаться: ${normalized}`);
     }
 
-    function fileToDataUrl(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result || ''));
-        reader.onerror = () => reject(new Error('Не удалось прочитать изображение.'));
-        reader.readAsDataURL(file);
-      });
+    async function uploadLostPhoto(file, postId) {
+      const extension = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+      const filePath = `${currentUser.id}/lost-${postId}-${Date.now()}.${extension}`;
+
+      const { error: uploadError } = await supabaseClient
+        .storage
+        .from(LOST_PHOTO_BUCKET)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabaseClient.storage.from(LOST_PHOTO_BUCKET).getPublicUrl(filePath);
+
+      return {
+        photo_path: filePath,
+        photo_url: data?.publicUrl || ''
+      };
     }
 
     function formatRelativeDate(dateString) {
