@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Любимка — Потеряшки</title>
   <meta name="theme-color" content="#FF6B35">
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  >
   <style>
     :root {
       --bg: #FFF8F5;
@@ -108,6 +114,49 @@
       font-size: 0.92rem;
     }
 
+    .page-note,
+    .map-card,
+    .post-card,
+    .empty-card,
+    .modal-sheet {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .page-note {
+      display: grid;
+      gap: 6px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      border: 1px solid transparent;
+    }
+
+    .page-note strong {
+      font-size: 0.96rem;
+    }
+
+    .page-note span {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .page-note.is-info {
+      background: #FFF6F1;
+      border-color: rgba(255, 107, 53, 0.16);
+    }
+
+    .page-note.is-success {
+      background: #F2FFF6;
+      border-color: rgba(52, 199, 89, 0.18);
+    }
+
+    .page-note.is-error {
+      background: #FFF3F2;
+      border-color: rgba(255, 59, 48, 0.16);
+    }
+
     .tabs {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -172,17 +221,154 @@
       color: #A0948C;
     }
 
+    .map-card {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .map-card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .map-card-head h2,
+    .empty-card h2,
+    .sheet-head h2 {
+      margin: 0;
+      letter-spacing: -0.03em;
+    }
+
+    .map-card-head h2 {
+      font-size: 1.15rem;
+    }
+
+    .map-card-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .map-count {
+      min-width: fit-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--orange-soft);
+      color: var(--orange);
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .map-canvas {
+      width: 100%;
+      height: 290px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(31, 26, 23, 0.08);
+      background: #F8F1ED;
+    }
+
+    .map-canvas--picker {
+      height: 240px;
+    }
+
+    .leaflet-container {
+      font: inherit;
+      background: #F8F1ED;
+    }
+
+    .leaflet-popup-content-wrapper {
+      border-radius: 16px;
+    }
+
+    .leaflet-popup-content {
+      margin: 12px 14px;
+      line-height: 1.45;
+      font-size: 0.9rem;
+    }
+
+    .popup-title {
+      margin: 0 0 6px;
+      font-weight: 800;
+      font-size: 0.98rem;
+    }
+
+    .popup-text {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .popup-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .popup-badge.lost {
+      background: var(--red);
+    }
+
+    .popup-badge.found {
+      background: var(--green);
+    }
+
+    .map-toolbar,
+    .location-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .map-hint,
+    .helper,
+    .location-chip {
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .map-hint,
+    .helper {
+      color: var(--muted);
+    }
+
+    .map-control-btn,
+    .secondary-btn {
+      min-height: 42px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: #F8F1ED;
+      color: #5E524C;
+      font-weight: 700;
+    }
+
+    .location-chip {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: #FFF3EE;
+      color: #7A5C4F;
+      font-weight: 600;
+    }
+
+    .location-chip.is-empty {
+      background: #F7F1EE;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
     .list {
       display: grid;
       gap: 10px;
-    }
-
-    .post-card,
-    .empty-card,
-    .modal-sheet {
-      background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
     }
 
     .post-card {
@@ -258,10 +444,15 @@
       color: var(--muted);
     }
 
+    .post-description {
+      margin: 0;
+      color: #5E524C;
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
     .post-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: grid;
       gap: 10px;
       margin-top: 2px;
     }
@@ -272,17 +463,33 @@
       white-space: nowrap;
     }
 
-    .contact-btn {
+    .post-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .contact-btn,
+    .map-link-btn {
       min-height: 38px;
       padding: 10px 14px;
       border-radius: 10px;
-      background: var(--orange);
-      color: #fff;
       font-weight: 700;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       white-space: nowrap;
+    }
+
+    .contact-btn {
+      background: var(--orange);
+      color: #fff;
+    }
+
+    .map-link-btn {
+      background: #F8F1ED;
+      color: #5E524C;
     }
 
     .delete-btn {
@@ -315,9 +522,7 @@
     }
 
     .empty-card h2 {
-      margin: 0;
       font-size: 1.2rem;
-      letter-spacing: -0.02em;
     }
 
     .empty-card p {
@@ -327,9 +532,9 @@
     }
 
     .empty-card .empty-btn,
-    .submit-btn,
     .fixed-submit-btn,
-    .upload-btn {
+    .upload-btn,
+    .submit-btn {
       min-height: 48px;
       border-radius: 16px;
       background: var(--orange);
@@ -339,8 +544,13 @@
     }
 
     .empty-card .empty-btn,
-    .upload-btn {
+    .upload-btn,
+    .submit-btn {
       width: 100%;
+    }
+
+    .empty-card .empty-btn,
+    .upload-btn {
       max-width: 260px;
       padding: 0 18px;
     }
@@ -361,9 +571,13 @@
       pointer-events: auto;
     }
 
+    .fixed-submit-btn,
+    .submit-btn {
+      height: 52px;
+    }
+
     .fixed-submit-btn {
       width: 100%;
-      height: 52px;
     }
 
     .modal {
@@ -383,7 +597,7 @@
 
     .modal-sheet {
       width: min(100%, 480px);
-      max-height: min(88vh, 820px);
+      max-height: min(88vh, 860px);
       overflow: auto;
       padding: 18px 16px 20px;
     }
@@ -397,9 +611,7 @@
     }
 
     .sheet-head h2 {
-      margin: 0;
       font-size: 1.3rem;
-      letter-spacing: -0.03em;
     }
 
     .sheet-close {
@@ -510,16 +722,14 @@
       overflow-wrap: anywhere;
     }
 
-    .helper {
-      font-size: 0.82rem;
-      color: var(--muted);
-      line-height: 1.45;
-    }
-
-    .submit-btn {
-      width: 100%;
-      height: 52px;
-      margin-top: 6px;
+    .submit-btn[disabled],
+    .fixed-submit-btn[disabled],
+    .upload-btn[disabled],
+    .map-control-btn[disabled],
+    .secondary-btn[disabled] {
+      opacity: 0.65;
+      cursor: not-allowed;
+      filter: grayscale(0.1);
     }
 
     [hidden] {
@@ -532,7 +742,10 @@
       .submit-btn:hover,
       .fixed-submit-btn:hover,
       .upload-btn:hover,
-      .plus-btn:hover {
+      .plus-btn:hover,
+      .map-link-btn:hover,
+      .map-control-btn:hover,
+      .secondary-btn:hover {
         filter: brightness(0.98);
       }
     }
@@ -546,13 +759,20 @@
         grid-template-columns: 80px minmax(0, 1fr);
       }
 
-      .post-footer {
+      .post-actions {
         flex-direction: column;
         align-items: stretch;
       }
 
-      .contact-btn {
+      .contact-btn,
+      .map-link-btn,
+      .map-control-btn,
+      .secondary-btn {
         width: 100%;
+      }
+
+      .map-card-head {
+        flex-direction: column;
       }
     }
   </style>
@@ -563,10 +783,15 @@
       <a class="icon-btn" href="index.html" aria-label="Вернуться на главную">←</a>
       <div class="title-wrap">
         <h1>🐾 Потеряшки</h1>
-        <p>Объявления о пропавших и найденных питомцах</p>
+        <p>Объявления о пропавших и найденных питомцах на общей карте</p>
       </div>
       <button class="plus-btn" type="button" id="openModalTop" aria-label="Подать объявление">➕</button>
     </header>
+
+    <div class="page-note is-info" id="pageNotice">
+      <strong>Загружаем карту и объявления…</strong>
+      <span>Карту видят все пользователи. Для публикации нового объявления понадобится вход в аккаунт.</span>
+    </div>
 
     <div class="tabs" role="tablist" aria-label="Переключение объявлений">
       <button class="tab-btn is-active" type="button" data-tab="lost" aria-selected="true">🔴 Потерялись</button>
@@ -576,16 +801,31 @@
     <div class="search-row">
       <label class="search-box" for="searchInput">
         <span>🔎</span>
-        <input id="searchInput" type="search" placeholder="Поиск по городу или району">
+        <input id="searchInput" type="search" placeholder="Поиск по городу, району, имени или породе">
       </label>
     </div>
+
+    <section class="map-card" aria-labelledby="mapTitle">
+      <div class="map-card-head">
+        <div>
+          <h2 id="mapTitle">Карта потеряшек</h2>
+          <p>На карте показываются объявления из текущего раздела. Нажмите на маркер, чтобы быстро посмотреть подробности.</p>
+        </div>
+        <div class="map-count" id="mapCount">0 объявлений</div>
+      </div>
+      <div class="map-toolbar">
+        <button class="map-control-btn" type="button" id="refreshPostsButton">Обновить объявления</button>
+        <span class="map-hint" id="mapHint">Если объявление добавлено недавно, карта обновится автоматически при перезагрузке списка.</span>
+      </div>
+      <div class="map-canvas" id="lostMap" aria-label="Карта объявлений"></div>
+    </section>
 
     <section>
       <div class="list" id="postsList"></div>
       <div class="empty-card" id="emptyState" hidden>
         <div class="empty-emoji">🐾</div>
         <h2>Пока объявлений нет</h2>
-        <p>Будьте первым — помогите питомцу найти дом!</p>
+        <p>Будьте первым — отметьте точку на карте и помогите питомцу быстрее найтись.</p>
         <button class="empty-btn" type="button" id="openModalEmpty">➕ Подать объявление</button>
       </div>
     </section>
@@ -602,6 +842,11 @@
       <div class="sheet-head">
         <h2>➕ Подать объявление</h2>
         <button class="sheet-close" type="button" id="closeModal" aria-label="Закрыть">✕</button>
+      </div>
+
+      <div class="page-note is-info" id="modalNotice">
+        <strong>Чтобы опубликовать объявление, войдите в аккаунт.</strong>
+        <span>Смотреть карту и список можно без входа, но создавать и удалять свои объявления могут только авторизованные пользователи.</span>
       </div>
 
       <form class="form-grid" id="postForm">
@@ -650,6 +895,19 @@
         </div>
 
         <div class="field">
+          <label>Отметьте точку на карте</label>
+          <div class="map-canvas map-canvas--picker" id="formMap" aria-label="Карта выбора точки"></div>
+          <div class="location-actions">
+            <button class="map-control-btn" type="button" id="useCurrentLocation">Использовать моё местоположение</button>
+            <button class="secondary-btn" type="button" id="clearSelectedLocation">Очистить точку</button>
+          </div>
+          <div class="location-chip is-empty" id="locationChip">Точка ещё не выбрана. Нажмите на карту или используйте определение геопозиции.</div>
+          <div class="helper" id="locationHint">Без точки на карте объявление не опубликуется.</div>
+          <input id="petLatitude" name="petLatitude" type="hidden" required>
+          <input id="petLongitude" name="petLongitude" type="hidden" required>
+        </div>
+
+        <div class="field">
           <label for="petPhoto">Фото питомца</label>
           <input id="petPhoto" name="petPhoto" type="file" accept="image/*" hidden>
           <button class="upload-btn" type="button" id="pickPhoto">Выбрать фото с телефона / компьютера</button>
@@ -663,20 +921,45 @@
           <div class="helper">Фото необязательно. Если его нет, в карточке будет показан эмодзи питомца.</div>
         </div>
 
-        <button class="submit-btn" type="submit">Опубликовать объявление</button>
+        <button class="submit-btn" type="submit" id="submitPostButton">Опубликовать объявление</button>
       </form>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
   <script>
-    const STORAGE_KEY = 'lubimka_lost_posts_v1';
-    const CLIENT_KEY = 'lubimka_lost_client_id';
+    const SUPABASE_URL = window.SUPABASE_URL || 'https://afnlrgfamcaxnnpqgxev.supabase.co';
+    const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmbmxyZ2ZhbWNheG5ucHFneGV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NzAwMjQsImV4cCI6MjA5MTM0NjAyNH0.O9g34xXE0K4GKzaMN857wPEHMTUK8V5LnhLS_V0yhDw';
+    const LOST_POSTS_TABLE = 'lost_posts';
+    const MAX_PHOTO_SIZE_BYTES = 3 * 1024 * 1024;
+    const DEFAULT_MAP_CENTER = [55.751244, 37.618423];
+    const DEFAULT_MAP_ZOOM = 10;
+    const AUTO_REFRESH_INTERVAL_MS = 30000;
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    });
+
     const postsList = document.getElementById('postsList');
     const emptyState = document.getElementById('emptyState');
     const searchInput = document.getElementById('searchInput');
     const tabButtons = Array.from(document.querySelectorAll('[data-tab]'));
     const modal = document.getElementById('postModal');
     const postForm = document.getElementById('postForm');
+    const pageNotice = document.getElementById('pageNotice');
+    const modalNotice = document.getElementById('modalNotice');
+    const mapCount = document.getElementById('mapCount');
+    const mapHint = document.getElementById('mapHint');
+    const refreshPostsButton = document.getElementById('refreshPostsButton');
     const openButtons = [
       document.getElementById('openModalTop'),
       document.getElementById('openModalBottom'),
@@ -688,81 +971,143 @@
     const uploadPreview = document.getElementById('uploadPreview');
     const uploadPreviewImage = document.getElementById('uploadPreviewImage');
     const uploadPreviewName = document.getElementById('uploadPreviewName');
+    const submitPostButton = document.getElementById('submitPostButton');
+    const locationChip = document.getElementById('locationChip');
+    const locationHint = document.getElementById('locationHint');
+    const latitudeInput = document.getElementById('petLatitude');
+    const longitudeInput = document.getElementById('petLongitude');
+    const useCurrentLocationButton = document.getElementById('useCurrentLocation');
+    const clearSelectedLocationButton = document.getElementById('clearSelectedLocation');
 
-    const clientId = getClientId();
     let activeTab = 'lost';
-    let selectedPhoto = null;
-    let posts = loadPosts();
+    let currentUser = null;
+    let posts = [];
+    let selectedPhotoFile = null;
+    let previewObjectUrl = '';
+    let isSubmitting = false;
+    let isLoadingPosts = false;
+    let pageMap = null;
+    let formMap = null;
+    let pageMarkersLayer = null;
+    let selectedLocationMarker = null;
+    let markerById = new Map();
+    let autoRefreshTimer = null;
 
-    openButtons.forEach((button) => {
-      button.addEventListener('click', () => openModal());
-    });
+    initMaps();
+    attachEvents();
+    bootstrap();
 
-    closeModalButton.addEventListener('click', closeModal);
-    modal.addEventListener('click', (event) => {
-      if (event.target === modal) {
-        closeModal();
+    function initMaps() {
+      if (!window.L) {
+        setNotice(pageNotice, 'Карта не загрузилась', 'Не удалось подключить карту. Проверьте интернет-соединение и обновите страницу.', 'error');
+        return;
       }
-    });
 
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && modal.classList.contains('is-open')) {
-        closeModal();
-      }
-    });
+      pageMap = L.map('lostMap', {
+        zoomControl: true,
+        attributionControl: true
+      }).setView(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
 
-    tabButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        activeTab = button.dataset.tab;
-        tabButtons.forEach((tabButton) => {
-          const isActive = tabButton === button;
-          tabButton.classList.toggle('is-active', isActive);
-          tabButton.setAttribute('aria-selected', String(isActive));
-        });
-        renderPosts();
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(pageMap);
+
+      pageMarkersLayer = L.layerGroup().addTo(pageMap);
+
+      formMap = L.map('formMap', {
+        zoomControl: true,
+        attributionControl: true
+      }).setView(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(formMap);
+
+      formMap.on('click', (event) => {
+        setSelectedLocation(event.latlng.lat, event.latlng.lng, true);
       });
-    });
-
-    searchInput.addEventListener('input', renderPosts);
-    pickPhotoButton.addEventListener('click', () => photoInput.click());
-    photoInput.addEventListener('change', handlePhotoChange);
-    postForm.addEventListener('submit', handleFormSubmit);
-    postsList.addEventListener('click', handleListClick);
-
-    renderPosts();
-
-    function getClientId() {
-      const existingId = localStorage.getItem(CLIENT_KEY);
-      if (existingId) {
-        return existingId;
-      }
-      const newId = `client_${Math.random().toString(36).slice(2, 10)}`;
-      localStorage.setItem(CLIENT_KEY, newId);
-      return newId;
     }
 
-    function loadPosts() {
+    function attachEvents() {
+      openButtons.forEach((button) => {
+        button.addEventListener('click', () => openModal());
+      });
+
+      closeModalButton.addEventListener('click', closeModal);
+      modal.addEventListener('click', (event) => {
+        if (event.target === modal) {
+          closeModal();
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+          closeModal();
+        }
+      });
+
+      tabButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          activeTab = button.dataset.tab || 'lost';
+          tabButtons.forEach((tabButton) => {
+            const isActive = tabButton === button;
+            tabButton.classList.toggle('is-active', isActive);
+            tabButton.setAttribute('aria-selected', String(isActive));
+          });
+          renderPosts();
+        });
+      });
+
+      searchInput.addEventListener('input', renderPosts);
+      refreshPostsButton.addEventListener('click', () => loadPostsFromServer(true));
+      pickPhotoButton.addEventListener('click', () => {
+        if (isSubmitting) return;
+        photoInput.click();
+      });
+      photoInput.addEventListener('change', handlePhotoChange);
+      useCurrentLocationButton.addEventListener('click', handleUseCurrentLocation);
+      clearSelectedLocationButton.addEventListener('click', clearSelectedLocation);
+      postForm.addEventListener('submit', handleFormSubmit);
+      postsList.addEventListener('click', handleListClick);
+
+      supabaseClient.auth.onAuthStateChange((_eventName, session) => {
+        currentUser = session?.user || null;
+        updateAuthNotices();
+      });
+    }
+
+    async function bootstrap() {
+      updateAuthNotices();
+      setLoadingState(true);
+
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return [];
-        const parsed = JSON.parse(raw);
-        return Array.isArray(parsed) ? parsed : [];
+        const { data, error } = await supabaseClient.auth.getUser();
+        currentUser = !error && data?.user ? data.user : null;
       } catch (error) {
-        console.error('Не удалось прочитать объявления', error);
-        return [];
+        console.warn('Не удалось получить пользователя:', error);
+        currentUser = null;
       }
-    }
 
-    function savePosts() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+      updateAuthNotices();
+      await loadPostsFromServer();
+      autoRefreshTimer = window.setInterval(() => {
+        loadPostsFromServer(false, true);
+      }, AUTO_REFRESH_INTERVAL_MS);
     }
 
     function openModal() {
       modal.classList.add('is-open');
       modal.setAttribute('aria-hidden', 'false');
-      requestAnimationFrame(() => {
+      updateAuthNotices();
+      window.setTimeout(() => {
+        formMap?.invalidateSize();
+        if (selectedLocationMarker) {
+          formMap?.setView(selectedLocationMarker.getLatLng(), Math.max(formMap.getZoom(), 14));
+        }
         document.getElementById('petName').focus();
-      });
+      }, 80);
     }
 
     function closeModal() {
@@ -770,135 +1115,163 @@
       modal.setAttribute('aria-hidden', 'true');
     }
 
-    function handlePhotoChange(event) {
-      const file = event.target.files && event.target.files[0];
-      if (!file) {
-        selectedPhoto = null;
-        updatePhotoPreview();
-        return;
-      }
-
-      if (!file.type.startsWith('image/')) {
-        alert('Можно выбрать только изображение.');
-        photoInput.value = '';
-        selectedPhoto = null;
-        updatePhotoPreview();
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        selectedPhoto = {
-          name: file.name,
-          type: file.type,
-          dataUrl: reader.result
-        };
-        updatePhotoPreview();
-      };
-      reader.readAsDataURL(file);
+    function setNotice(node, title, text, variant = 'info') {
+      if (!node) return;
+      node.className = `page-note is-${variant}`;
+      node.innerHTML = `<strong>${escapeHtml(title)}</strong><span>${escapeHtml(text)}</span>`;
     }
 
-    function updatePhotoPreview() {
-      if (!selectedPhoto) {
-        uploadPreview.classList.remove('is-visible');
-        uploadPreviewImage.removeAttribute('src');
-        uploadPreviewName.textContent = 'Фото выбрано';
-        return;
+    function updateAuthNotices() {
+      if (currentUser) {
+        const userLabel = currentUser.user_metadata?.full_name || currentUser.email || 'авторизованный пользователь';
+        setNotice(pageNotice, 'Вы вошли в аккаунт', `${userLabel}. Вы можете добавлять свои объявления и удалять только свои карточки.`, 'success');
+        setNotice(modalNotice, 'Публикация доступна', 'Заполните поля, выберите точку на карте и опубликуйте объявление. Его увидят все посетители раздела.', 'success');
+        submitPostButton.disabled = false;
+      } else {
+        setNotice(pageNotice, 'Карту видят все пользователи', 'Чтобы добавить своё объявление на общую карту, сначала войдите в аккаунт. Просматривать список и точки можно без входа.', 'info');
+        setNotice(modalNotice, 'Для публикации нужен вход', 'После входа в аккаунт вы сможете публиковать объявления и удалять свои карточки. Карта и чужие объявления доступны всем.', 'info');
+        submitPostButton.disabled = false;
       }
-      uploadPreview.classList.add('is-visible');
-      uploadPreviewImage.src = selectedPhoto.dataUrl;
-      uploadPreviewName.textContent = selectedPhoto.name;
     }
 
-    function handleFormSubmit(event) {
-      event.preventDefault();
-      const formData = new FormData(postForm);
-      const newPost = {
-        id: `post_${Date.now()}`,
-        authorId: clientId,
-        status: formData.get('status') || 'lost',
-        petType: formData.get('petType') || 'cat',
-        name: String(formData.get('petName') || '').trim(),
-        breed: String(formData.get('petBreed') || '').trim(),
-        location: String(formData.get('petLocation') || '').trim(),
-        contact: String(formData.get('petContact') || '').trim(),
-        description: String(formData.get('petDescription') || '').trim(),
-        photo: selectedPhoto,
-        createdAt: new Date().toISOString()
-      };
-
-      posts.unshift(newPost);
-      savePosts();
-      postForm.reset();
-      selectedPhoto = null;
-      photoInput.value = '';
-      updatePhotoPreview();
-      activeTab = newPost.status;
-      tabButtons.forEach((button) => {
-        const isActive = button.dataset.tab === activeTab;
-        button.classList.toggle('is-active', isActive);
-        button.setAttribute('aria-selected', String(isActive));
-      });
-      closeModal();
-      renderPosts();
+    function setLoadingState(isLoading) {
+      isLoadingPosts = isLoading;
+      refreshPostsButton.disabled = isLoading;
+      refreshPostsButton.textContent = isLoading ? 'Обновляем…' : 'Обновить объявления';
     }
 
-    function handleListClick(event) {
-      const deleteButton = event.target.closest('[data-delete-id]');
-      if (deleteButton) {
-        const postId = deleteButton.dataset.deleteId;
-        posts = posts.filter((post) => post.id !== postId);
-        savePosts();
+    async function loadPostsFromServer(showStatus = false, silent = false) {
+      setLoadingState(true);
+      if (!silent) {
+        mapHint.textContent = 'Загружаем актуальные объявления и точки на карте…';
+      }
+
+      try {
+        const { data, error } = await supabaseClient
+          .from(LOST_POSTS_TABLE)
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          throw error;
+        }
+
+        posts = Array.isArray(data) ? data.map(normalizePost).filter(Boolean) : [];
         renderPosts();
-        return;
-      }
 
-      const contactButton = event.target.closest('[data-contact]');
-      if (contactButton) {
-        const value = contactButton.dataset.contact || '';
-        const normalized = value.trim();
-        if (!normalized) return;
-        if (/^[+\d\s()-]{6,}$/.test(normalized)) {
-          window.location.href = `tel:${normalized.replace(/\s+/g, '')}`;
-          return;
+        if (showStatus) {
+          mapHint.textContent = `Объявления обновлены: ${new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}.`;
+        } else if (!silent) {
+          mapHint.textContent = 'Карта показывает объявления из выбранного раздела и поиска.';
         }
-        if (normalized.includes('@')) {
-          window.location.href = `mailto:${normalized}`;
-          return;
-        }
-        if (navigator.clipboard && window.isSecureContext) {
-          navigator.clipboard.writeText(normalized).then(() => {
-            alert(`Контакт скопирован: ${normalized}`);
-          }).catch(() => {
-            alert(`Связаться: ${normalized}`);
-          });
-          return;
-        }
-        alert(`Связаться: ${normalized}`);
+      } catch (error) {
+        console.error('Не удалось загрузить объявления:', error);
+        posts = [];
+        renderPosts();
+        setNotice(pageNotice, 'Не удалось загрузить объявления', error?.message || 'Повторите попытку чуть позже.', 'error');
+        mapHint.textContent = 'Ошибка загрузки. Попробуйте обновить список объявлений.';
+      } finally {
+        setLoadingState(false);
       }
     }
 
-    function renderPosts() {
+    function normalizePost(row) {
+      if (!row || typeof row !== 'object') return null;
+      const latitude = Number(row.latitude);
+      const longitude = Number(row.longitude);
+      return {
+        id: String(row.id || ''),
+        authorId: row.user_id || '',
+        status: row.status === 'found' ? 'found' : 'lost',
+        petType: row.pet_type || 'cat',
+        name: String(row.pet_name || '').trim(),
+        breed: String(row.breed || '').trim(),
+        location: String(row.location_text || '').trim(),
+        contact: String(row.contact_phone || '').trim(),
+        description: String(row.description || '').trim(),
+        photoUrl: String(row.photo_url || '').trim(),
+        latitude: Number.isFinite(latitude) ? latitude : null,
+        longitude: Number.isFinite(longitude) ? longitude : null,
+        createdAt: row.created_at || new Date().toISOString()
+      };
+    }
+
+    function getFilteredPosts() {
       const query = searchInput.value.trim().toLowerCase();
-      const filteredPosts = posts.filter((post) => {
+      return posts.filter((post) => {
         const sameTab = post.status === activeTab;
         const searchable = `${post.location} ${post.name} ${post.breed} ${post.description}`.toLowerCase();
         const matchesQuery = !query || searchable.includes(query);
         return sameTab && matchesQuery;
       });
+    }
 
+    function renderPosts() {
+      const filteredPosts = getFilteredPosts();
       postsList.innerHTML = filteredPosts.map(renderPostCard).join('');
       emptyState.hidden = filteredPosts.length > 0;
+      mapCount.textContent = `${filteredPosts.length} ${pluralize(filteredPosts.length, ['объявление', 'объявления', 'объявлений'])}`;
+      renderMapMarkers(filteredPosts);
+    }
+
+    function renderMapMarkers(filteredPosts) {
+      if (!pageMap || !pageMarkersLayer) return;
+      pageMarkersLayer.clearLayers();
+      markerById = new Map();
+
+      const points = filteredPosts.filter((post) => Number.isFinite(post.latitude) && Number.isFinite(post.longitude));
+
+      points.forEach((post) => {
+        const marker = L.circleMarker([post.latitude, post.longitude], {
+          radius: 10,
+          color: post.status === 'found' ? '#34C759' : '#FF3B30',
+          fillColor: post.status === 'found' ? '#34C759' : '#FF3B30',
+          fillOpacity: 0.88,
+          weight: 3
+        }).addTo(pageMarkersLayer);
+
+        marker.bindPopup(renderPopupContent(post));
+        markerById.set(post.id, marker);
+      });
+
+      if (!points.length) {
+        pageMap.setView(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
+        return;
+      }
+
+      if (points.length === 1) {
+        pageMap.setView([points[0].latitude, points[0].longitude], 13);
+        return;
+      }
+
+      const bounds = L.latLngBounds(points.map((post) => [post.latitude, post.longitude]));
+      pageMap.fitBounds(bounds, { padding: [24, 24], maxZoom: 13 });
+    }
+
+    function renderPopupContent(post) {
+      const badgeText = post.status === 'found' ? '🟢 Нашёлся' : '🔴 Потерялся';
+      const badgeClass = post.status === 'found' ? 'found' : 'lost';
+      const meta = [post.breed || 'Порода не указана', post.location || 'Место не указано'].filter(Boolean).join(' · ');
+      return `
+        <div>
+          <div class="popup-badge ${badgeClass}">${badgeText}</div>
+          <p class="popup-title">${escapeHtml(post.name || 'Без имени')}</p>
+          <p class="popup-text">${escapeHtml(meta)}</p>
+        </div>
+      `;
     }
 
     function renderPostCard(post) {
       const badgeClass = post.status === 'found' ? 'found' : 'lost';
       const badgeText = post.status === 'found' ? '🟢 Нашёлся' : '🔴 Потерялся';
-      const media = post.photo && post.photo.dataUrl
-        ? `<div class="post-media"><img src="${escapeHtml(post.photo.dataUrl)}" alt="${escapeHtml(post.name)}"></div>`
+      const media = post.photoUrl
+        ? `<div class="post-media"><img src="${escapeHtml(post.photoUrl)}" alt="${escapeHtml(post.name || 'Фото питомца')}"></div>`
         : `<div class="post-media">${getAnimalEmoji(post.petType)}</div>`;
-      const deleteButton = post.authorId === clientId
+      const deleteButton = currentUser && post.authorId === currentUser.id
         ? `<button class="delete-btn" type="button" data-delete-id="${escapeHtml(post.id)}" aria-label="Удалить объявление">✕</button>`
+        : '';
+      const descriptionMarkup = post.description
+        ? `<p class="post-description">${escapeHtml(post.description)}</p>`
         : '';
 
       return `
@@ -908,17 +1281,306 @@
           <div class="post-body">
             <div class="badge ${badgeClass}">${badgeText}</div>
             <div class="post-meta">
-              <div><strong>Имя:</strong> <span>${escapeHtml(post.name)}</span></div>
-              <div><strong>Порода:</strong> <span>${escapeHtml(post.breed)}</span></div>
-              <div><strong>Район:</strong> <span>${escapeHtml(post.location)}</span></div>
+              <div><strong>Имя:</strong> <span>${escapeHtml(post.name || 'Не указано')}</span></div>
+              <div><strong>Порода:</strong> <span>${escapeHtml(post.breed || 'Не указана')}</span></div>
+              <div><strong>Район:</strong> <span>${escapeHtml(post.location || 'Не указан')}</span></div>
             </div>
+            ${descriptionMarkup}
             <div class="post-footer">
               <div class="post-date">📅 ${formatRelativeDate(post.createdAt)}</div>
-              <button class="contact-btn" type="button" data-contact="${escapeHtml(post.contact)}">📞 Связаться</button>
+              <div class="post-actions">
+                <button class="map-link-btn" type="button" data-focus-id="${escapeHtml(post.id)}">📍 На карте</button>
+                <button class="contact-btn" type="button" data-contact="${escapeHtml(post.contact)}">📞 Связаться</button>
+              </div>
             </div>
           </div>
         </article>
       `;
+    }
+
+    function handlePhotoChange(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) {
+        clearSelectedPhoto();
+        return;
+      }
+
+      const validationMessage = validatePhotoFile(file);
+      if (validationMessage) {
+        alert(validationMessage);
+        photoInput.value = '';
+        clearSelectedPhoto();
+        return;
+      }
+
+      if (previewObjectUrl) {
+        URL.revokeObjectURL(previewObjectUrl);
+      }
+
+      selectedPhotoFile = file;
+      previewObjectUrl = URL.createObjectURL(file);
+      uploadPreview.classList.add('is-visible');
+      uploadPreviewImage.src = previewObjectUrl;
+      uploadPreviewName.textContent = file.name;
+    }
+
+    function validatePhotoFile(file) {
+      if (!file.type.startsWith('image/')) {
+        return 'Можно выбрать только изображение.';
+      }
+      if (file.size > MAX_PHOTO_SIZE_BYTES) {
+        return 'Фото должно быть не больше 3 МБ.';
+      }
+      return '';
+    }
+
+    function clearSelectedPhoto() {
+      selectedPhotoFile = null;
+      uploadPreview.classList.remove('is-visible');
+      uploadPreviewImage.removeAttribute('src');
+      uploadPreviewName.textContent = 'Фото выбрано';
+      if (previewObjectUrl) {
+        URL.revokeObjectURL(previewObjectUrl);
+        previewObjectUrl = '';
+      }
+    }
+
+    function setSelectedLocation(latitude, longitude, shouldPan = false) {
+      if (!formMap) return;
+      const lat = Number(latitude);
+      const lng = Number(longitude);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+      latitudeInput.value = lat.toFixed(6);
+      longitudeInput.value = lng.toFixed(6);
+      locationChip.classList.remove('is-empty');
+      locationChip.textContent = `Точка выбрана: ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+      locationHint.textContent = 'Можно перетащить маркер или нажать в другое место на карте.';
+
+      if (!selectedLocationMarker) {
+        selectedLocationMarker = L.marker([lat, lng], { draggable: true }).addTo(formMap);
+        selectedLocationMarker.on('dragend', (event) => {
+          const nextPosition = event.target.getLatLng();
+          setSelectedLocation(nextPosition.lat, nextPosition.lng, false);
+        });
+      } else {
+        selectedLocationMarker.setLatLng([lat, lng]);
+      }
+
+      if (shouldPan) {
+        formMap.setView([lat, lng], Math.max(formMap.getZoom(), 14));
+      }
+    }
+
+    function clearSelectedLocation() {
+      latitudeInput.value = '';
+      longitudeInput.value = '';
+      locationChip.classList.add('is-empty');
+      locationChip.textContent = 'Точка ещё не выбрана. Нажмите на карту или используйте определение геопозиции.';
+      locationHint.textContent = 'Без точки на карте объявление не опубликуется.';
+      if (selectedLocationMarker) {
+        formMap?.removeLayer(selectedLocationMarker);
+        selectedLocationMarker = null;
+      }
+      formMap?.setView(DEFAULT_MAP_CENTER, DEFAULT_MAP_ZOOM);
+    }
+
+    function handleUseCurrentLocation() {
+      if (!navigator.geolocation) {
+        alert('Ваш браузер не поддерживает определение геопозиции. Выберите точку вручную на карте.');
+        return;
+      }
+
+      useCurrentLocationButton.disabled = true;
+      useCurrentLocationButton.textContent = 'Определяем…';
+
+      navigator.geolocation.getCurrentPosition((position) => {
+        setSelectedLocation(position.coords.latitude, position.coords.longitude, true);
+        useCurrentLocationButton.disabled = false;
+        useCurrentLocationButton.textContent = 'Использовать моё местоположение';
+      }, (error) => {
+        console.warn('Не удалось определить геопозицию:', error);
+        alert('Не удалось определить местоположение. Разрешите доступ к геопозиции или выберите точку вручную.');
+        useCurrentLocationButton.disabled = false;
+        useCurrentLocationButton.textContent = 'Использовать моё местоположение';
+      }, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      });
+    }
+
+    async function handleFormSubmit(event) {
+      event.preventDefault();
+      if (isSubmitting) return;
+
+      if (!currentUser) {
+        const shouldOpenAuth = window.confirm('Чтобы публиковать объявления на общей карте, нужно войти в аккаунт. Перейти на страницу входа?');
+        if (shouldOpenAuth) {
+          window.location.href = 'auth.html?next=lost.html';
+        }
+        return;
+      }
+
+      const formData = new FormData(postForm);
+      const latitude = Number(formData.get('petLatitude'));
+      const longitude = Number(formData.get('petLongitude'));
+
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+        alert('Сначала отметьте точку на карте.');
+        return;
+      }
+
+      const postId = `lost_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      let photoUrl = '';
+
+      isSubmitting = true;
+      submitPostButton.disabled = true;
+      submitPostButton.textContent = 'Публикуем…';
+
+      try {
+        if (selectedPhotoFile) {
+          photoUrl = await fileToDataUrl(selectedPhotoFile);
+        }
+
+        const payload = {
+          id: postId,
+          user_id: currentUser.id,
+          status: formData.get('status') === 'found' ? 'found' : 'lost',
+          pet_name: String(formData.get('petName') || '').trim(),
+          pet_type: String(formData.get('petType') || 'cat').trim(),
+          breed: String(formData.get('petBreed') || '').trim(),
+          description: String(formData.get('petDescription') || '').trim(),
+          location_text: String(formData.get('petLocation') || '').trim(),
+          latitude,
+          longitude,
+          photo_url: photoUrl,
+          contact_name: currentUser.user_metadata?.full_name || currentUser.email || '',
+          contact_phone: String(formData.get('petContact') || '').trim()
+        };
+
+        const { error } = await supabaseClient.from(LOST_POSTS_TABLE).insert(payload);
+        if (error) {
+          throw error;
+        }
+
+        postForm.reset();
+        clearSelectedPhoto();
+        clearSelectedLocation();
+        photoInput.value = '';
+        activeTab = payload.status;
+        tabButtons.forEach((button) => {
+          const isActive = button.dataset.tab === activeTab;
+          button.classList.toggle('is-active', isActive);
+          button.setAttribute('aria-selected', String(isActive));
+        });
+        closeModal();
+        mapHint.textContent = 'Объявление опубликовано и добавлено на карту.';
+        await loadPostsFromServer(true);
+      } catch (error) {
+        console.error('Не удалось опубликовать объявление:', error);
+        const authHint = String(error?.message || '').toLowerCase().includes('row-level security')
+          ? ' Проверьте, что вы вошли в аккаунт.'
+          : '';
+        alert((error?.message || 'Не удалось опубликовать объявление.') + authHint);
+      } finally {
+        isSubmitting = false;
+        updateAuthNotices();
+        submitPostButton.textContent = 'Опубликовать объявление';
+      }
+    }
+
+    async function handleListClick(event) {
+      const deleteButton = event.target.closest('[data-delete-id]');
+      if (deleteButton) {
+        const postId = deleteButton.dataset.deleteId;
+        await handleDeletePost(postId);
+        return;
+      }
+
+      const focusButton = event.target.closest('[data-focus-id]');
+      if (focusButton) {
+        focusPostOnMap(focusButton.dataset.focusId || '');
+        return;
+      }
+
+      const contactButton = event.target.closest('[data-contact]');
+      if (contactButton) {
+        openContact(contactButton.dataset.contact || '');
+      }
+    }
+
+    async function handleDeletePost(postId) {
+      const post = posts.find((item) => item.id === postId);
+      if (!post) return;
+      if (!currentUser || post.authorId !== currentUser.id) {
+        alert('Удалять можно только свои объявления.');
+        return;
+      }
+
+      const isConfirmed = window.confirm(`Удалить объявление «${post.name || 'без имени'}»?`);
+      if (!isConfirmed) return;
+
+      try {
+        const { error } = await supabaseClient
+          .from(LOST_POSTS_TABLE)
+          .delete()
+          .eq('id', postId)
+          .eq('user_id', currentUser.id);
+
+        if (error) {
+          throw error;
+        }
+
+        mapHint.textContent = 'Объявление удалено.';
+        await loadPostsFromServer(true);
+      } catch (error) {
+        console.error('Не удалось удалить объявление:', error);
+        alert(error?.message || 'Не удалось удалить объявление.');
+      }
+    }
+
+    function focusPostOnMap(postId) {
+      const marker = markerById.get(postId);
+      if (!marker || !pageMap) {
+        alert('Для этого объявления точка на карте недоступна.');
+        return;
+      }
+      const latLng = marker.getLatLng();
+      pageMap.setView(latLng, Math.max(pageMap.getZoom(), 14));
+      marker.openPopup();
+      document.getElementById('mapTitle')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function openContact(value) {
+      const normalized = String(value || '').trim();
+      if (!normalized) return;
+      if (/^[+\d\s()-]{6,}$/.test(normalized)) {
+        window.location.href = `tel:${normalized.replace(/\s+/g, '')}`;
+        return;
+      }
+      if (normalized.includes('@')) {
+        window.location.href = `mailto:${normalized}`;
+        return;
+      }
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(normalized).then(() => {
+          alert(`Контакт скопирован: ${normalized}`);
+        }).catch(() => {
+          alert(`Связаться: ${normalized}`);
+        });
+        return;
+      }
+      alert(`Связаться: ${normalized}`);
+    }
+
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(new Error('Не удалось прочитать изображение.'));
+        reader.readAsDataURL(file);
+      });
     }
 
     function formatRelativeDate(dateString) {
