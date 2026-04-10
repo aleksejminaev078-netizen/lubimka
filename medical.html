@@ -346,6 +346,10 @@
       border-radius: 16px;
     }
 
+    .utility-grid > * {
+      width: 100%;
+    }
+
     .utility-button,
     .secondary-button {
       background: #fff;
@@ -416,6 +420,60 @@
       border: 1px dashed rgba(255, 107, 53, 0.18);
       color: var(--text-soft);
       line-height: 1.6;
+    }
+
+    .analysis-card {
+      display: grid;
+      gap: 18px;
+    }
+
+    .analysis-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .analysis-copy {
+      display: grid;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .analysis-meta {
+      margin: 0;
+      color: var(--text-soft);
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+
+    .analysis-weight-line {
+      margin: 0;
+      font-size: 1.04rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .analysis-message {
+      background: #fff4ed;
+      border-radius: 24px;
+      padding: 18px;
+      border: 1px solid rgba(255, 107, 53, 0.14);
+      color: var(--text);
+      font-weight: 700;
+      line-height: 1.6;
+    }
+
+    .analysis-note {
+      margin: 0;
+      color: var(--text-soft);
+      line-height: 1.6;
+    }
+
+    .analysis-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
     }
 
     .calm-card { background: linear-gradient(180deg, #fffaf7 0%, #fff1e7 100%); }
@@ -570,24 +628,214 @@
       .column-card { position: static; }
     }
 
-    @media (max-width: 860px) {
-      .page-shell { width: min(100% - 20px, 100%); padding-top: 18px; }
-      .topbar { flex-direction: column; align-items: stretch; }
-      .main-layout { grid-template-columns: 1fr; }
+    @media (max-width: 768px) {
+      .page-shell {
+        width: calc(100% - 16px);
+        padding-top: 14px;
+        padding-bottom: 28px;
+      }
+
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        margin-bottom: 18px;
+      }
+
+      .brand {
+        order: 1;
+        width: 100%;
+        justify-content: center;
+        padding: 14px 16px;
+      }
+
+      .brand-copy {
+        align-items: center;
+        text-align: center;
+      }
+
+      .back-link {
+        order: 2;
+        width: 100%;
+        justify-content: center;
+        min-height: 50px;
+      }
+
+      .main-layout {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .center-column { order: 1; }
+      .right-column { order: 2; }
+      .left-column { order: 3; }
+
+      .column-card,
+      .hero-card,
+      .quick-card,
+      .calm-card,
+      .history-panel,
+      .modal-panel {
+        padding: 20px;
+        border-radius: 22px;
+      }
+
+      .column-card { position: static; }
+
       .profile-hero,
-      .photo-actions { flex-direction: column; align-items: flex-start; }
+      .photo-actions,
+      .analysis-head {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .profile-copy,
+      .analysis-copy {
+        justify-items: center;
+        text-align: center;
+        gap: 14px;
+      }
+
+      .hero-visual {
+        width: 160px;
+        min-width: 160px;
+        height: 160px;
+        margin: 0 auto;
+      }
+
+      .profile-avatar,
+      .photo-preview {
+        width: 132px;
+        height: 132px;
+      }
+
+      .profile-pills {
+        justify-content: center;
+      }
+
       .stats-grid,
-      .modal-fields-row { grid-template-columns: 1fr; }
+      .modal-fields-row {
+        grid-template-columns: 1fr;
+      }
+
       .section-title,
       .profile-title,
-      .history-title { font-size: 1.68rem; }
+      .history-title {
+        font-size: clamp(1.72rem, 7vw, 2.1rem);
+      }
+
+      .profile-subtitle,
+      .muted-copy,
+      .helper,
+      .field-hint,
+      .empty-text,
+      .no-pets-text {
+        font-size: 1rem;
+      }
+
       .action-button,
       .primary-button,
       .secondary-button,
       .ghost-button,
-      .utility-button { width: 100%; }
-      .modal { padding: 12px; align-items: end; }
-      .modal-panel { width: 100%; max-height: 94vh; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+      .utility-button,
+      .tab-chip,
+      .filter-chip {
+        width: 100%;
+        min-height: 56px;
+        font-size: 1rem;
+      }
+
+      .right-column {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .history-panel {
+        order: 1;
+        margin-top: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .history-panel .history-head {
+        order: 1;
+        flex-direction: column-reverse;
+        align-items: stretch;
+        gap: 14px;
+      }
+
+      .history-panel .tabs-row { order: 2; }
+      .history-panel #filters { order: 3; }
+      .history-panel #records-panel { order: 4; }
+      .history-panel #history-status { order: 5; }
+
+      .history-panel .action-button {
+        width: 100%;
+        min-height: 58px;
+        font-size: 1.02rem;
+      }
+
+      .tabs-row,
+      .filters {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        margin: 0 -4px;
+        padding: 0 4px 4px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .tabs-row::-webkit-scrollbar,
+      .filters::-webkit-scrollbar {
+        display: none;
+      }
+
+      .quick-card {
+        order: 2;
+        display: grid;
+        gap: 16px;
+      }
+
+      #open-record-modal-button {
+        display: none;
+      }
+
+      .quick-actions-grid {
+        gap: 12px;
+      }
+
+      .quick-actions-grid > *,
+      .analysis-actions > * {
+        width: 100%;
+        min-height: 56px;
+      }
+
+      .calm-card {
+        order: 3;
+      }
+
+      .pet-tile-head,
+      .pet-name-row,
+      .record-head,
+      .modal-top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .modal {
+        padding: 12px;
+        align-items: end;
+      }
+
+      .modal-panel {
+        width: 100%;
+        max-height: 94vh;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+      }
     }
   </style>
 </head>
@@ -622,6 +870,7 @@
         </div>
         <div id="pets-list" class="stack"></div>
         <div class="utility-grid">
+          <button id="sidebar-add-record-button" class="action-button" type="button">➕ Добавить запись</button>
           <button id="download-data-button" class="utility-button" type="button">↓ Скачать данные</button>
           <button id="upload-data-button" class="utility-button" type="button">📄 Загрузить данные</button>
           <input id="archive-input" type="file" accept="application/json" hidden>
@@ -630,45 +879,26 @@
       </aside>
 
       <section class="center-column stack">
-        <article class="hero-card">
-          <div class="profile-hero">
-            <div class="hero-visual">
-              <div class="profile-bubbles" aria-hidden="true">
-                <span class="profile-bubble one"></span>
-                <span class="profile-bubble two"></span>
-                <span class="profile-bubble three"></span>
-                <span class="profile-bubble four"></span>
-              </div>
-              <div id="profile-avatar" class="profile-avatar"></div>
-            </div>
-            <div class="profile-copy">
-              <span class="eyebrow">🐾 Профиль питомца</span>
+        <article class="hero-card analysis-card">
+          <div class="analysis-head">
+            <div class="analysis-copy">
+              <span class="eyebrow">📊 Анализ здоровья питомца</span>
               <h2 id="profile-title" class="profile-title">Питомец</h2>
-              <p id="profile-subtitle" class="profile-subtitle">Здесь собраны основные сведения, которые помогут быстро ориентироваться в истории здоровья и документах.</p>
+              <p id="profile-subtitle" class="analysis-meta">Порода и возраст появятся здесь после выбора питомца.</p>
               <div id="profile-pills" class="profile-pills">
                 <span id="profile-weight-pill" class="profile-pill">Вес: —</span>
                 <span id="profile-sex-pill" class="profile-pill">Пол: —</span>
-                <span id="profile-sterilized-pill" class="profile-pill is-neutral">Статус: —</span>
+                <span id="profile-age-pill" class="profile-pill is-neutral">Возраст: —</span>
               </div>
-              <span id="profile-tag" class="tag">🐾 Карточка</span>
             </div>
+            <div id="profile-avatar" class="profile-avatar"></div>
           </div>
-
-          <div class="stats-grid">
-            <article class="stats-card"><span class="stats-label">Вид</span><strong id="profile-species" class="stats-value">—</strong></article>
-            <article class="stats-card"><span class="stats-label">Порода</span><strong id="profile-breed" class="stats-value">—</strong></article>
-            <article class="stats-card"><span class="stats-label">Возраст</span><strong id="profile-age" class="stats-value">—</strong></article>
-            <article class="stats-card"><span class="stats-label">Последнее обновление</span><strong id="profile-last-update" class="stats-value">Пока пусто</strong></article>
+          <p id="analysis-weight-line" class="analysis-weight-line">Вес: —</p>
+          <div id="analysis-message" class="analysis-message">Здесь появится автоматический вывод по состоянию веса питомца.</div>
+          <p id="profile-note" class="analysis-note">Любимка анализирует питомца по породе, весу и возрасту и подсказывает, на что обратить внимание.</p>
+          <div class="analysis-actions">
+            <button id="analysis-edit-weight-button" class="secondary-button hidden" type="button">✏️ Указать вес</button>
           </div>
-
-          <div class="stats-grid">
-            <article class="stats-card"><span class="stats-label">Количество записей</span><strong id="profile-records-count" class="stats-value">0</strong></article>
-            <article class="stats-card"><span class="stats-label">Последняя запись</span><strong id="profile-last-record-category" class="stats-value">Пока пусто</strong></article>
-            <article class="stats-card"><span class="stats-label">Источник данных</span><strong class="stats-value">Supabase</strong></article>
-            <article class="stats-card"><span class="stats-label">Статус медкарты</span><strong id="profile-status-chip" class="stats-value">Готова к заполнению</strong></article>
-          </div>
-
-          <div id="profile-note" class="note-card">Медкарта поможет хранить прививки, осмотры, анализы, документы и любые важные заметки о здоровье питомца.</div>
         </article>
       </section>
 
@@ -681,6 +911,7 @@
           </div>
           <div class="quick-actions-grid">
             <button id="open-record-modal-button" class="action-button" type="button">📋 Добавить запись</button>
+            <button id="open-pet-details-modal-button" class="secondary-button" type="button">⚖️ Вес и пол</button>
             <a class="secondary-button" href="pets.html">Редактировать профиль</a>
             <button id="add-reminder-button" class="secondary-button" type="button">+ Добавить напоминание</button>
             <button id="delete-pet-button" class="ghost-button" type="button">🗑 Удалить питомца</button>
@@ -716,6 +947,42 @@
         </article>
       </section>
     </main>
+  </div>
+
+  <div id="pet-details-modal" class="modal" aria-hidden="true">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="pet-details-modal-title">
+      <div class="modal-top">
+        <div>
+          <h3 id="pet-details-modal-title" class="modal-title">Вес и пол питомца</h3>
+          <p id="pet-details-modal-subtitle" class="modal-subtitle">Обновите базовые параметры карточки. Изменения сразу появятся в профиле питомца и сохранятся в ваших данных.</p>
+        </div>
+        <button id="close-pet-details-modal-button" class="close-button" type="button" aria-label="Закрыть окно">✕</button>
+      </div>
+
+      <form id="pet-details-form" class="form-grid">
+        <div class="modal-fields-row">
+          <div class="field">
+            <label for="pet-details-weight">Вес</label>
+            <input id="pet-details-weight" class="input" name="weight" type="text" inputmode="decimal" placeholder="Например, 4.2 или 4,2 кг">
+            <p class="field-hint" style="margin: 8px 0 0;">Можно указать число с единицей измерения или без неё.</p>
+          </div>
+          <div class="field">
+            <label for="pet-details-sex">Пол</label>
+            <select id="pet-details-sex" class="select" name="sex">
+              <option value="">Не указан</option>
+              <option value="female">Девочка</option>
+              <option value="male">Мальчик</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-fields-row">
+          <button id="save-pet-details-button" class="primary-button" type="submit">Сохранить изменения</button>
+          <button id="cancel-pet-details-button" class="secondary-button" type="button">Отмена</button>
+        </div>
+        <div id="pet-details-status" class="status" aria-live="polite"></div>
+      </form>
+    </div>
   </div>
 
   <div id="record-modal" class="modal" aria-hidden="true">
@@ -820,28 +1087,33 @@
     const profileAvatarNode = document.getElementById('profile-avatar');
     const profileTitleNode = document.getElementById('profile-title');
     const profileSubtitleNode = document.getElementById('profile-subtitle');
-    const profileTagNode = document.getElementById('profile-tag');
-    const profileSpeciesNode = document.getElementById('profile-species');
-    const profileBreedNode = document.getElementById('profile-breed');
-    const profileAgeNode = document.getElementById('profile-age');
     const profileWeightPillNode = document.getElementById('profile-weight-pill');
     const profileSexPillNode = document.getElementById('profile-sex-pill');
-    const profileSterilizedPillNode = document.getElementById('profile-sterilized-pill');
-    const profileStatusChipNode = document.getElementById('profile-status-chip');
-    const profileRecordsCountNode = document.getElementById('profile-records-count');
-    const profileLastRecordCategoryNode = document.getElementById('profile-last-record-category');
-    const profileLastUpdateNode = document.getElementById('profile-last-update');
+    const profileAgePillNode = document.getElementById('profile-age-pill');
+    const analysisWeightLineNode = document.getElementById('analysis-weight-line');
+    const analysisMessageNode = document.getElementById('analysis-message');
+    const analysisEditWeightButton = document.getElementById('analysis-edit-weight-button');
     const profileNoteNode = document.getElementById('profile-note');
     const reminderTextNode = document.getElementById('reminder-text');
     const filtersNode = document.getElementById('filters');
     const recordsPanelNode = document.getElementById('records-panel');
+    const sidebarAddRecordButton = document.getElementById('sidebar-add-record-button');
     const downloadDataButton = document.getElementById('download-data-button');
     const uploadDataButton = document.getElementById('upload-data-button');
     const archiveInput = document.getElementById('archive-input');
     const openRecordModalButton = document.getElementById('open-record-modal-button');
+    const openPetDetailsModalButton = document.getElementById('open-pet-details-modal-button');
     const historyAddRecordButton = document.getElementById('history-add-record-button');
     const addReminderButton = document.getElementById('add-reminder-button');
     const deletePetButton = document.getElementById('delete-pet-button');
+    const petDetailsModal = document.getElementById('pet-details-modal');
+    const closePetDetailsModalButton = document.getElementById('close-pet-details-modal-button');
+    const cancelPetDetailsButton = document.getElementById('cancel-pet-details-button');
+    const petDetailsForm = document.getElementById('pet-details-form');
+    const petDetailsWeightInput = document.getElementById('pet-details-weight');
+    const petDetailsSexSelect = document.getElementById('pet-details-sex');
+    const petDetailsStatusNode = document.getElementById('pet-details-status');
+    const savePetDetailsButton = document.getElementById('save-pet-details-button');
     const recordModal = document.getElementById('record-modal');
     const closeRecordModalButton = document.getElementById('close-record-modal-button');
     const cancelRecordButton = document.getElementById('cancel-record-button');
@@ -863,6 +1135,7 @@
     let selectedRecordPhotoFile = null;
     let previewObjectUrl = '';
     let isSubmittingRecord = false;
+    let isSubmittingPetDetails = false;
 
     function escapeHtml(value) {
       return String(value ?? '')
@@ -1086,6 +1359,91 @@
       return `${raw} кг`;
     }
 
+    function parseWeightNumber(value) {
+      const raw = String(value ?? '').trim().replace(',', '.');
+      if (!raw) return null;
+      const match = raw.match(/\d+(?:\.\d+)?/);
+      if (!match) return null;
+      const weight = Number.parseFloat(match[0]);
+      return Number.isFinite(weight) ? weight : null;
+    }
+
+    function getDogWeightRange(breed) {
+      const normalized = String(breed || '').trim().toLowerCase();
+      const smallBreeds = ['чихуахуа', 'той', 'йорк', 'шпиц', 'пекинес', 'мальт', 'болон'];
+      const largeBreeds = ['овчар', 'алабай', 'дог', 'кане', 'корсо', 'мастиф', 'сенбернар', 'ротвейлер', 'хаски', 'маламут', 'лабрадор', 'ретривер', 'доберман', 'акита'];
+      if (smallBreeds.some((item) => normalized.includes(item))) return { label: 'Маленькая порода', min: 1.5, max: 3 };
+      if (largeBreeds.some((item) => normalized.includes(item))) return { label: 'Крупная порода', min: 25, max: 45 };
+      return { label: 'Средняя порода', min: 15, max: 25 };
+    }
+
+    function getWeightAnalysis(pet) {
+      const species = String(pet?.species || '').trim().toLowerCase();
+      const breed = String(pet?.breed || '').trim();
+      const weightNumber = parseWeightNumber(pet?.weight);
+      if (weightNumber === null) {
+        return {
+          hasWeight: false,
+          message: 'Вес питомца ещё не указан. Добавьте его, чтобы получить автоматический анализ состояния.',
+          note: 'После указания веса Любимка сразу сравнит показатель с ориентиром для породы и покажет краткий вывод.'
+        };
+      }
+
+      let range = null;
+      let rangeLabel = '';
+
+      if (species === 'кошка') {
+        const normalizedBreed = breed.toLowerCase();
+        if (normalizedBreed.includes('абисс')) {
+          range = { min: 3, max: 4, obesity: 4.5 };
+          rangeLabel = 'Абиссинская';
+        } else if (normalizedBreed.includes('британ')) {
+          range = { min: 4, max: 7, obesity: 7 };
+          rangeLabel = 'Британская';
+        } else if (normalizedBreed.includes('мейн')) {
+          range = { min: 5, max: 9, obesity: 9 };
+          rangeLabel = 'Мейн-кун';
+        } else {
+          range = { min: 3.5, max: 5, obesity: 5 };
+          rangeLabel = 'Обычная / другая';
+        }
+      } else if (species === 'собака') {
+        const dogRange = getDogWeightRange(breed);
+        range = { min: dogRange.min, max: dogRange.max, obesity: dogRange.max };
+        rangeLabel = dogRange.label;
+      }
+
+      if (!range) {
+        return {
+          hasWeight: true,
+          message: 'Автоматический анализ веса сейчас доступен для кошек и собак.',
+          note: `Текущий вес питомца: ${formatWeightValue(pet?.weight)}.`
+        };
+      }
+
+      if (weightNumber < range.min) {
+        return {
+          hasWeight: true,
+          message: '⚠️ Возможен недостаток веса. Проконсультируйтесь с ветеринаром',
+          note: `Ориентир для породы: ${rangeLabel} — ${range.min}–${range.max} кг.`
+        };
+      }
+
+      if (weightNumber > range.obesity) {
+        return {
+          hasWeight: true,
+          message: '⚠️ Возможно ожирение. Рекомендуем уменьшить порции корма',
+          note: `Ориентир для породы: ${rangeLabel} — ${range.min}–${range.max} кг.`
+        };
+      }
+
+      return {
+        hasWeight: true,
+        message: '✅ Вес в норме для породы. Продолжайте правильное питание!',
+        note: `Ориентир для породы: ${rangeLabel} — ${range.min}–${range.max} кг.`
+      };
+    }
+
     function formatSexValue(value) {
       const raw = String(value ?? '').trim().toLowerCase();
       if (!raw) return '—';
@@ -1101,6 +1459,54 @@
       if (['true', 'yes', '1', 'да', 'стерилизован', 'кастрирован', 'стерилизована'].includes(raw)) return 'Стерилизован / кастрирован';
       if (['false', 'no', '0', 'нет', 'не стерилизован', 'не кастрирован'].includes(raw)) return 'Не указано';
       return value;
+    }
+
+    function normalizeEditableSexValue(value) {
+      const raw = String(value ?? '').trim().toLowerCase();
+      if (!raw) return '';
+      if (['female', 'f', 'girl', 'девочка', 'самка'].includes(raw)) return 'female';
+      if (['male', 'm', 'boy', 'мальчик', 'самец'].includes(raw)) return 'male';
+      return '';
+    }
+
+    function resetPetDetailsForm() {
+      petDetailsForm.reset();
+      petDetailsWeightInput.disabled = false;
+      petDetailsSexSelect.disabled = false;
+      savePetDetailsButton.disabled = false;
+      cancelPetDetailsButton.disabled = false;
+      closePetDetailsModalButton.disabled = false;
+      isSubmittingPetDetails = false;
+      setStatus(petDetailsStatusNode, '', '');
+    }
+
+    function setPetDetailsFormBusy(isBusy, message = '') {
+      isSubmittingPetDetails = isBusy;
+      petDetailsWeightInput.disabled = isBusy;
+      petDetailsSexSelect.disabled = isBusy;
+      savePetDetailsButton.disabled = isBusy;
+      cancelPetDetailsButton.disabled = isBusy;
+      closePetDetailsModalButton.disabled = isBusy;
+      if (isBusy) setStatus(petDetailsStatusNode, message || 'Сохраняем изменения...', '');
+    }
+
+    function openPetDetailsModal() {
+      const pet = getSelectedPet();
+      if (!pet) {
+        setStatus(historyStatusNode, 'Сначала выберите питомца, чтобы изменить вес и пол.', 'error');
+        return;
+      }
+      resetPetDetailsForm();
+      petDetailsWeightInput.value = String(pet.weight ?? '').trim();
+      petDetailsSexSelect.value = normalizeEditableSexValue(pet.sex);
+      petDetailsModal.classList.add('is-open');
+      petDetailsModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closePetDetailsModal() {
+      petDetailsModal.classList.remove('is-open');
+      petDetailsModal.setAttribute('aria-hidden', 'true');
+      resetPetDetailsForm();
     }
 
     function buildPetTile(pet) {
@@ -1136,29 +1542,26 @@
       const speciesMeta = getSpeciesMeta(pet.species);
       const allRecords = getPetRecords(pet.id, 'Все');
       const lastRecord = allRecords[0] || null;
-      profileAvatarNode.innerHTML = buildPetAvatarMarkup(pet, 'large');
-      profileTitleNode.textContent = pet.name;
-      profileSubtitleNode.textContent = pet.notes || 'Здесь можно хранить все документы, прививки, рекомендации врача и важные отметки по здоровью питомца.';
-      profileTagNode.textContent = `${speciesMeta.emoji} ${speciesMeta.label}`;
-      profileSpeciesNode.textContent = speciesMeta.label;
-      profileBreedNode.textContent = pet.breed || 'Не указана';
-      profileAgeNode.textContent = pet.age || 'Не указан';
       const weightText = formatWeightValue(pet.weight);
       const sexText = formatSexValue(pet.sex);
-      const sterilizedText = formatSterilizedValue(pet.sterilized);
+      const ageText = pet.age || 'Возраст не указан';
+      const breedText = pet.breed || 'Порода не указана';
+      const analysis = getWeightAnalysis(pet);
+
+      profileAvatarNode.innerHTML = buildPetAvatarMarkup(pet, 'large');
+      profileTitleNode.textContent = pet.name;
+      profileSubtitleNode.textContent = `${speciesMeta.label} • ${breedText} • ${ageText}`;
       profileWeightPillNode.textContent = `Вес: ${weightText}`;
       profileSexPillNode.textContent = `Пол: ${sexText}`;
-      profileSterilizedPillNode.textContent = sterilizedText;
-      profileStatusChipNode.textContent = allRecords.length ? 'Есть записи' : 'Готова к заполнению';
-      profileRecordsCountNode.textContent = String(allRecords.length);
-      profileLastRecordCategoryNode.textContent = lastRecord ? `${getCategoryMeta(lastRecord.category).icon} ${lastRecord.category}` : 'Пока пусто';
-      profileLastUpdateNode.textContent = lastRecord ? formatDate(lastRecord.date || lastRecord.updated_at) : 'Пока пусто';
-      profileNoteNode.textContent = lastRecord
-        ? `Последняя медицинская запись относится к категории «${lastRecord.category}» и была добавлена ${formatDate(lastRecord.date || lastRecord.updated_at)}.`
-        : 'Пока записей нет. Можно начать с фото справки, рецепта, ветпаспорта или результатов анализов.';
+      profileAgePillNode.textContent = `Возраст: ${ageText}`;
+      analysisWeightLineNode.textContent = `Вес: ${weightText}`;
+      analysisMessageNode.textContent = analysis.message;
+      profileNoteNode.textContent = analysis.note;
+      analysisEditWeightButton.classList.toggle('hidden', analysis.hasWeight);
+
       reminderTextNode.textContent = lastRecord
-        ? `Последняя активность в медкарте — запись «${lastRecord.category}». Добавь напоминание о следующем визите, прививке или обработке — и Любимка подскажет вовремя.`
-        : 'Добавь напоминание о прививке, осмотре или обработке — и Любимка подскажет вовремя.';
+        ? `Последняя активность в медкарте — запись «${lastRecord.category}». Добавь новую запись или напоминание, чтобы не пропустить следующий важный этап лечения или ухода.`
+        : 'Пока записей нет. Начните с кнопки «Добавить запись», чтобы сохранить визит, прививку, анализ или важную заметку.';
     }
 
     function renderFilters() {
@@ -1209,6 +1612,8 @@
       noPetsScreen.classList.toggle('hidden', hasPets);
       mainLayout.classList.toggle('hidden', !hasPets);
       openRecordModalButton.disabled = !hasPets;
+      sidebarAddRecordButton.disabled = !hasPets;
+      openPetDetailsModalButton.disabled = !hasPets;
       historyAddRecordButton.disabled = !hasPets;
       downloadDataButton.disabled = !hasPets;
       deletePetButton.disabled = !hasPets;
@@ -1369,18 +1774,31 @@
       }
     });
 
-    [openRecordModalButton, historyAddRecordButton].forEach((button) => button.addEventListener('click', openRecordModal));
+    [openRecordModalButton, sidebarAddRecordButton, historyAddRecordButton].forEach((button) => button.addEventListener('click', openRecordModal));
+    openPetDetailsModalButton.addEventListener('click', openPetDetailsModal);
+    analysisEditWeightButton.addEventListener('click', openPetDetailsModal);
     addReminderButton.addEventListener('click', () => setStatus(historyStatusNode, 'Напоминания подготовлены в интерфейсе, но отдельный сценарий сохранения пока не добавлен.', 'success'));
     deletePetButton.addEventListener('click', handleDeletePet);
+    closePetDetailsModalButton.addEventListener('click', closePetDetailsModal);
+    cancelPetDetailsButton.addEventListener('click', closePetDetailsModal);
     closeRecordModalButton.addEventListener('click', closeRecordModal);
     cancelRecordButton.addEventListener('click', closeRecordModal);
+
+    petDetailsModal.addEventListener('click', (event) => {
+      if (event.target === petDetailsModal && !isSubmittingPetDetails) closePetDetailsModal();
+    });
 
     recordModal.addEventListener('click', (event) => {
       if (event.target === recordModal) closeRecordModal();
     });
 
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && recordModal.classList.contains('is-open')) closeRecordModal();
+      if (event.key !== 'Escape') return;
+      if (petDetailsModal.classList.contains('is-open') && !isSubmittingPetDetails) {
+        closePetDetailsModal();
+        return;
+      }
+      if (recordModal.classList.contains('is-open')) closeRecordModal();
     });
 
     recordPhotoPicker.addEventListener('click', () => {
@@ -1409,6 +1827,32 @@
       selectedRecordPhotoFile = file;
       setRecordPhotoPreview(previewObjectUrl);
       setStatus(modalStatusNode, 'Фото выбрано. После сохранения оно загрузится в Supabase Storage.', 'success');
+    });
+
+    petDetailsForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const pet = getSelectedPet();
+      if (!pet || !currentUser) {
+        setStatus(petDetailsStatusNode, 'Сессия истекла. Войдите снова.', 'error');
+        return;
+      }
+
+      const formData = new FormData(petDetailsForm);
+      const nextWeight = String(formData.get('weight') || '').trim();
+      const nextSex = String(formData.get('sex') || '').trim();
+      const nextPets = pets.map((item) => item.id === pet.id
+        ? { ...item, weight: nextWeight, sex: nextSex, updated_at: new Date().toISOString() }
+        : item);
+
+      setPetDetailsFormBusy(true, 'Сохраняем параметры питомца...');
+      try {
+        await persistState(nextPets, medicalRecords, 'Вес и пол питомца обновлены.');
+        closePetDetailsModal();
+      } catch (error) {
+        setStatus(petDetailsStatusNode, error?.message || 'Не удалось сохранить вес и пол питомца.', 'error');
+      } finally {
+        setPetDetailsFormBusy(false);
+      }
     });
 
     recordForm.addEventListener('submit', async (event) => {
