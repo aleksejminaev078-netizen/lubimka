@@ -968,8 +968,8 @@
     }
 
     function redirectToAuth() {
-      const returnTo = `${window.location.pathname.split('/').pop() || 'medical.html'}${window.location.search}${window.location.hash}`;
-      const authUrl = new URL('auth.html', window.location.href);
+      const returnTo = `${window.location.pathname || '/medical'}${window.location.search}${window.location.hash}`;
+      const authUrl = new URL('/auth', window.location.origin);
       authUrl.searchParams.set('next', returnTo);
       window.location.replace(authUrl.toString());
     }

@@ -169,7 +169,7 @@
 </head>
 <body>
   <div class="auth-shell">
-    <a class="brand" href="index.html">
+    <a class="brand" href="/">
       <span class="brand-dot"></span>
       <span>Любимка</span>
     </a>
@@ -219,7 +219,7 @@
       <p class="helper">Используйте email и пароль для входа или регистрации. После подтверждения почты вы сможете сразу продолжить работу в сервисе.</p>
     </div>
 
-    <a class="back-link" href="index.html">← Вернуться на главную</a>
+    <a class="back-link" href="/">← Вернуться на главную</a>
   </div>
 
   <script>
@@ -276,22 +276,22 @@
     function resolvePostAuthTarget() {
       const params = new URLSearchParams(window.location.search);
       const next = params.get('next');
-      if (!next) return 'index.html';
+      if (!next) return '/';
 
       try {
         const targetUrl = new URL(next, window.location.href);
         if (targetUrl.origin !== window.location.origin) {
-          return 'index.html';
+          return '/';
         }
-        return `${targetUrl.pathname.split('/').pop() || 'index.html'}${targetUrl.search}${targetUrl.hash}`;
+        return `${targetUrl.pathname || '/'}${targetUrl.search}${targetUrl.hash}`;
       } catch (error) {
-        return 'index.html';
+        return '/';
       }
     }
 
-    const postAuthTarget = isLogoutRedirect ? 'auth.html' : resolvePostAuthTarget();
-    const emailRedirectUrl = new URL('auth.html', window.location.href);
-    if (!isLogoutRedirect && postAuthTarget !== 'index.html') {
+    const postAuthTarget = isLogoutRedirect ? '/auth' : resolvePostAuthTarget();
+    const emailRedirectUrl = new URL('/auth', window.location.origin);
+    if (!isLogoutRedirect && postAuthTarget !== '/') {
       emailRedirectUrl.searchParams.set('next', postAuthTarget);
     }
     const emailRedirectTo = emailRedirectUrl.toString();

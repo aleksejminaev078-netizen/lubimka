@@ -286,7 +286,7 @@
     }
 
     function redirectToAuth() {
-      window.location.replace('auth.html');
+      window.location.replace('/auth');
     }
 
     function setStatus(message, type = '') {
@@ -376,7 +376,7 @@
         await supabaseClient.auth.signOut();
       } finally {
         clearStoredSupabaseSession();
-        window.location.replace('auth.html?logout=1');
+        window.location.replace('/auth?logout=1');
       }
     });
 

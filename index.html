@@ -912,7 +912,7 @@ t: 1.75;
         </nav>
 
         <div class="auth-control" data-auth-control>
-          <a class="btn auth-login-btn" href="auth.html">Вход</a>
+          <a class="btn auth-login-btn" href="/auth">Вход</a>
 
           <div class="user-menu" data-user-menu hidden>
             <button
@@ -948,7 +948,7 @@ t: 1.75;
             </p>
 
             <div class="hero-actions">
-              <a class="btn" href="medical.html">Создать медкарту →</a>
+              <a class='btn' href='/medical'>Создать медкарту →</a>
               <a class="btn-secondary" href="#features">Узнать больше ↓</a>
             </div>
 
@@ -1035,7 +1035,7 @@ t: 1.75;
               <p>
                 Электронная медицинская карта для записей о прививках, диагнозах, назначениях и визитах к ветеринару.
               </p>
-              <a class="btn-ghost" href="medical.html">Попробовать бесплатно →</a>
+              <a class='btn-ghost' href='/medical'>Попробовать бесплатно →</a>
             </article>
 
             <article class="feature-card">
@@ -1294,14 +1294,14 @@ t: 1.75;
       renderAuthState(null);
       closeUserDropdown();
       logoutButton.disabled = false;
-      window.location.replace('auth.html?logout=1');
+      window.location.replace('/auth?logout=1');
     });
 
     supabaseClient.auth.onAuthStateChange((event, session) => {
       renderAuthState(session);
 
       if (event === 'SIGNED_OUT') {
-        window.location.replace('auth.html');
+        window.location.replace('/auth');
       }
     });
 
