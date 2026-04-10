@@ -672,7 +672,7 @@
     }
 
     .pet-card-actions {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .pet-action-button {
@@ -680,6 +680,55 @@
       border-radius: 16px;
       font-size: 14px;
       font-weight: 700;
+      min-height: 50px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-align: center;
+      line-height: 1.35;
+    }
+
+    .pet-action-button[data-action="medical"] {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--accent) 0%, #ff8458 100%);
+      color: #ffffff;
+      box-shadow: 0 16px 30px rgba(255, 107, 53, 0.22);
+    }
+
+    .pet-action-button[data-action="medical"]::after {
+      content: '';
+      position: absolute;
+      inset: 1px;
+      border-radius: inherit;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      pointer-events: none;
+    }
+
+    .medical-cta-row {
+      margin-top: 14px;
+    }
+
+    .medical-cta-button {
+      min-height: 58px;
+      padding: 16px 20px;
+      border-radius: 20px;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      box-shadow: 0 18px 34px rgba(255, 107, 53, 0.22);
+    }
+
+    .medical-cta-button:hover,
+    .pet-action-button[data-action="medical"]:hover {
+      box-shadow: 0 20px 38px rgba(255, 107, 53, 0.26);
+    }
+
+    .medical-cta-button:focus-visible,
+    .pet-action-button[data-action="medical"]:focus-visible {
+      outline: 3px solid rgba(255, 107, 53, 0.22);
+      outline-offset: 3px;
     }
 
     .actions-row {
@@ -728,6 +777,11 @@
 
       .button-inline {
         width: 100%;
+      }
+
+      .pet-action-button[data-action="medical"],
+      .medical-cta-button {
+        min-height: 54px;
       }
     }
   </style>
@@ -808,6 +862,23 @@
           </div>
         </div>
 
+        <div class="fields-grid">
+          <div class="field">
+            <label for="pet-weight">Вес</label>
+            <input id="pet-weight" class="input" name="weight" type="text" inputmode="decimal" placeholder="Например, 4.2 или 4,2 кг">
+            <p class="field-hint">Можно указать число с единицей измерения или без неё.</p>
+          </div>
+
+          <div class="field">
+            <label for="pet-sex">Пол</label>
+            <select id="pet-sex" class="select" name="sex">
+              <option value="">Не указан</option>
+              <option value="female">Девочка</option>
+              <option value="male">Мальчик</option>
+            </select>
+          </div>
+        </div>
+
         <div class="breed-field">
           <label for="pet-breed">Порода</label>
           <input id="pet-breed" class="input" name="breed" type="text" placeholder="Начните вводить породу или впишите вручную" autocomplete="off">
@@ -839,6 +910,9 @@
 
       <div id="pets-list" class="pets-list" hidden></div>
       <div id="status" class="status" aria-live="polite"></div>
+      <div id="medical-cta-row" class="medical-cta-row" hidden>
+        <button id="medical-cta-button" class="button button-primary button-full medical-cta-button" type="button">📋 Перейти к медкарточке</button>
+      </div>
     </section>
   </main>
 
@@ -847,6 +921,7 @@
     const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmbmxyZ2ZhbWNheG5ucHFneGV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NzAwMjQsImV4cCI6MjA5MTM0NjAyNH0.O9g34xXE0K4GKzaMN857wPEHMTUK8V5LnhLS_V0yhDw';
     const PET_PHOTO_BUCKET = 'pets';
     const MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024;
+    const MEDICAL_CARD_URL = 'https://lubimka.online/medical';
     const BREED_DICTIONARY = {
       'Кошка': [
         'Абиссинская',
@@ -918,6 +993,8 @@
     const headerAddButton = document.getElementById('header-add-button');
     const actionsAddButton = document.getElementById('actions-add-button');
     const emptyAddButton = document.getElementById('empty-add-button');
+    const medicalCtaRow = document.getElementById('medical-cta-row');
+    const medicalCtaButton = document.getElementById('medical-cta-button');
 
     const petForm = document.getElementById('pet-form');
     const formTitleNode = document.getElementById('form-title');
@@ -929,6 +1006,8 @@
     const petSpeciesSelect = document.getElementById('pet-species');
     const petBreedInput = document.getElementById('pet-breed');
     const petAgeSelect = document.getElementById('pet-age');
+    const petWeightInput = document.getElementById('pet-weight');
+    const petSexSelect = document.getElementById('pet-sex');
     const petNotesInput = document.getElementById('pet-notes');
     const breedHintNode = document.getElementById('breed-hint');
     const breedSuggestionsNode = document.getElementById('breed-suggestions');
@@ -971,9 +1050,18 @@
       window.location.replace('/auth');
     }
 
+    function redirectToMedicalCard() {
+      window.location.href = MEDICAL_CARD_URL;
+    }
+
+    function updateMedicalCtaVisibility(message = '', type = '') {
+      medicalCtaRow.hidden = !(type === 'success' && message === 'Питомец добавлен.');
+    }
+
     function setStatus(message, type = '') {
       statusNode.textContent = message;
       statusNode.className = `status ${type}`.trim();
+      updateMedicalCtaVisibility(message, type);
     }
 
     function getUserMetadata(user) {
@@ -1025,6 +1113,8 @@
           species: String(pet.species || '').trim(),
           breed: String(pet.breed || '').trim(),
           age: String(pet.age || '').trim(),
+          weight: String(pet?.weight ?? pet?.weight_kg ?? pet?.mass ?? '').trim(),
+          sex: String(pet?.sex ?? pet?.gender ?? '').trim(),
           notes: String(pet.notes || '').trim(),
           photo_url: String(pet.photo_url || '').trim(),
           photo_path: String(pet.photo_path || '').trim(),
@@ -1047,6 +1137,14 @@
       return SPECIES_META[species] || { emoji: '🐾', label: species || 'Питомец' };
     }
 
+    function normalizeEditableSexValue(value) {
+      const raw = String(value ?? '').trim().toLowerCase();
+      if (!raw) return '';
+      if (['female', 'f', 'girl', 'девочка', 'самка'].includes(raw)) return 'female';
+      if (['male', 'm', 'boy', 'мальчик', 'самец'].includes(raw)) return 'male';
+      return '';
+    }
+
     function setFormBusy(isBusy, busyLabel = 'Сохраняем...') {
       isSubmitting = isBusy;
       savePetButton.disabled = isBusy;
@@ -1057,6 +1155,8 @@
       petSpeciesSelect.disabled = isBusy;
       petBreedInput.disabled = isBusy;
       petAgeSelect.disabled = isBusy;
+      petWeightInput.disabled = isBusy;
+      petSexSelect.disabled = isBusy;
       petNotesInput.disabled = isBusy;
       savePetButton.textContent = isBusy ? busyLabel : (editingPetId ? 'Сохранить изменения' : 'Сохранить питомца');
     }
@@ -1100,6 +1200,8 @@
       petForm.reset();
       petSpeciesSelect.value = '';
       petAgeSelect.value = '';
+      petWeightInput.value = '';
+      petSexSelect.value = '';
       breedSuggestionsNode.hidden = true;
       breedSuggestionsNode.innerHTML = '';
       breedHintNode.textContent = 'Для кошек и собак доступны умные подсказки. Для других видов породу можно ввести вручную.';
@@ -1144,13 +1246,15 @@
       currentPhotoUrl = pet.photo_url || '';
       currentPhotoPath = pet.photo_path || '';
       formTitleNode.textContent = 'Редактировать питомца';
-      formSubtitleNode.textContent = 'Обновите фото, породу, возраст или заметки. Изменения сразу сохранятся в вашей карточке.';
+      formSubtitleNode.textContent = 'Обновите фото, породу, возраст, вес, пол или заметки. Изменения сразу сохранятся в вашей карточке.';
       savePetButton.textContent = 'Сохранить изменения';
 
       petNameInput.value = pet.name;
       petSpeciesSelect.value = pet.species;
       petBreedInput.value = pet.breed;
       petAgeSelect.value = pet.age;
+      petWeightInput.value = pet.weight || '';
+      petSexSelect.value = normalizeEditableSexValue(pet.sex);
       petNotesInput.value = pet.notes;
       setPhotoPreview(currentPhotoUrl);
       updateBreedHint();
@@ -1277,6 +1381,7 @@
               <div class="pet-card-actions">
                 <button class="button button-secondary pet-action-button" data-action="edit" data-pet-id="${escapeHtml(pet.id)}" type="button">Редактировать</button>
                 <button class="button button-ghost pet-action-button" data-action="delete" data-pet-id="${escapeHtml(pet.id)}" type="button">Удалить</button>
+                <button class="button button-primary pet-action-button" data-action="medical" data-pet-id="${escapeHtml(pet.id)}" type="button">📋 Создать медкарточку</button>
               </div>
             </div>
           </div>
@@ -1428,6 +1533,8 @@
         species: String(formData.get('species') || '').trim(),
         breed: String(formData.get('breed') || '').trim(),
         age: String(formData.get('age') || '').trim(),
+        weight: String(formData.get('weight') || '').trim(),
+        sex: String(formData.get('sex') || '').trim(),
         notes: String(formData.get('notes') || '').trim(),
         photo_url: currentPhotoUrl,
         photo_path: currentPhotoPath,
@@ -1484,6 +1591,10 @@
       });
     });
 
+    medicalCtaButton.addEventListener('click', () => {
+      redirectToMedicalCard();
+    });
+
     cancelPetButton.addEventListener('click', () => {
       hideForm(true);
       renderPets();
@@ -1502,6 +1613,11 @@
 
       if (action === 'delete') {
         handleDeletePet(petId);
+        return;
+      }
+
+      if (action === 'medical') {
+        redirectToMedicalCard();
       }
     });
 
