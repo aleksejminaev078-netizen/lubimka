@@ -845,7 +845,7 @@
   <script>
     const SUPABASE_URL = window.SUPABASE_URL || 'https://afnlrgfamcaxnnpqgxev.supabase.co';
     const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmbmxyZ2ZhbWNheG5ucHFneGV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NzAwMjQsImV4cCI6MjA5MTM0NjAyNH0.O9g34xXE0K4GKzaMN857wPEHMTUK8V5LnhLS_V0yhDw';
-    const PET_PHOTO_BUCKET = 'pet-photos';
+    const PET_PHOTO_BUCKET = 'pets';
     const MAX_PHOTO_SIZE_BYTES = 5 * 1024 * 1024;
     const BREED_DICTIONARY = {
       'Кошка': [
@@ -1470,7 +1470,7 @@
       } catch (error) {
         console.error(error);
         const storageHint = error?.message && String(error.message).includes('row-level security')
-          ? ' Не удалось загрузить фото: в проекте нужно создать публичный bucket pet-photos и разрешить загрузку для авторизованных пользователей.'
+          ? ' Не удалось загрузить фото: проверьте, что публичный bucket pets разрешает загрузку для авторизованных пользователей.'
           : '';
         setStatus((error?.message || 'Не удалось сохранить питомца.') + storageHint, 'error');
       } finally {
