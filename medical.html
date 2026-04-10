@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Любимка | Медкарта</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #FFF8F4;
+      --surface: #ffffff;
+      --surface-soft: #fff4ed;
+      --text: #24130c;
+      --text-soft: #6f625c;
+      --text-muted: #9d9088;
+      --accent: #FF6B35;
+      --accent-dark: #ea5a24;
+      --accent-soft: rgba(255, 107, 53, 0.12);
+      --success: #2a8f60;
+      --danger: #c53f26;
+      --shadow-soft: 0 14px 34px rgba(92, 51, 25, 0.07);
+      --radius-lg: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    button, input, select, textarea { font: inherit; }
+    button { border: none; cursor: pointer; background: none; padding: 0; }
+    a { color: inherit; text-decoration: none; }
+
+    .page-shell {
+      width: min(1480px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .back-link,
+    .brand,
+    .pet-tile,
+    .hero-card,
+    .quick-card,
+    .calm-card,
+    .history-panel,
+    .no-pets-card,
+    .empty-card,
+    .modal-panel,
+    .stats-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(79, 42, 23, 0.06);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-radius: 999px;
+      font-weight: 600;
+      color: var(--text-soft);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 18px;
+      border-radius: 999px;
+    }
+
+    .brand img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      border-radius: 14px;
+    }
+
+    .brand-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-title { font-weight: 800; font-size: 1rem; }
+    .brand-subtitle { color: var(--text-muted); font-size: 0.82rem; }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 340px minmax(320px, 0.95fr) minmax(380px, 1.15fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .column-card {
+      padding: 24px;
+      position: sticky;
+      top: 18px;
+      background: #fff;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(79, 42, 23, 0.06);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .section-label {
+      margin: 0 0 10px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+    }
+
+    .section-header,
+    .history-head,
+    .modal-top,
+    .pet-name-row,
+    .record-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .section-title,
+    .profile-title,
+    .history-title {
+      margin: 0;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+    }
+
+    .section-title { font-size: 2rem; }
+    .history-title { font-size: 1.9rem; }
+    .profile-title { font-size: 2rem; line-height: 1.02; }
+
+    .icon-circle,
+    .action-button,
+    .utility-button,
+    .primary-button,
+    .secondary-button,
+    .ghost-button,
+    .filter-chip,
+    .tab-chip,
+    .tag,
+    .record-delete {
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease;
+    }
+
+    .icon-circle,
+    .action-button,
+    .utility-button,
+    .primary-button,
+    .secondary-button,
+    .ghost-button,
+    .filter-chip,
+    .tab-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-weight: 700;
+    }
+
+    .icon-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #fff4ed;
+      color: var(--accent);
+      border: 1px solid rgba(255, 107, 53, 0.2);
+      box-shadow: 0 12px 24px rgba(255, 107, 53, 0.12);
+      flex-shrink: 0;
+    }
+
+    .stack,
+    .actions-stack,
+    .quick-actions-grid,
+    .utility-grid,
+    .records-list,
+    .form-grid,
+    .field,
+    .profile-copy,
+    .empty-copy,
+    .no-pets-copy {
+      display: grid;
+      gap: 16px;
+    }
+
+    .pet-tile {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .pet-tile.is-active {
+      border-color: rgba(255, 107, 53, 0.22);
+      background: linear-gradient(180deg, #ffffff 0%, #fff8f3 100%);
+      box-shadow: 0 18px 34px rgba(255, 107, 53, 0.12);
+    }
+
+    .pet-tile-head,
+    .profile-hero,
+    .photo-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .profile-hero {
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .hero-visual {
+      position: relative;
+      width: 172px;
+      min-width: 172px;
+      height: 172px;
+      display: grid;
+      place-items: center;
+    }
+
+    .profile-bubbles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .profile-bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 190, 166, 0.95), rgba(255, 107, 53, 0.14));
+      filter: blur(0.2px);
+    }
+
+    .profile-bubble.one { width: 124px; height: 124px; left: 10px; top: 18px; }
+    .profile-bubble.two { width: 72px; height: 72px; right: 8px; top: 22px; }
+    .profile-bubble.three { width: 56px; height: 56px; right: 18px; bottom: 18px; }
+    .profile-bubble.four { width: 34px; height: 34px; left: 22px; bottom: 22px; }
+
+    .profile-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .profile-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 16px;
+      border-radius: 999px;
+      background: #fff4ed;
+      color: var(--accent);
+      font-size: 0.92rem;
+      font-weight: 700;
+      border: 1px solid rgba(255, 107, 53, 0.14);
+      box-shadow: 0 10px 18px rgba(255, 107, 53, 0.08);
+    }
+
+    .profile-pill.is-neutral {
+      color: var(--text-soft);
+    }
+
+    .pet-avatar,
+    .profile-avatar,
+    .photo-preview,
+    .record-preview {
+      overflow: hidden;
+      background: #fff4ed;
+      border: 1px solid rgba(255, 107, 53, 0.14);
+    }
+
+    .pet-avatar,
+    .profile-avatar,
+    .photo-preview {
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .pet-avatar { width: 64px; height: 64px; font-size: 1.7rem; }
+    .profile-avatar { width: 124px; height: 124px; font-size: 3.2rem; }
+    .photo-preview { width: 124px; height: 124px; }
+
+    .pet-avatar img,
+    .profile-avatar img,
+    .photo-preview img,
+    .record-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .pet-name { margin: 0; font-size: 1.05rem; font-weight: 800; }
+    .pet-meta,
+    .record-meta,
+    .muted-copy,
+    .helper,
+    .field-hint,
+    .empty-text,
+    .no-pets-text,
+    .profile-subtitle,
+    .status { color: var(--text-soft); }
+    .pet-meta,
+    .record-meta,
+    .muted-copy,
+    .helper,
+    .field-hint,
+    .empty-text,
+    .no-pets-text,
+    .profile-subtitle { line-height: 1.6; }
+
+    .reminder-line { color: var(--accent); font-size: 0.92rem; font-weight: 600; }
+
+    .utility-button,
+    .action-button,
+    .primary-button,
+    .secondary-button,
+    .ghost-button {
+      min-height: 52px;
+      padding: 0 18px;
+      border-radius: 16px;
+    }
+
+    .utility-button,
+    .secondary-button {
+      background: #fff;
+      border: 1px solid rgba(79, 42, 23, 0.09);
+      color: var(--text);
+      box-shadow: 0 10px 18px rgba(92, 51, 25, 0.05);
+    }
+
+    .primary-button,
+    .action-button {
+      background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);
+      color: #fff;
+      box-shadow: 0 16px 28px rgba(255, 107, 53, 0.28);
+    }
+
+    .ghost-button {
+      background: #2d241f;
+      border: 1px solid #2d241f;
+      color: #fff;
+    }
+
+    .hero-card,
+    .quick-card,
+    .calm-card,
+    .history-panel,
+    .modal-panel { padding: 24px; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .tag {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.88rem;
+      font-weight: 700;
+      border: 1px solid rgba(255, 107, 53, 0.12);
+    }
+
+    .stats-grid,
+    .modal-fields-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .stats-card { padding: 18px; display: grid; gap: 8px; }
+    .stats-label { color: var(--text-muted); font-size: 0.82rem; font-weight: 600; }
+    .stats-value { font-size: 1.05rem; font-weight: 800; line-height: 1.3; }
+
+    .note-card {
+      background: #fff4ed;
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px dashed rgba(255, 107, 53, 0.18);
+      color: var(--text-soft);
+      line-height: 1.6;
+    }
+
+    .calm-card { background: linear-gradient(180deg, #fffaf7 0%, #fff1e7 100%); }
+    .history-panel { margin-top: 22px; }
+    .tabs-row,
+    .filters { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .tab-chip,
+    .filter-chip {
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(79, 42, 23, 0.08);
+      background: #fff;
+      color: var(--text-soft);
+      box-shadow: 0 8px 16px rgba(92, 51, 25, 0.05);
+    }
+
+    .tab-chip.is-active,
+    .filter-chip.is-active {
+      background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    .record-card { padding: 18px; display: grid; gap: 14px; }
+    .record-title { margin: 0; font-size: 1.06rem; font-weight: 800; }
+    .record-preview {
+      width: min(220px, 100%);
+      aspect-ratio: 1 / 1;
+      border-radius: 22px;
+      box-shadow: 0 12px 24px rgba(255, 107, 53, 0.1);
+    }
+
+    .record-preview-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 2rem;
+      background: linear-gradient(180deg, #fff4ec 0%, #ffe9db 100%);
+    }
+
+    .record-image-link { display: inline-flex; gap: 8px; font-weight: 700; color: var(--accent); }
+    .record-delete {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(197, 63, 38, 0.08);
+      color: var(--danger);
+      flex-shrink: 0;
+    }
+
+    .empty-card,
+    .no-pets-card {
+      min-height: 360px;
+      padding: 32px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+
+    .empty-copy,
+    .no-pets-copy { max-width: 420px; justify-items: center; }
+    .empty-emoji,
+    .no-pets-emoji { font-size: 2.4rem; letter-spacing: 0.2em; }
+    .empty-title,
+    .no-pets-title { margin: 0; font-size: 1.6rem; letter-spacing: -0.04em; }
+
+    .status { margin-top: 12px; min-height: 24px; font-weight: 600; }
+    .status.is-error { color: var(--danger); }
+    .status.is-success { color: var(--success); }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      padding: 24px;
+      background: rgba(36, 19, 12, 0.38);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+    .modal.is-open { display: flex; }
+    .modal-panel {
+      width: min(620px, 100%);
+      max-height: min(92vh, 900px);
+      overflow: auto;
+    }
+    .modal-title { margin: 0 0 8px; font-size: 1.5rem; }
+    .modal-subtitle { margin: 0; color: var(--text-soft); line-height: 1.6; }
+    .close-button {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #fff4ed;
+      border: 1px solid rgba(79, 42, 23, 0.06);
+      color: var(--text-soft);
+      flex-shrink: 0;
+    }
+
+    .input,
+    .select,
+    .textarea {
+      width: 100%;
+      border: 1px solid rgba(79, 42, 23, 0.1);
+      border-radius: 16px;
+      background: #fff;
+      color: var(--text);
+      padding: 15px 16px;
+      outline: none;
+    }
+    .textarea { min-height: 132px; resize: vertical; line-height: 1.6; }
+    .photo-upload-card {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+      background: #fff4ed;
+      border-radius: 22px;
+      border: 1px dashed rgba(255, 107, 53, 0.24);
+    }
+    .photo-picker {
+      width: 124px;
+      height: 124px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 107, 53, 0.18);
+      box-shadow: 0 18px 34px rgba(255, 107, 53, 0.12);
+    }
+    .photo-picker-fallback {
+      display: grid;
+      gap: 4px;
+      justify-items: center;
+      color: var(--accent);
+      text-align: center;
+      padding: 12px;
+    }
+
+    .hidden,
+    [hidden] { display: none !important; }
+
+    @media (max-width: 1320px) {
+      .main-layout { grid-template-columns: 320px 1fr; }
+      .right-column { grid-column: 1 / -1; }
+      .column-card { position: static; }
+    }
+
+    @media (max-width: 860px) {
+      .page-shell { width: min(100% - 20px, 100%); padding-top: 18px; }
+      .topbar { flex-direction: column; align-items: stretch; }
+      .main-layout { grid-template-columns: 1fr; }
+      .profile-hero,
+      .photo-actions { flex-direction: column; align-items: flex-start; }
+      .stats-grid,
+      .modal-fields-row { grid-template-columns: 1fr; }
+      .section-title,
+      .profile-title,
+      .history-title { font-size: 1.68rem; }
+      .action-button,
+      .primary-button,
+      .secondary-button,
+      .ghost-button,
+      .utility-button { width: 100%; }
+      .modal { padding: 12px; align-items: end; }
+      .modal-panel { width: 100%; max-height: 94vh; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <a class="back-link" href="index.html">← Назад на главную</a>
+      <div class="brand">
+        <img src="assets/lubimka-logo.webp" alt="Любимка">
+        <div class="brand-copy">
+          <span class="brand-title">Любимка | Медкарта</span>
+          <span class="brand-subtitle">Все важные записи питомца в одном месте</span>
+        </div>
+      </div>
+    </header>
+
+    <div id="no-pets-screen" class="no-pets-card hidden">
+      <div class="no-pets-copy">
+        <div class="no-pets-emoji">🐾</div>
+        <h1 class="no-pets-title">Добавьте питомца сначала</h1>
+        <p class="no-pets-text">Сначала создайте карточку питомца, а потом мы откроем полноценную медкарту, историю записей, документы и заметки по лечению.</p>
+        <a class="primary-button" href="pets.html">Перейти к питомцам</a>
+      </div>
+    </div>
+
+    <main id="main-layout" class="main-layout hidden">
+      <aside class="column-card left-column">
+        <p class="section-label">МОИ ПИТОМЦЫ</p>
+        <div class="section-header">
+          <h1 class="section-title">Твоя медкарта</h1>
+          <a class="icon-circle" href="pets.html" title="Добавить питомца" aria-label="Добавить питомца">+</a>
+        </div>
+        <div id="pets-list" class="stack"></div>
+        <div class="utility-grid">
+          <button id="download-data-button" class="utility-button" type="button">↓ Скачать данные</button>
+          <button id="upload-data-button" class="utility-button" type="button">📄 Загрузить данные</button>
+          <input id="archive-input" type="file" accept="application/json" hidden>
+        </div>
+        <div id="sidebar-status" class="status" aria-live="polite"></div>
+      </aside>
+
+      <section class="center-column stack">
+        <article class="hero-card">
+          <div class="profile-hero">
+            <div class="hero-visual">
+              <div class="profile-bubbles" aria-hidden="true">
+                <span class="profile-bubble one"></span>
+                <span class="profile-bubble two"></span>
+                <span class="profile-bubble three"></span>
+                <span class="profile-bubble four"></span>
+              </div>
+              <div id="profile-avatar" class="profile-avatar"></div>
+            </div>
+            <div class="profile-copy">
+              <span class="eyebrow">🐾 Профиль питомца</span>
+              <h2 id="profile-title" class="profile-title">Питомец</h2>
+              <p id="profile-subtitle" class="profile-subtitle">Здесь собраны основные сведения, которые помогут быстро ориентироваться в истории здоровья и документах.</p>
+              <div id="profile-pills" class="profile-pills">
+                <span id="profile-weight-pill" class="profile-pill">Вес: —</span>
+                <span id="profile-sex-pill" class="profile-pill">Пол: —</span>
+                <span id="profile-sterilized-pill" class="profile-pill is-neutral">Статус: —</span>
+              </div>
+              <span id="profile-tag" class="tag">🐾 Карточка</span>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stats-card"><span class="stats-label">Вид</span><strong id="profile-species" class="stats-value">—</strong></article>
+            <article class="stats-card"><span class="stats-label">Порода</span><strong id="profile-breed" class="stats-value">—</strong></article>
+            <article class="stats-card"><span class="stats-label">Возраст</span><strong id="profile-age" class="stats-value">—</strong></article>
+            <article class="stats-card"><span class="stats-label">Последнее обновление</span><strong id="profile-last-update" class="stats-value">Пока пусто</strong></article>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stats-card"><span class="stats-label">Количество записей</span><strong id="profile-records-count" class="stats-value">0</strong></article>
+            <article class="stats-card"><span class="stats-label">Последняя запись</span><strong id="profile-last-record-category" class="stats-value">Пока пусто</strong></article>
+            <article class="stats-card"><span class="stats-label">Источник данных</span><strong class="stats-value">Supabase</strong></article>
+            <article class="stats-card"><span class="stats-label">Статус медкарты</span><strong id="profile-status-chip" class="stats-value">Готова к заполнению</strong></article>
+          </div>
+
+          <div id="profile-note" class="note-card">Медкарта поможет хранить прививки, осмотры, анализы, документы и любые важные заметки о здоровье питомца.</div>
+        </article>
+      </section>
+
+      <section class="right-column actions-stack">
+        <article class="quick-card">
+          <p class="section-label">БЫСТРЫЕ ДЕЙСТВИЯ</p>
+          <div>
+            <h2 class="history-title" style="margin-bottom: 8px;">Сначала фото, потом запись</h2>
+            <p class="muted-copy" style="margin: 0;">Добавляйте снимки справок, анализов, рецептов и короткие заметки. Так вся медистория всегда будет под рукой.</p>
+          </div>
+          <div class="quick-actions-grid">
+            <button id="open-record-modal-button" class="action-button" type="button">📋 Добавить запись</button>
+            <a class="secondary-button" href="pets.html">Редактировать профиль</a>
+            <button id="add-reminder-button" class="secondary-button" type="button">+ Добавить напоминание</button>
+            <button id="delete-pet-button" class="ghost-button" type="button">🗑 Удалить питомца</button>
+          </div>
+        </article>
+
+        <article class="calm-card">
+          <p class="section-label">ПОКА СПОКОЙНО</p>
+          <div>
+            <h3 style="margin: 0 0 8px; font-size: 1.28rem; letter-spacing: -0.03em;">Пока спокойно</h3>
+            <p id="reminder-text" class="muted-copy" style="margin: 0;">Добавь напоминание о прививке, осмотре или обработке — и Любимка подскажет вовремя.</p>
+          </div>
+        </article>
+
+        <article class="history-panel">
+          <div class="tabs-row">
+            <button class="tab-chip is-active" type="button">Медистория</button>
+            <button class="tab-chip" type="button" disabled>Напоминания</button>
+            <button class="tab-chip" type="button" disabled>🖼 Все фото</button>
+          </div>
+
+          <div class="history-head">
+            <div>
+              <p class="section-label" style="margin-bottom: 8px;">ФОТО И ЗАПИСИ</p>
+              <h2 class="history-title">Медистория</h2>
+            </div>
+            <button id="history-add-record-button" class="action-button" type="button">📋 Добавить запись</button>
+          </div>
+
+          <div id="filters" class="filters"></div>
+          <div id="records-panel"></div>
+          <div id="history-status" class="status" aria-live="polite"></div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <div id="record-modal" class="modal" aria-hidden="true">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="record-modal-title">
+      <div class="modal-top">
+        <div>
+          <h3 id="record-modal-title" class="modal-title">Добавить запись</h3>
+          <p id="record-modal-subtitle" class="modal-subtitle">Загрузите фото справки, ветпаспорта, рецепта или просто оставьте заметку по лечению.</p>
+        </div>
+        <button id="close-record-modal-button" class="close-button" type="button" aria-label="Закрыть окно">✕</button>
+      </div>
+
+      <form id="record-form" class="form-grid">
+        <div class="photo-upload-card">
+          <input id="record-photo-input" type="file" accept="image/*" hidden>
+          <div class="photo-actions">
+            <button id="record-photo-picker" class="photo-picker" type="button" aria-label="Выбрать фото документа">
+              <div id="record-photo-placeholder" class="photo-picker-fallback">
+                <span style="font-size: 1.8rem;">📷</span>
+                <strong>Фото</strong>
+                <span class="helper">Нажмите, чтобы выбрать</span>
+              </div>
+              <div id="record-photo-preview" class="photo-preview hidden"></div>
+            </button>
+            <div>
+              <p class="field-hint" style="margin: 0 0 10px;">Добавьте фото справки, анализа, рецепта или другого документа. Файл будет храниться в Supabase Storage.</p>
+              <button id="remove-record-photo-button" class="secondary-button" type="button">Убрать фото</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-fields-row">
+          <div class="field">
+            <label for="record-category">Категория</label>
+            <select id="record-category" class="select" name="category" required>
+              <option value="">Выберите категорию</option>
+              <option value="Прививки">💉 Прививки</option>
+              <option value="Осмотры">🔍 Осмотры</option>
+              <option value="Процедуры">✂️ Процедуры</option>
+              <option value="Лечение">💊 Лечение</option>
+              <option value="Документы">📄 Документы</option>
+              <option value="Анализы">📋 Анализы</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="record-date">Дата</label>
+            <input id="record-date" class="input" name="date" type="date" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="record-description">Описание / заметка</label>
+          <textarea id="record-description" class="textarea" name="description" placeholder="Например: ежегодная вакцинация, плановый осмотр, результат анализа, рекомендации врача."></textarea>
+        </div>
+
+        <div class="modal-fields-row">
+          <button id="save-record-button" class="primary-button" type="submit">Сохранить запись</button>
+          <button id="cancel-record-button" class="secondary-button" type="button">Отмена</button>
+        </div>
+        <div id="modal-status" class="status" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = window.SUPABASE_URL || 'https://afnlrgfamcaxnnpqgxev.supabase.co';
+    const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmbmxyZ2ZhbWNheG5ucHFneGV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NzAwMjQsImV4cCI6MjA5MTM0NjAyNH0.O9g34xXE0K4GKzaMN857wPEHMTUK8V5LnhLS_V0yhDw';
+    const STORAGE_BUCKET = 'pets';
+    const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+    const FILTERS = ['Все', 'Прививки', 'Осмотры', 'Процедуры', 'Лечение', 'Документы', 'Анализы'];
+    const CATEGORY_META = {
+      'Прививки': { icon: '💉', singular: 'Прививка' },
+      'Осмотры': { icon: '🔍', singular: 'Осмотр' },
+      'Процедуры': { icon: '✂️', singular: 'Процедура' },
+      'Лечение': { icon: '💊', singular: 'Лечение' },
+      'Документы': { icon: '📄', singular: 'Документ' },
+      'Анализы': { icon: '📋', singular: 'Анализ' }
+    };
+    const SPECIES_META = {
+      'Кошка': { emoji: '🐱', label: 'Кошка' },
+      'Собака': { emoji: '🐶', label: 'Собака' },
+      'Птица': { emoji: '🐦', label: 'Птица' },
+      'Грызун': { emoji: '🐹', label: 'Грызун' },
+      'Рыбка': { emoji: '🐠', label: 'Рыбка' },
+      'Рептилия': { emoji: '🐍', label: 'Рептилия' },
+      'Другое': { emoji: '✨', label: 'Другое' }
+    };
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+
+    const supabaseProjectRef = new URL(SUPABASE_URL).hostname.split('.')[0];
+    const supabaseStorageKeyPrefix = `sb-${supabaseProjectRef}-`;
+
+    const noPetsScreen = document.getElementById('no-pets-screen');
+    const mainLayout = document.getElementById('main-layout');
+    const petsListNode = document.getElementById('pets-list');
+    const sidebarStatusNode = document.getElementById('sidebar-status');
+    const historyStatusNode = document.getElementById('history-status');
+    const modalStatusNode = document.getElementById('modal-status');
+    const profileAvatarNode = document.getElementById('profile-avatar');
+    const profileTitleNode = document.getElementById('profile-title');
+    const profileSubtitleNode = document.getElementById('profile-subtitle');
+    const profileTagNode = document.getElementById('profile-tag');
+    const profileSpeciesNode = document.getElementById('profile-species');
+    const profileBreedNode = document.getElementById('profile-breed');
+    const profileAgeNode = document.getElementById('profile-age');
+    const profileWeightPillNode = document.getElementById('profile-weight-pill');
+    const profileSexPillNode = document.getElementById('profile-sex-pill');
+    const profileSterilizedPillNode = document.getElementById('profile-sterilized-pill');
+    const profileStatusChipNode = document.getElementById('profile-status-chip');
+    const profileRecordsCountNode = document.getElementById('profile-records-count');
+    const profileLastRecordCategoryNode = document.getElementById('profile-last-record-category');
+    const profileLastUpdateNode = document.getElementById('profile-last-update');
+    const profileNoteNode = document.getElementById('profile-note');
+    const reminderTextNode = document.getElementById('reminder-text');
+    const filtersNode = document.getElementById('filters');
+    const recordsPanelNode = document.getElementById('records-panel');
+    const downloadDataButton = document.getElementById('download-data-button');
+    const uploadDataButton = document.getElementById('upload-data-button');
+    const archiveInput = document.getElementById('archive-input');
+    const openRecordModalButton = document.getElementById('open-record-modal-button');
+    const historyAddRecordButton = document.getElementById('history-add-record-button');
+    const addReminderButton = document.getElementById('add-reminder-button');
+    const deletePetButton = document.getElementById('delete-pet-button');
+    const recordModal = document.getElementById('record-modal');
+    const closeRecordModalButton = document.getElementById('close-record-modal-button');
+    const cancelRecordButton = document.getElementById('cancel-record-button');
+    const recordForm = document.getElementById('record-form');
+    const recordModalSubtitle = document.getElementById('record-modal-subtitle');
+    const recordPhotoInput = document.getElementById('record-photo-input');
+    const recordPhotoPicker = document.getElementById('record-photo-picker');
+    const recordPhotoPlaceholder = document.getElementById('record-photo-placeholder');
+    const recordPhotoPreview = document.getElementById('record-photo-preview');
+    const removeRecordPhotoButton = document.getElementById('remove-record-photo-button');
+    const saveRecordButton = document.getElementById('save-record-button');
+    const recordDateInput = document.getElementById('record-date');
+
+    let currentUser = null;
+    let pets = [];
+    let medicalRecords = {};
+    let selectedPetId = '';
+    let activeFilter = 'Все';
+    let selectedRecordPhotoFile = null;
+    let previewObjectUrl = '';
+    let isSubmittingRecord = false;
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function createId() {
+      return `id-${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36)}`;
+    }
+
+    function formatDate(value) {
+      if (!value) return 'Дата не указана';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+    }
+
+    function formatDateForInput(value) {
+      const date = value ? new Date(value) : new Date();
+      if (Number.isNaN(date.getTime())) return '';
+      return date.toISOString().slice(0, 10);
+    }
+
+    function getSpeciesMeta(species) {
+      return SPECIES_META[species] || { emoji: '🐾', label: species || 'Питомец' };
+    }
+
+    function getCategoryMeta(category) {
+      return CATEGORY_META[category] || { icon: '📄', singular: category || 'Запись' };
+    }
+
+    function getUserMetadata(user) {
+      return user?.user_metadata || user?.data || {};
+    }
+
+    function normalizePets(rawPets) {
+      if (!Array.isArray(rawPets)) return [];
+      return rawPets
+        .map((pet) => ({
+          id: pet?.id || createId(),
+          name: String(pet?.name || '').trim(),
+          species: String(pet?.species || '').trim() || 'Другое',
+          breed: String(pet?.breed || '').trim(),
+          age: String(pet?.age || '').trim(),
+          notes: String(pet?.notes || '').trim(),
+          weight: String(pet?.weight ?? pet?.weight_kg ?? pet?.mass ?? '').trim(),
+          sex: String(pet?.sex ?? pet?.gender ?? '').trim(),
+          sterilized: pet?.sterilized ?? pet?.neutered ?? pet?.spayed_castrated ?? pet?.spayed ?? pet?.castrated ?? '',
+          photo_url: String(pet?.photo_url || '').trim(),
+          photo_path: String(pet?.photo_path || '').trim(),
+          created_at: pet?.created_at || new Date().toISOString(),
+          updated_at: pet?.updated_at || pet?.created_at || new Date().toISOString()
+        }))
+        .filter((pet) => pet.name);
+    }
+
+    function normalizeRecord(entry, petId) {
+      return {
+        id: entry?.id || createId(),
+        pet_id: petId,
+        category: String(entry?.category || '').trim(),
+        date: String(entry?.date || '').trim(),
+        description: String(entry?.description || entry?.note || '').trim(),
+        photo_url: String(entry?.photo_url || '').trim(),
+        photo_path: String(entry?.photo_path || '').trim(),
+        created_at: entry?.created_at || new Date().toISOString(),
+        updated_at: entry?.updated_at || entry?.created_at || new Date().toISOString()
+      };
+    }
+
+    function normalizeMedicalRecords(rawRecords) {
+      if (Array.isArray(rawRecords)) {
+        return rawRecords.reduce((acc, entry) => {
+          const petId = String(entry?.pet_id || '').trim();
+          if (!petId) return acc;
+          acc[petId] = acc[petId] || [];
+          acc[petId].push(normalizeRecord(entry, petId));
+          return acc;
+        }, {});
+      }
+      if (!rawRecords || typeof rawRecords !== 'object') return {};
+      return Object.entries(rawRecords).reduce((acc, [petId, entries]) => {
+        acc[petId] = Array.isArray(entries) ? entries.map((entry) => normalizeRecord(entry, petId)) : [];
+        return acc;
+      }, {});
+    }
+
+    function clearStoredSupabaseSession() {
+      try {
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith(supabaseStorageKeyPrefix)) localStorage.removeItem(key);
+        });
+        Object.keys(sessionStorage).forEach((key) => {
+          if (key.startsWith(supabaseStorageKeyPrefix)) sessionStorage.removeItem(key);
+        });
+      } catch (error) {
+        console.warn('Не удалось очистить локальную сессию Supabase:', error);
+      }
+    }
+
+    function redirectToAuth() {
+      window.location.href = 'auth.html';
+    }
+
+    function setStatus(target, message = '', tone = '') {
+      target.textContent = message;
+      target.className = 'status';
+      if (tone === 'error') target.classList.add('is-error');
+      if (tone === 'success') target.classList.add('is-success');
+    }
+
+    function revokePreviewObjectUrl() {
+      if (previewObjectUrl) {
+        URL.revokeObjectURL(previewObjectUrl);
+        previewObjectUrl = '';
+      }
+    }
+
+    function validateImageFile(file) {
+      if (!file) return 'Файл не выбран.';
+      if (!file.type.startsWith('image/')) return 'Можно загрузить только изображение.';
+      if (file.size > MAX_IMAGE_SIZE_BYTES) return 'Файл должен быть не больше 5 МБ.';
+      return '';
+    }
+
+    function getSelectedPet() {
+      return pets.find((pet) => pet.id === selectedPetId) || null;
+    }
+
+    function getPetRecords(petId, filter = activeFilter) {
+      const entries = Array.isArray(medicalRecords[petId]) ? medicalRecords[petId] : [];
+      const filtered = filter === 'Все' ? entries : entries.filter((entry) => entry.category === filter);
+      return filtered.slice().sort((a, b) => new Date(b.date || b.created_at) - new Date(a.date || a.created_at));
+    }
+
+    function getLastRecord(petId) {
+      return getPetRecords(petId, 'Все')[0] || null;
+    }
+
+    async function persistState(nextPets, nextMedicalRecords, successMessage) {
+      const metadata = getUserMetadata(currentUser);
+      const { data, error } = await supabaseClient.auth.updateUser({
+        data: { ...metadata, pets: nextPets, medical_records: nextMedicalRecords }
+      });
+      if (error) throw error;
+      currentUser = data.user || currentUser;
+      pets = normalizePets(getUserMetadata(currentUser).pets);
+      medicalRecords = normalizeMedicalRecords(getUserMetadata(currentUser).medical_records);
+      if (!pets.find((pet) => pet.id === selectedPetId)) selectedPetId = pets[0]?.id || '';
+      renderAll();
+      setStatus(sidebarStatusNode, successMessage, 'success');
+      setStatus(historyStatusNode, '', '');
+    }
+
+    async function uploadMedicalImage(file, petId, recordId) {
+      const extension = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+      const filePath = `${currentUser.id}/medical/${petId}/${recordId}-${Date.now()}.${extension}`;
+      const { error: uploadError } = await supabaseClient.storage.from(STORAGE_BUCKET).upload(filePath, file, { cacheControl: '3600', upsert: true });
+      if (uploadError) throw uploadError;
+      const { data } = supabaseClient.storage.from(STORAGE_BUCKET).getPublicUrl(filePath);
+      return { photo_path: filePath, photo_url: data?.publicUrl || '' };
+    }
+
+    async function removeStorageFile(filePath) {
+      if (!filePath) return;
+      await supabaseClient.storage.from(STORAGE_BUCKET).remove([filePath]);
+    }
+
+    function buildPetAvatarMarkup(pet, size = 'small') {
+      const speciesMeta = getSpeciesMeta(pet.species);
+      const className = size === 'large' ? 'profile-avatar' : 'pet-avatar';
+      const content = pet.photo_url
+        ? `<img src="${escapeHtml(pet.photo_url)}" alt="${escapeHtml(`Фото ${pet.name}`)}">`
+        : `<span aria-hidden="true">${escapeHtml(speciesMeta.emoji)}</span>`;
+      return `<div class="${className}">${content}</div>`;
+    }
+
+    function formatWeightValue(value) {
+      const raw = String(value ?? '').trim();
+      if (!raw) return '—';
+      if (/кг|kg/i.test(raw)) return raw;
+      return `${raw} кг`;
+    }
+
+    function formatSexValue(value) {
+      const raw = String(value ?? '').trim().toLowerCase();
+      if (!raw) return '—';
+      if (['female', 'f', 'girl', 'девочка', 'самка'].includes(raw)) return 'Девочка';
+      if (['male', 'm', 'boy', 'мальчик', 'самец'].includes(raw)) return 'Мальчик';
+      return value;
+    }
+
+    function formatSterilizedValue(value) {
+      if (typeof value === 'boolean') return value ? 'Стерилизован / кастрирован' : 'Не указано';
+      const raw = String(value ?? '').trim().toLowerCase();
+      if (!raw) return 'Не указано';
+      if (['true', 'yes', '1', 'да', 'стерилизован', 'кастрирован', 'стерилизована'].includes(raw)) return 'Стерилизован / кастрирован';
+      if (['false', 'no', '0', 'нет', 'не стерилизован', 'не кастрирован'].includes(raw)) return 'Не указано';
+      return value;
+    }
+
+    function buildPetTile(pet) {
+      const speciesMeta = getSpeciesMeta(pet.species);
+      const lastRecord = getLastRecord(pet.id);
+      const lastRecordText = lastRecord ? `${getCategoryMeta(lastRecord.category).icon} ${getCategoryMeta(lastRecord.category).singular.toLowerCase()} · ${formatDate(lastRecord.date)}` : 'ещё не добавлена';
+      const meta = [speciesMeta.label, pet.breed || 'порода не указана', pet.age || 'возраст не указан'].join(' • ');
+      return `
+        <button class="pet-tile ${pet.id === selectedPetId ? 'is-active' : ''}" type="button" data-select-pet="${escapeHtml(pet.id)}">
+          <div class="pet-tile-head">
+            ${buildPetAvatarMarkup(pet)}
+            <div style="min-width: 0; flex: 1; display: grid; gap: 6px; text-align: left;">
+              <div class="pet-name-row">
+                <h3 class="pet-name">${escapeHtml(pet.name)}</h3>
+                <span style="font-size: 1.3rem;">${escapeHtml(speciesMeta.emoji)}</span>
+              </div>
+              <div class="pet-meta">${escapeHtml(meta)}</div>
+            </div>
+          </div>
+          <div class="muted-copy">Последняя запись: ${escapeHtml(lastRecordText)}</div>
+          <div class="reminder-line">🔔 Напоминаний пока нет</div>
+        </button>
+      `;
+    }
+
+    function renderPetsList() {
+      petsListNode.innerHTML = pets.map((pet) => buildPetTile(pet)).join('');
+    }
+
+    function renderProfile() {
+      const pet = getSelectedPet();
+      if (!pet) return;
+      const speciesMeta = getSpeciesMeta(pet.species);
+      const allRecords = getPetRecords(pet.id, 'Все');
+      const lastRecord = allRecords[0] || null;
+      profileAvatarNode.innerHTML = buildPetAvatarMarkup(pet, 'large');
+      profileTitleNode.textContent = pet.name;
+      profileSubtitleNode.textContent = pet.notes || 'Здесь можно хранить все документы, прививки, рекомендации врача и важные отметки по здоровью питомца.';
+      profileTagNode.textContent = `${speciesMeta.emoji} ${speciesMeta.label}`;
+      profileSpeciesNode.textContent = speciesMeta.label;
+      profileBreedNode.textContent = pet.breed || 'Не указана';
+      profileAgeNode.textContent = pet.age || 'Не указан';
+      const weightText = formatWeightValue(pet.weight);
+      const sexText = formatSexValue(pet.sex);
+      const sterilizedText = formatSterilizedValue(pet.sterilized);
+      profileWeightPillNode.textContent = `Вес: ${weightText}`;
+      profileSexPillNode.textContent = `Пол: ${sexText}`;
+      profileSterilizedPillNode.textContent = sterilizedText;
+      profileStatusChipNode.textContent = allRecords.length ? 'Есть записи' : 'Готова к заполнению';
+      profileRecordsCountNode.textContent = String(allRecords.length);
+      profileLastRecordCategoryNode.textContent = lastRecord ? `${getCategoryMeta(lastRecord.category).icon} ${lastRecord.category}` : 'Пока пусто';
+      profileLastUpdateNode.textContent = lastRecord ? formatDate(lastRecord.date || lastRecord.updated_at) : 'Пока пусто';
+      profileNoteNode.textContent = lastRecord
+        ? `Последняя медицинская запись относится к категории «${lastRecord.category}» и была добавлена ${formatDate(lastRecord.date || lastRecord.updated_at)}.`
+        : 'Пока записей нет. Можно начать с фото справки, рецепта, ветпаспорта или результатов анализов.';
+      reminderTextNode.textContent = lastRecord
+        ? `Последняя активность в медкарте — запись «${lastRecord.category}». Добавь напоминание о следующем визите, прививке или обработке — и Любимка подскажет вовремя.`
+        : 'Добавь напоминание о прививке, осмотре или обработке — и Любимка подскажет вовремя.';
+    }
+
+    function renderFilters() {
+      filtersNode.innerHTML = FILTERS.map((filter) => {
+        const meta = getCategoryMeta(filter);
+        const label = filter === 'Все' ? 'Все' : `${meta.icon} ${filter}`;
+        return `<button class="filter-chip ${filter === activeFilter ? 'is-active' : ''}" type="button" data-filter="${escapeHtml(filter)}">${escapeHtml(label)}</button>`;
+      }).join('');
+    }
+
+    function buildRecordCard(record) {
+      const meta = getCategoryMeta(record.category);
+      const title = record.description || `${meta.singular} без описания`;
+      const previewMarkup = record.photo_url
+        ? `<div class="record-preview"><img src="${escapeHtml(record.photo_url)}" alt="${escapeHtml(`${meta.singular}: ${title}`)}"></div><a class="record-image-link" href="${escapeHtml(record.photo_url)}" target="_blank" rel="noreferrer">📷 Открыть фото</a>`
+        : `<div class="record-preview"><div class="record-preview-fallback">${escapeHtml(meta.icon)}</div></div>`;
+      return `
+        <article class="record-card" data-record-id="${escapeHtml(record.id)}">
+          <div class="record-head">
+            <div style="display:grid;gap:6px;">
+              <span class="tag">${escapeHtml(`${meta.icon} ${record.category}`)}</span>
+              <h3 class="record-title">${escapeHtml(title)}</h3>
+              <div class="record-meta">${escapeHtml(formatDate(record.date))}</div>
+            </div>
+            <button class="record-delete" type="button" data-delete-record="${escapeHtml(record.id)}" aria-label="Удалить запись">🗑</button>
+          </div>
+          <div style="display:grid;gap:14px;">${previewMarkup}</div>
+        </article>
+      `;
+    }
+
+    function renderRecords() {
+      const pet = getSelectedPet();
+      if (!pet) {
+        recordsPanelNode.innerHTML = '';
+        return;
+      }
+      const records = getPetRecords(pet.id);
+      if (!records.length) {
+        recordsPanelNode.innerHTML = `<div class="empty-card"><div class="empty-copy"><div class="empty-emoji">🐾🐾</div><h3 class="empty-title">Пока пусто. Добавь первую запись! 🐾</h3><p class="empty-text">Проще всего начать с фото справки, анализа, рецепта или ветпаспорта.</p></div></div>`;
+        return;
+      }
+      recordsPanelNode.innerHTML = `<div class="records-list">${records.map((record) => buildRecordCard(record)).join('')}</div>`;
+    }
+
+    function renderAll() {
+      const hasPets = pets.length > 0;
+      noPetsScreen.classList.toggle('hidden', hasPets);
+      mainLayout.classList.toggle('hidden', !hasPets);
+      openRecordModalButton.disabled = !hasPets;
+      historyAddRecordButton.disabled = !hasPets;
+      downloadDataButton.disabled = !hasPets;
+      deletePetButton.disabled = !hasPets;
+      if (!hasPets) return;
+      if (!pets.find((pet) => pet.id === selectedPetId)) selectedPetId = pets[0].id;
+      renderPetsList();
+      renderProfile();
+      renderFilters();
+      renderRecords();
+    }
+
+    function openRecordModal() {
+      const pet = getSelectedPet();
+      if (!pet) {
+        setStatus(historyStatusNode, 'Сначала добавьте питомца, чтобы создать запись.', 'error');
+        return;
+      }
+      resetRecordForm();
+      recordModalSubtitle.textContent = `Новая запись будет добавлена в медкарту питомца «${pet.name}».`;
+      recordModal.classList.add('is-open');
+      recordModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeRecordModal() {
+      recordModal.classList.remove('is-open');
+      recordModal.setAttribute('aria-hidden', 'true');
+      resetRecordForm();
+    }
+
+    function setRecordPhotoPreview(url) {
+      if (url) {
+        recordPhotoPreview.innerHTML = `<img src="${escapeHtml(url)}" alt="Предпросмотр фото записи">`;
+        recordPhotoPreview.classList.remove('hidden');
+        recordPhotoPlaceholder.classList.add('hidden');
+      } else {
+        recordPhotoPreview.innerHTML = '';
+        recordPhotoPreview.classList.add('hidden');
+        recordPhotoPlaceholder.classList.remove('hidden');
+      }
+    }
+
+    function resetRecordForm() {
+      recordForm.reset();
+      recordDateInput.value = formatDateForInput();
+      selectedRecordPhotoFile = null;
+      revokePreviewObjectUrl();
+      setRecordPhotoPreview('');
+      setStatus(modalStatusNode, '', '');
+      saveRecordButton.disabled = false;
+      removeRecordPhotoButton.disabled = false;
+      recordPhotoPicker.disabled = false;
+      isSubmittingRecord = false;
+    }
+
+    function setRecordFormBusy(isBusy, message = '') {
+      isSubmittingRecord = isBusy;
+      saveRecordButton.disabled = isBusy;
+      removeRecordPhotoButton.disabled = isBusy;
+      recordPhotoPicker.disabled = isBusy;
+      if (isBusy) setStatus(modalStatusNode, message || 'Сохраняем запись...', '');
+    }
+
+    function downloadDataArchive() {
+      const payload = { exported_at: new Date().toISOString(), pets, medical_records: medicalRecords };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `lubimka-medical-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setStatus(sidebarStatusNode, 'Архив медкарты скачан.', 'success');
+    }
+
+    async function importDataArchive(file) {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      const nextPets = parsed?.pets ? normalizePets(parsed.pets) : pets;
+      const nextMedicalRecords = parsed?.medical_records ? normalizeMedicalRecords(parsed.medical_records) : medicalRecords;
+      if (!window.confirm('Заменить текущие данные питомцев и медкарты содержимым файла?')) return;
+      try {
+        setStatus(sidebarStatusNode, 'Загружаем данные в Supabase...');
+        await persistState(nextPets, nextMedicalRecords, 'Данные успешно загружены.');
+      } catch (error) {
+        setStatus(sidebarStatusNode, error?.message || 'Не удалось загрузить данные.', 'error');
+      }
+    }
+
+    async function handleDeleteRecord(recordId) {
+      const pet = getSelectedPet();
+      if (!pet) return;
+      const records = getPetRecords(pet.id, 'Все');
+      const record = records.find((item) => item.id === recordId);
+      if (!record || !window.confirm('Удалить эту запись из медкарты?')) return;
+      const nextMedicalRecords = { ...medicalRecords, [pet.id]: records.filter((item) => item.id !== recordId) };
+      try {
+        setStatus(historyStatusNode, 'Удаляем запись...');
+        await persistState(pets, nextMedicalRecords, 'Запись удалена.');
+        if (record.photo_path) await removeStorageFile(record.photo_path);
+      } catch (error) {
+        setStatus(historyStatusNode, error?.message || 'Не удалось удалить запись.', 'error');
+      }
+    }
+
+    async function handleDeletePet() {
+      const pet = getSelectedPet();
+      if (!pet || !window.confirm(`Удалить питомца «${pet.name}» вместе с его медкартой?`)) return;
+      const petRecords = getPetRecords(pet.id, 'Все');
+      const nextPets = pets.filter((item) => item.id !== pet.id);
+      const nextMedicalRecords = { ...medicalRecords };
+      delete nextMedicalRecords[pet.id];
+      try {
+        setStatus(historyStatusNode, 'Удаляем питомца...');
+        await persistState(nextPets, nextMedicalRecords, 'Питомец и его медкарта удалены.');
+        if (pet.photo_path) await removeStorageFile(pet.photo_path);
+        await Promise.allSettled(petRecords.filter((record) => record.photo_path).map((record) => removeStorageFile(record.photo_path)));
+      } catch (error) {
+        setStatus(historyStatusNode, error?.message || 'Не удалось удалить питомца.', 'error');
+      }
+    }
+
+    petsListNode.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-select-pet]');
+      if (!button) return;
+      selectedPetId = button.dataset.selectPet || '';
+      activeFilter = 'Все';
+      setStatus(historyStatusNode, '', '');
+      renderAll();
+    });
+
+    filtersNode.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-filter]');
+      if (!button) return;
+      activeFilter = button.dataset.filter || 'Все';
+      renderFilters();
+      renderRecords();
+    });
+
+    recordsPanelNode.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-delete-record]');
+      if (!button) return;
+      handleDeleteRecord(button.dataset.deleteRecord || '');
+    });
+
+    downloadDataButton.addEventListener('click', downloadDataArchive);
+    uploadDataButton.addEventListener('click', () => archiveInput.click());
+    archiveInput.addEventListener('change', async (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      try {
+        await importDataArchive(file);
+      } catch (error) {
+        setStatus(sidebarStatusNode, error?.message || 'Не удалось прочитать архив.', 'error');
+      } finally {
+        archiveInput.value = '';
+      }
+    });
+
+    [openRecordModalButton, historyAddRecordButton].forEach((button) => button.addEventListener('click', openRecordModal));
+    addReminderButton.addEventListener('click', () => setStatus(historyStatusNode, 'Напоминания подготовлены в интерфейсе, но отдельный сценарий сохранения пока не добавлен.', 'success'));
+    deletePetButton.addEventListener('click', handleDeletePet);
+    closeRecordModalButton.addEventListener('click', closeRecordModal);
+    cancelRecordButton.addEventListener('click', closeRecordModal);
+
+    recordModal.addEventListener('click', (event) => {
+      if (event.target === recordModal) closeRecordModal();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && recordModal.classList.contains('is-open')) closeRecordModal();
+    });
+
+    recordPhotoPicker.addEventListener('click', () => {
+      if (!isSubmittingRecord) recordPhotoInput.click();
+    });
+
+    removeRecordPhotoButton.addEventListener('click', () => {
+      selectedRecordPhotoFile = null;
+      recordPhotoInput.value = '';
+      revokePreviewObjectUrl();
+      setRecordPhotoPreview('');
+      setStatus(modalStatusNode, 'Фото удалено из формы.', 'success');
+    });
+
+    recordPhotoInput.addEventListener('change', (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const validationMessage = validateImageFile(file);
+      if (validationMessage) {
+        recordPhotoInput.value = '';
+        setStatus(modalStatusNode, validationMessage, 'error');
+        return;
+      }
+      revokePreviewObjectUrl();
+      previewObjectUrl = URL.createObjectURL(file);
+      selectedRecordPhotoFile = file;
+      setRecordPhotoPreview(previewObjectUrl);
+      setStatus(modalStatusNode, 'Фото выбрано. После сохранения оно загрузится в Supabase Storage.', 'success');
+    });
+
+    recordForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const pet = getSelectedPet();
+      if (!pet || !currentUser) {
+        setStatus(modalStatusNode, 'Сессия истекла. Войдите снова.', 'error');
+        return;
+      }
+      const formData = new FormData(recordForm);
+      const category = String(formData.get('category') || '').trim();
+      const date = String(formData.get('date') || '').trim();
+      const description = String(formData.get('description') || '').trim();
+      if (!category || !date) {
+        setStatus(modalStatusNode, 'Выберите категорию и укажите дату.', 'error');
+        return;
+      }
+      const recordId = createId();
+      let uploadedPhotoPath = '';
+      const nextRecord = {
+        id: recordId,
+        pet_id: pet.id,
+        category,
+        date,
+        description,
+        photo_url: '',
+        photo_path: '',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      setRecordFormBusy(true, 'Сохраняем запись...');
+      try {
+        if (selectedRecordPhotoFile) {
+          setStatus(modalStatusNode, 'Загружаем фото в Supabase Storage...');
+          const uploaded = await uploadMedicalImage(selectedRecordPhotoFile, pet.id, recordId);
+          nextRecord.photo_url = uploaded.photo_url;
+          nextRecord.photo_path = uploaded.photo_path;
+          uploadedPhotoPath = uploaded.photo_path;
+        }
+        const nextMedicalRecords = { ...medicalRecords, [pet.id]: [...getPetRecords(pet.id, 'Все'), nextRecord] };
+        await persistState(pets, nextMedicalRecords, 'Запись добавлена в медкарту.');
+        closeRecordModal();
+      } catch (error) {
+        if (uploadedPhotoPath) {
+          try { await removeStorageFile(uploadedPhotoPath); } catch (_) {}
+        }
+        const storageHint = error?.message && String(error.message).includes('row-level security')
+          ? ' Проверьте, что bucket pets разрешает загрузку для авторизованных пользователей.'
+          : '';
+        setStatus(modalStatusNode, (error?.message || 'Не удалось сохранить запись.') + storageHint, 'error');
+      } finally {
+        setRecordFormBusy(false);
+      }
+    });
+
+    supabaseClient.auth.onAuthStateChange((eventName, session) => {
+      if (!session && eventName === 'SIGNED_OUT') {
+        clearStoredSupabaseSession();
+        redirectToAuth();
+      }
+    });
+
+    (async () => {
+      recordDateInput.value = formatDateForInput();
+      const { data, error } = await supabaseClient.auth.getUser();
+      if (error || !data.user) {
+        redirectToAuth();
+        return;
+      }
+      currentUser = data.user;
+      const metadata = getUserMetadata(currentUser);
+      pets = normalizePets(metadata.pets);
+      medicalRecords = normalizeMedicalRecords(metadata.medical_records);
+      selectedPetId = pets[0]?.id || '';
+      renderAll();
+    })();
+  </script>
+</body>
+</html>
