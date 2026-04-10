@@ -10,22 +10,24 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg: #FFF8F4;
+      --bg: #FFF8F5;
       --surface: #ffffff;
-      --surface-soft: #fff4ed;
+      --surface-soft: #fff3ed;
       --text: #24130c;
-      --text-soft: #6f625c;
-      --text-muted: #9d9088;
+      --text-soft: #7a6c65;
+      --text-muted: #aa9a92;
       --accent: #FF6B35;
-      --accent-dark: #ea5a24;
+      --accent-dark: #f05d2a;
       --accent-soft: rgba(255, 107, 53, 0.12);
       --success: #2a8f60;
       --danger: #c53f26;
-      --shadow-soft: 0 14px 34px rgba(92, 51, 25, 0.07);
-      --radius-lg: 24px;
+      --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.06);
+      --radius-lg: 20px;
+      --radius-md: 16px;
     }
 
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -33,121 +35,145 @@
       background: var(--bg);
       color: var(--text);
     }
+
     button, input, select, textarea { font: inherit; }
     button { border: none; cursor: pointer; background: none; padding: 0; }
     a { color: inherit; text-decoration: none; }
 
     .page-shell {
-      width: min(1480px, calc(100% - 32px));
+      width: min(480px, calc(100% - 24px));
       margin: 0 auto;
-      padding: 24px 0 40px;
+      padding: 16px 0 32px;
+    }
+
+    .topbar,
+    .medical-column,
+    .summary-copy,
+    .pets-list,
+    .utility-grid,
+    .actions-grid,
+    .records-list,
+    .form-grid,
+    .field,
+    .empty-copy,
+    .no-pets-copy {
+      display: grid;
+      gap: 12px;
     }
 
     .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      margin-bottom: 24px;
+      margin-bottom: 12px;
     }
 
     .back-link,
     .brand,
+    .panel-card,
     .pet-tile,
-    .hero-card,
-    .quick-card,
-    .calm-card,
-    .history-panel,
-    .no-pets-card,
     .empty-card,
+    .no-pets-card,
+    .record-card,
     .modal-panel,
-    .stats-card {
-      background: #fff;
+    .widget-card {
+      background: var(--surface);
       border-radius: var(--radius-lg);
-      border: 1px solid rgba(79, 42, 23, 0.06);
       box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(36, 19, 12, 0.04);
     }
 
     .back-link {
+      min-height: 44px;
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      padding: 14px 18px;
-      border-radius: 999px;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 16px;
       font-weight: 600;
       color: var(--text-soft);
     }
 
     .brand {
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      gap: 14px;
-      padding: 12px 18px;
-      border-radius: 999px;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 16px;
+      text-align: left;
     }
 
     .brand img {
-      width: 42px;
-      height: 42px;
+      width: 36px;
+      height: 36px;
       object-fit: contain;
-      border-radius: 14px;
+      border-radius: 12px;
     }
 
     .brand-copy {
-      display: flex;
-      flex-direction: column;
+      display: grid;
       gap: 2px;
     }
 
-    .brand-title { font-weight: 800; font-size: 1rem; }
-    .brand-subtitle { color: var(--text-muted); font-size: 0.82rem; }
+    .brand-title { font-size: 0.98rem; font-weight: 800; }
+    .brand-subtitle { font-size: 0.78rem; color: var(--text-muted); }
 
     .main-layout {
-      display: grid;
-      grid-template-columns: 340px minmax(320px, 0.95fr) minmax(380px, 1.15fr);
-      gap: 22px;
-      align-items: start;
+      display: block;
     }
 
-    .column-card {
-      padding: 24px;
-      position: sticky;
-      top: 18px;
-      background: #fff;
-      border-radius: var(--radius-lg);
-      border: 1px solid rgba(79, 42, 23, 0.06);
-      box-shadow: var(--shadow-soft);
+    .medical-column {
+      gap: 12px;
+    }
+
+    .panel-card,
+    .widget-card,
+    .modal-panel,
+    .empty-card,
+    .no-pets-card,
+    .record-card,
+    .pet-tile {
+      padding: 16px;
     }
 
     .section-label {
-      margin: 0 0 10px;
+      margin: 0;
       color: var(--text-muted);
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
-      letter-spacing: 0.14em;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
     }
 
-    .section-header,
-    .history-head,
+    .panel-head,
+    .record-head,
     .modal-top,
-    .pet-name-row,
-    .record-head {
+    .pet-tile-head,
+    .pet-name-row {
       display: flex;
+      align-items: flex-start;
       justify-content: space-between;
       gap: 12px;
     }
 
+    .panel-head-tight {
+      align-items: center;
+    }
+
     .section-title,
     .profile-title,
-    .history-title {
+    .history-title,
+    .panel-title,
+    .empty-title,
+    .no-pets-title,
+    .modal-title {
       margin: 0;
       letter-spacing: -0.04em;
       line-height: 1.05;
     }
 
-    .section-title { font-size: 2rem; }
-    .history-title { font-size: 1.9rem; }
-    .profile-title { font-size: 2rem; line-height: 1.02; }
+    .section-title,
+    .profile-title,
+    .history-title { font-size: 1.8rem; }
+    .panel-title { font-size: 1.12rem; }
+    .modal-title { font-size: 1.4rem; }
 
     .icon-circle,
     .action-button,
@@ -156,9 +182,9 @@
     .secondary-button,
     .ghost-button,
     .filter-chip,
-    .tab-chip,
     .tag,
-    .record-delete {
+    .record-delete,
+    .tab-chip {
       transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease;
     }
 
@@ -173,113 +199,74 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
+      min-height: 52px;
+      padding: 0 16px;
+      border-radius: var(--radius-md);
       font-weight: 700;
+      width: 100%;
     }
 
     .icon-circle {
-      width: 48px;
-      height: 48px;
+      width: 44px;
+      min-width: 44px;
+      height: 44px;
+      min-height: 44px;
       border-radius: 50%;
-      background: #fff4ed;
+      padding: 0;
+      background: var(--surface-soft);
       color: var(--accent);
-      border: 1px solid rgba(255, 107, 53, 0.2);
-      box-shadow: 0 12px 24px rgba(255, 107, 53, 0.12);
-      flex-shrink: 0;
+      border: 1px solid rgba(255, 107, 53, 0.18);
+      box-shadow: none;
     }
 
-    .stack,
-    .actions-stack,
-    .quick-actions-grid,
-    .utility-grid,
-    .records-list,
-    .form-grid,
-    .field,
-    .profile-copy,
-    .empty-copy,
-    .no-pets-copy {
-      display: grid;
-      gap: 16px;
+    .primary-button,
+    .action-button {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(255, 107, 53, 0.22);
     }
 
-    .pet-tile {
-      padding: 18px;
-      display: grid;
-      gap: 14px;
-      cursor: pointer;
-      text-align: left;
+    .primary-button-full {
+      height: 52px;
+      width: 100%;
     }
 
-    .pet-tile.is-active {
-      border-color: rgba(255, 107, 53, 0.22);
-      background: linear-gradient(180deg, #ffffff 0%, #fff8f3 100%);
-      box-shadow: 0 18px 34px rgba(255, 107, 53, 0.12);
+    .utility-button,
+    .secondary-button,
+    .filter-chip,
+    .tab-chip {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid rgba(36, 19, 12, 0.08);
+      box-shadow: none;
     }
 
-    .pet-tile-head,
-    .profile-hero,
-    .photo-actions {
-      display: flex;
-      align-items: center;
-      gap: 14px;
+    .ghost-button {
+      background: rgba(197, 63, 38, 0.08);
+      color: var(--danger);
+      border: 1px solid rgba(197, 63, 38, 0.12);
     }
 
-    .profile-hero {
-      align-items: flex-start;
-      gap: 20px;
-    }
-
-    .hero-visual {
-      position: relative;
-      width: 172px;
-      min-width: 172px;
-      height: 172px;
-      display: grid;
-      place-items: center;
-    }
-
-    .profile-bubbles {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-    }
-
-    .profile-bubble {
-      position: absolute;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, rgba(255, 190, 166, 0.95), rgba(255, 107, 53, 0.14));
-      filter: blur(0.2px);
-    }
-
-    .profile-bubble.one { width: 124px; height: 124px; left: 10px; top: 18px; }
-    .profile-bubble.two { width: 72px; height: 72px; right: 8px; top: 22px; }
-    .profile-bubble.three { width: 56px; height: 56px; right: 18px; bottom: 18px; }
-    .profile-bubble.four { width: 34px; height: 34px; left: 22px; bottom: 22px; }
-
-    .profile-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 4px;
-    }
-
-    .profile-pill {
+    .eyebrow {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 42px;
-      padding: 0 16px;
-      border-radius: 999px;
-      background: #fff4ed;
       color: var(--accent);
-      font-size: 0.92rem;
+      font-size: 0.82rem;
       font-weight: 700;
-      border: 1px solid rgba(255, 107, 53, 0.14);
-      box-shadow: 0 10px 18px rgba(255, 107, 53, 0.08);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
 
-    .profile-pill.is-neutral {
-      color: var(--text-soft);
+    .summary-card {
+      text-align: center;
+      gap: 12px;
+    }
+
+    .summary-avatar {
+      display: flex;
+      justify-content: center;
     }
 
     .pet-avatar,
@@ -287,22 +274,22 @@
     .photo-preview,
     .record-preview {
       overflow: hidden;
-      background: #fff4ed;
+      background: var(--surface-soft);
       border: 1px solid rgba(255, 107, 53, 0.14);
     }
 
     .pet-avatar,
     .profile-avatar,
     .photo-preview {
-      border-radius: 50%;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+      border-radius: 50%;
     }
 
-    .pet-avatar { width: 64px; height: 64px; font-size: 1.7rem; }
-    .profile-avatar { width: 124px; height: 124px; font-size: 3.2rem; }
+    .pet-avatar { width: 56px; height: 56px; font-size: 1.6rem; }
+    .profile-avatar { width: 96px; height: 96px; font-size: 3rem; }
     .photo-preview { width: 124px; height: 124px; }
 
     .pet-avatar img,
@@ -315,197 +302,155 @@
       display: block;
     }
 
-    .pet-name { margin: 0; font-size: 1.05rem; font-weight: 800; }
-    .pet-meta,
-    .record-meta,
-    .muted-copy,
-    .helper,
-    .field-hint,
-    .empty-text,
-    .no-pets-text,
     .profile-subtitle,
-    .status { color: var(--text-soft); }
     .pet-meta,
     .record-meta,
-    .muted-copy,
     .helper,
     .field-hint,
     .empty-text,
     .no-pets-text,
-    .profile-subtitle { line-height: 1.6; }
-
-    .reminder-line { color: var(--accent); font-size: 0.92rem; font-weight: 600; }
-
-    .utility-button,
-    .action-button,
-    .primary-button,
-    .secondary-button,
-    .ghost-button {
-      min-height: 52px;
-      padding: 0 18px;
-      border-radius: 16px;
+    .modal-subtitle,
+    .status,
+    .analysis-note,
+    .widget-meta,
+    .helper-card {
+      color: var(--text-soft);
+      line-height: 1.55;
     }
 
-    .utility-grid > * {
-      width: 100%;
-    }
-
-    .utility-button,
-    .secondary-button {
-      background: #fff;
-      border: 1px solid rgba(79, 42, 23, 0.09);
-      color: var(--text);
-      box-shadow: 0 10px 18px rgba(92, 51, 25, 0.05);
-    }
-
-    .primary-button,
-    .action-button {
-      background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);
-      color: #fff;
-      box-shadow: 0 16px 28px rgba(255, 107, 53, 0.28);
-    }
-
-    .ghost-button {
-      background: #2d241f;
-      border: 1px solid #2d241f;
-      color: #fff;
-    }
-
-    .hero-card,
-    .quick-card,
-    .calm-card,
-    .history-panel,
-    .modal-panel { padding: 24px; }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
+    .summary-badges,
+    .profile-pills,
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
       gap: 8px;
-      color: var(--accent);
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      justify-content: center;
     }
 
+    .human-age-badge,
+    .profile-pill,
     .tag {
       display: inline-flex;
-      width: fit-content;
       align-items: center;
       justify-content: center;
-      padding: 10px 14px;
+      min-height: 36px;
+      padding: 0 14px;
       border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
       font-size: 0.88rem;
       font-weight: 700;
-      border: 1px solid rgba(255, 107, 53, 0.12);
     }
 
-    .stats-grid,
+    .human-age-badge {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .profile-pill {
+      background: var(--surface-soft);
+      color: var(--accent);
+      border: 1px solid rgba(255, 107, 53, 0.14);
+    }
+
+    .profile-pill-muted {
+      color: var(--text-soft);
+      background: #fff;
+      border-color: rgba(36, 19, 12, 0.08);
+    }
+
+    .widgets-grid,
     .modal-fields-row {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .stats-card { padding: 18px; display: grid; gap: 8px; }
-    .stats-label { color: var(--text-muted); font-size: 0.82rem; font-weight: 600; }
-    .stats-value { font-size: 1.05rem; font-weight: 800; line-height: 1.3; }
-
-    .note-card {
-      background: #fff4ed;
-      border-radius: 20px;
-      padding: 18px;
-      border: 1px dashed rgba(255, 107, 53, 0.18);
-      color: var(--text-soft);
-      line-height: 1.6;
-    }
-
-    .analysis-card {
-      display: grid;
-      gap: 18px;
-    }
-
-    .analysis-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 18px;
-    }
-
-    .analysis-copy {
-      display: grid;
       gap: 12px;
-      flex: 1;
     }
 
-    .analysis-meta {
-      margin: 0;
+    .widget-card {
+      display: grid;
+      gap: 8px;
+      min-height: 136px;
+      align-content: start;
+    }
+
+    .widget-label {
+      font-size: 0.84rem;
+      font-weight: 700;
       color: var(--text-soft);
-      line-height: 1.6;
-      font-size: 1rem;
     }
 
-    .analysis-weight-line {
-      margin: 0;
-      font-size: 1.04rem;
+    .widget-value {
+      font-size: 1.18rem;
       font-weight: 800;
-      color: var(--text);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+    }
+
+    .analysis-note-card {
+      gap: 8px;
     }
 
     .analysis-message {
-      background: #fff4ed;
-      border-radius: 24px;
-      padding: 18px;
-      border: 1px solid rgba(255, 107, 53, 0.14);
-      color: var(--text);
+      font-size: 0.98rem;
       font-weight: 700;
-      line-height: 1.6;
+      line-height: 1.5;
+      color: var(--text);
     }
 
-    .analysis-note {
+    .actions-grid,
+    .utility-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .utility-grid-compact {
+      margin-top: 4px;
+    }
+
+    .helper-card {
       margin: 0;
-      color: var(--text-soft);
-      line-height: 1.6;
+      padding: 12px;
+      border-radius: 16px;
+      background: #fff8f3;
     }
 
-    .analysis-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
+    .pet-tile {
+      display: grid;
+      gap: 10px;
+      text-align: left;
+      cursor: pointer;
     }
 
-    .calm-card { background: linear-gradient(180deg, #fffaf7 0%, #fff1e7 100%); }
-    .history-panel { margin-top: 22px; }
-    .tabs-row,
-    .filters { display: flex; gap: 10px; flex-wrap: wrap; }
+    .pet-tile.is-active {
+      border-color: rgba(255, 107, 53, 0.18);
+      background: linear-gradient(180deg, #fff 0%, #fff7f2 100%);
+    }
 
-    .tab-chip,
+    .pet-name { margin: 0; font-size: 1rem; font-weight: 800; }
+    .record-title { margin: 0; font-size: 1.02rem; font-weight: 800; }
+
     .filter-chip {
-      min-height: 42px;
-      padding: 0 14px;
+      width: auto;
+      min-height: 38px;
+      padding: 0 12px;
       border-radius: 999px;
-      border: 1px solid rgba(79, 42, 23, 0.08);
-      background: #fff;
+      font-size: 0.88rem;
       color: var(--text-soft);
-      box-shadow: 0 8px 16px rgba(92, 51, 25, 0.05);
     }
 
-    .tab-chip.is-active,
-    .filter-chip.is-active {
-      background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);
+    .filter-chip.is-active,
+    .tab-chip.is-active {
+      background: var(--accent);
       color: #fff;
       border-color: transparent;
     }
 
-    .record-card { padding: 18px; display: grid; gap: 14px; }
-    .record-title { margin: 0; font-size: 1.06rem; font-weight: 800; }
+    .record-card {
+      display: grid;
+      gap: 12px;
+    }
+
     .record-preview {
-      width: min(220px, 100%);
-      aspect-ratio: 1 / 1;
-      border-radius: 22px;
-      box-shadow: 0 12px 24px rgba(255, 107, 53, 0.1);
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      border-radius: 18px;
     }
 
     .record-preview-fallback {
@@ -514,66 +459,91 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      background: linear-gradient(180deg, #fff4ec 0%, #ffe9db 100%);
       color: var(--accent);
       font-size: 2rem;
-      background: linear-gradient(180deg, #fff4ec 0%, #ffe9db 100%);
     }
 
-    .record-image-link { display: inline-flex; gap: 8px; font-weight: 700; color: var(--accent); }
+    .record-image-link {
+      display: inline-flex;
+      gap: 8px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .tag {
+      width: fit-content;
+      background: var(--surface-soft);
+      color: var(--accent);
+      border: 1px solid rgba(255, 107, 53, 0.12);
+    }
+
     .record-delete {
       width: 40px;
       height: 40px;
+      min-height: 40px;
+      min-width: 40px;
       border-radius: 50%;
       background: rgba(197, 63, 38, 0.08);
       color: var(--danger);
+      border: 1px solid rgba(197, 63, 38, 0.1);
       flex-shrink: 0;
     }
 
     .empty-card,
     .no-pets-card {
-      min-height: 360px;
-      padding: 32px;
+      min-height: 260px;
       display: grid;
       place-items: center;
       text-align: center;
     }
 
     .empty-copy,
-    .no-pets-copy { max-width: 420px; justify-items: center; }
+    .no-pets-copy { justify-items: center; }
     .empty-emoji,
-    .no-pets-emoji { font-size: 2.4rem; letter-spacing: 0.2em; }
+    .no-pets-emoji { font-size: 2.2rem; }
     .empty-title,
-    .no-pets-title { margin: 0; font-size: 1.6rem; letter-spacing: -0.04em; }
+    .no-pets-title { font-size: 1.5rem; }
 
-    .status { margin-top: 12px; min-height: 24px; font-weight: 600; }
+    .status {
+      min-height: 20px;
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
     .status.is-error { color: var(--danger); }
     .status.is-success { color: var(--success); }
 
     .modal {
       position: fixed;
       inset: 0;
-      padding: 24px;
-      background: rgba(36, 19, 12, 0.38);
-      backdrop-filter: blur(10px);
+      padding: 16px;
+      background: rgba(36, 19, 12, 0.34);
+      backdrop-filter: blur(8px);
       display: none;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
       z-index: 20;
     }
+
     .modal.is-open { display: flex; }
+
     .modal-panel {
-      width: min(620px, 100%);
-      max-height: min(92vh, 900px);
+      width: min(480px, 100%);
+      max-height: 94vh;
       overflow: auto;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
     }
-    .modal-title { margin: 0 0 8px; font-size: 1.5rem; }
-    .modal-subtitle { margin: 0; color: var(--text-soft); line-height: 1.6; }
+
     .close-button {
       width: 42px;
       height: 42px;
+      min-width: 42px;
+      min-height: 42px;
       border-radius: 50%;
-      background: #fff4ed;
-      border: 1px solid rgba(79, 42, 23, 0.06);
+      background: var(--surface-soft);
+      border: 1px solid rgba(36, 19, 12, 0.06);
       color: var(--text-soft);
       flex-shrink: 0;
     }
@@ -582,22 +552,36 @@
     .select,
     .textarea {
       width: 100%;
-      border: 1px solid rgba(79, 42, 23, 0.1);
+      border: 1px solid rgba(36, 19, 12, 0.1);
       border-radius: 16px;
       background: #fff;
       color: var(--text);
-      padding: 15px 16px;
+      padding: 14px 16px;
       outline: none;
     }
-    .textarea { min-height: 132px; resize: vertical; line-height: 1.6; }
+
+    .textarea {
+      min-height: 132px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
     .photo-upload-card {
       display: grid;
-      gap: 14px;
-      padding: 18px;
+      gap: 12px;
+      padding: 16px;
       background: #fff4ed;
-      border-radius: 22px;
+      border-radius: 18px;
       border: 1px dashed rgba(255, 107, 53, 0.24);
     }
+
+    .photo-actions {
+      display: grid;
+      gap: 12px;
+      align-items: center;
+      justify-items: start;
+    }
+
     .photo-picker {
       width: 124px;
       height: 124px;
@@ -608,234 +592,44 @@
       align-items: center;
       justify-content: center;
       border: 1px solid rgba(255, 107, 53, 0.18);
-      box-shadow: 0 18px 34px rgba(255, 107, 53, 0.12);
     }
+
     .photo-picker-fallback {
       display: grid;
       gap: 4px;
       justify-items: center;
-      color: var(--accent);
       text-align: center;
+      color: var(--accent);
       padding: 12px;
     }
 
     .hidden,
     [hidden] { display: none !important; }
 
-    @media (max-width: 1320px) {
-      .main-layout { grid-template-columns: 320px 1fr; }
-      .right-column { grid-column: 1 / -1; }
-      .column-card { position: static; }
-    }
-
-    @media (max-width: 768px) {
+    @media (max-width: 480px) {
       .page-shell {
-        width: calc(100% - 16px);
-        padding-top: 14px;
-        padding-bottom: 28px;
+        width: calc(100% - 24px);
+        padding-top: 16px;
       }
 
-      .topbar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 14px;
-        margin-bottom: 18px;
+      .summary-card,
+      .panel-card,
+      .widget-card,
+      .pet-tile,
+      .record-card,
+      .modal-panel,
+      .empty-card,
+      .no-pets-card {
+        padding: 16px;
       }
 
-      .brand {
-        order: 1;
-        width: 100%;
-        justify-content: center;
-        padding: 14px 16px;
-      }
-
-      .brand-copy {
-        align-items: center;
-        text-align: center;
-      }
-
-      .back-link {
-        order: 2;
-        width: 100%;
-        justify-content: center;
-        min-height: 50px;
-      }
-
-      .main-layout {
-        grid-template-columns: 1fr;
-        gap: 18px;
-      }
-
-      .center-column { order: 1; }
-      .right-column { order: 2; }
-      .left-column { order: 3; }
-
-      .column-card,
-      .hero-card,
-      .quick-card,
-      .calm-card,
-      .history-panel,
       .modal-panel {
-        padding: 20px;
-        border-radius: 22px;
-      }
-
-      .column-card { position: static; }
-
-      .profile-hero,
-      .photo-actions,
-      .analysis-head {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-      }
-
-      .profile-copy,
-      .analysis-copy {
-        justify-items: center;
-        text-align: center;
-        gap: 14px;
-      }
-
-      .hero-visual {
-        width: 160px;
-        min-width: 160px;
-        height: 160px;
-        margin: 0 auto;
-      }
-
-      .profile-avatar,
-      .photo-preview {
-        width: 132px;
-        height: 132px;
-      }
-
-      .profile-pills {
-        justify-content: center;
-      }
-
-      .stats-grid,
-      .modal-fields-row {
-        grid-template-columns: 1fr;
+        width: 100%;
       }
 
       .section-title,
       .profile-title,
-      .history-title {
-        font-size: clamp(1.72rem, 7vw, 2.1rem);
-      }
-
-      .profile-subtitle,
-      .muted-copy,
-      .helper,
-      .field-hint,
-      .empty-text,
-      .no-pets-text {
-        font-size: 1rem;
-      }
-
-      .action-button,
-      .primary-button,
-      .secondary-button,
-      .ghost-button,
-      .utility-button,
-      .tab-chip,
-      .filter-chip {
-        width: 100%;
-        min-height: 56px;
-        font-size: 1rem;
-      }
-
-      .right-column {
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-      }
-
-      .history-panel {
-        order: 1;
-        margin-top: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
-
-      .history-panel .history-head {
-        order: 1;
-        flex-direction: column-reverse;
-        align-items: stretch;
-        gap: 14px;
-      }
-
-      .history-panel .tabs-row { order: 2; }
-      .history-panel #filters { order: 3; }
-      .history-panel #records-panel { order: 4; }
-      .history-panel #history-status { order: 5; }
-
-      .history-panel .action-button {
-        width: 100%;
-        min-height: 58px;
-        font-size: 1.02rem;
-      }
-
-      .tabs-row,
-      .filters {
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        margin: 0 -4px;
-        padding: 0 4px 4px;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-      }
-
-      .tabs-row::-webkit-scrollbar,
-      .filters::-webkit-scrollbar {
-        display: none;
-      }
-
-      .quick-card {
-        order: 2;
-        display: grid;
-        gap: 16px;
-      }
-
-      #open-record-modal-button {
-        display: none;
-      }
-
-      .quick-actions-grid {
-        gap: 12px;
-      }
-
-      .quick-actions-grid > *,
-      .analysis-actions > * {
-        width: 100%;
-        min-height: 56px;
-      }
-
-      .calm-card {
-        order: 3;
-      }
-
-      .pet-tile-head,
-      .pet-name-row,
-      .record-head,
-      .modal-top {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .modal {
-        padding: 12px;
-        align-items: end;
-      }
-
-      .modal-panel {
-        width: 100%;
-        max-height: 94vh;
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-      }
+      .history-title { font-size: 1.7rem; }
     }
   </style>
 </head>
@@ -862,89 +656,100 @@
     </div>
 
     <main id="main-layout" class="main-layout hidden">
-      <aside class="column-card left-column">
-        <p class="section-label">МОИ ПИТОМЦЫ</p>
-        <div class="section-header">
-          <h1 class="section-title">Твоя медкарта</h1>
-          <a class="icon-circle" href="pets.html" title="Добавить питомца" aria-label="Добавить питомца">+</a>
-        </div>
-        <div id="pets-list" class="stack"></div>
-        <div class="utility-grid">
-          <button id="sidebar-add-record-button" class="action-button" type="button">➕ Добавить запись</button>
-          <button id="download-data-button" class="utility-button" type="button">↓ Скачать данные</button>
-          <button id="upload-data-button" class="utility-button" type="button">📄 Загрузить данные</button>
-          <input id="archive-input" type="file" accept="application/json" hidden>
-        </div>
-        <div id="sidebar-status" class="status" aria-live="polite"></div>
-      </aside>
-
-      <section class="center-column stack">
-        <article class="hero-card analysis-card">
-          <div class="analysis-head">
-            <div class="analysis-copy">
-              <span class="eyebrow">📊 Анализ здоровья питомца</span>
-              <h2 id="profile-title" class="profile-title">Питомец</h2>
-              <p id="profile-subtitle" class="analysis-meta">Порода и возраст появятся здесь после выбора питомца.</p>
-              <div id="profile-pills" class="profile-pills">
-                <span id="profile-weight-pill" class="profile-pill">Вес: —</span>
-                <span id="profile-sex-pill" class="profile-pill">Пол: —</span>
-                <span id="profile-age-pill" class="profile-pill is-neutral">Возраст: —</span>
-              </div>
+      <section class="medical-column">
+        <article class="panel-card pets-panel">
+          <div class="panel-head">
+            <div>
+              <p class="section-label">МОИ ПИТОМЦЫ</p>
+              <h1 class="section-title">Медкарта</h1>
             </div>
-            <div id="profile-avatar" class="profile-avatar"></div>
+            <a class="icon-circle" href="pets.html" title="Добавить питомца" aria-label="Добавить питомца">+</a>
           </div>
-          <p id="analysis-weight-line" class="analysis-weight-line">Вес: —</p>
-          <div id="analysis-message" class="analysis-message">Здесь появится автоматический вывод по состоянию веса питомца.</div>
-          <p id="profile-note" class="analysis-note">Любимка анализирует питомца по породе, весу и возрасту и подсказывает, на что обратить внимание.</p>
-          <div class="analysis-actions">
-            <button id="analysis-edit-weight-button" class="secondary-button hidden" type="button">✏️ Указать вес</button>
+          <div id="pets-list" class="pets-list"></div>
+          <div class="utility-grid utility-grid-compact">
+            <button id="download-data-button" class="utility-button" type="button">↓ Скачать данные</button>
+            <button id="upload-data-button" class="utility-button" type="button">📄 Загрузить данные</button>
+            <input id="archive-input" type="file" accept="application/json" hidden>
+          </div>
+          <div id="sidebar-status" class="status" aria-live="polite"></div>
+        </article>
+
+        <article class="panel-card summary-card">
+          <div id="profile-avatar" class="summary-avatar"></div>
+          <div class="summary-copy">
+            <span class="eyebrow">🏥 Медкарточка питомца</span>
+            <h2 id="profile-title" class="profile-title">Питомец</h2>
+            <p id="profile-subtitle" class="profile-subtitle">Вид, порода и возраст появятся здесь после выбора питомца.</p>
+            <div class="summary-badges">
+              <span id="profile-age-pill" class="human-age-badge">👤 — человеческих лет</span>
+            </div>
+            <div class="profile-pills">
+              <span id="profile-weight-pill" class="profile-pill">Вес: —</span>
+              <span id="profile-sex-pill" class="profile-pill profile-pill-muted">Пол: —</span>
+            </div>
           </div>
         </article>
-      </section>
 
-      <section class="right-column actions-stack">
-        <article class="quick-card">
-          <p class="section-label">БЫСТРЫЕ ДЕЙСТВИЯ</p>
-          <div>
-            <h2 class="history-title" style="margin-bottom: 8px;">Сначала фото, потом запись</h2>
-            <p class="muted-copy" style="margin: 0;">Добавляйте снимки справок, анализов, рецептов и короткие заметки. Так вся медистория всегда будет под рукой.</p>
+        <section class="widgets-grid">
+          <article class="widget-card">
+            <div class="widget-label">💉 Прививка</div>
+            <div id="vaccination-status" class="widget-value">Нет данных</div>
+            <div id="vaccination-date" class="widget-meta">Дата не указана</div>
+          </article>
+          <article class="widget-card">
+            <div class="widget-label">⭐ Здоровье</div>
+            <div id="health-score" class="widget-value">—/10</div>
+            <div id="health-note" class="widget-meta">Добавьте данные, чтобы получить оценку.</div>
+          </article>
+          <article class="widget-card">
+            <div class="widget-label">🍽️ Корм</div>
+            <div id="food-value" class="widget-value">—</div>
+            <div id="food-note" class="widget-meta">Норма появится после указания веса.</div>
+          </article>
+          <article class="widget-card">
+            <div class="widget-label">⚖️ Вес</div>
+            <div id="analysis-weight-line" class="widget-value">—</div>
+            <div id="weight-status" class="widget-meta">Статус появится после расчёта.</div>
+          </article>
+        </section>
+
+        <article class="panel-card analysis-note-card">
+          <div id="analysis-message" class="analysis-message">Здесь появится автоматический вывод по состоянию питомца.</div>
+          <p id="profile-note" class="analysis-note">Любимка анализирует питомца по породе, весу и возрасту и подсказывает, на что обратить внимание.</p>
+        </article>
+
+        <article class="panel-card actions-card">
+          <div class="panel-head panel-head-tight">
+            <div>
+              <p class="section-label">УПРАВЛЕНИЕ</p>
+              <h3 class="panel-title">Быстрые действия</h3>
+            </div>
+            <button id="analysis-edit-weight-button" class="secondary-button" type="button">✏️ Вес и пол</button>
           </div>
-          <div class="quick-actions-grid">
-            <button id="open-record-modal-button" class="action-button" type="button">📋 Добавить запись</button>
-            <button id="open-pet-details-modal-button" class="secondary-button" type="button">⚖️ Вес и пол</button>
-            <a class="secondary-button" href="pets.html">Редактировать профиль</a>
-            <button id="add-reminder-button" class="secondary-button" type="button">+ Добавить напоминание</button>
+          <div class="actions-grid">
+            <button id="open-record-modal-button" class="secondary-button" type="button">📋 Добавить запись</button>
+            <button id="open-pet-details-modal-button" class="secondary-button" type="button">⚖️ Изменить данные</button>
+            <a class="secondary-button" href="pets.html">🐾 Профиль питомца</a>
+            <button id="add-reminder-button" class="secondary-button" type="button">🔔 Напоминание</button>
             <button id="delete-pet-button" class="ghost-button" type="button">🗑 Удалить питомца</button>
           </div>
+          <p id="reminder-text" class="helper-card">Добавь напоминание о прививке, осмотре или обработке — и Любимка подскажет вовремя.</p>
         </article>
 
-        <article class="calm-card">
-          <p class="section-label">ПОКА СПОКОЙНО</p>
-          <div>
-            <h3 style="margin: 0 0 8px; font-size: 1.28rem; letter-spacing: -0.03em;">Пока спокойно</h3>
-            <p id="reminder-text" class="muted-copy" style="margin: 0;">Добавь напоминание о прививке, осмотре или обработке — и Любимка подскажет вовремя.</p>
-          </div>
-        </article>
-
-        <article class="history-panel">
-          <div class="tabs-row">
-            <button class="tab-chip is-active" type="button">Медистория</button>
-            <button class="tab-chip" type="button" disabled>Напоминания</button>
-            <button class="tab-chip" type="button" disabled>🖼 Все фото</button>
-          </div>
-
-          <div class="history-head">
+        <article class="panel-card history-panel">
+          <div class="panel-head panel-head-tight">
             <div>
-              <p class="section-label" style="margin-bottom: 8px;">ФОТО И ЗАПИСИ</p>
-              <h2 class="history-title">Медистория</h2>
+              <p class="section-label">ИСТОРИЯ</p>
+              <h2 class="history-title">Медкарта</h2>
             </div>
-            <button id="history-add-record-button" class="action-button" type="button">📋 Добавить запись</button>
+            <button id="history-add-record-button" class="utility-button" type="button">+ Запись</button>
           </div>
-
           <div id="filters" class="filters"></div>
           <div id="records-panel"></div>
           <div id="history-status" class="status" aria-live="polite"></div>
         </article>
+
+        <button id="sidebar-add-record-button" class="primary-button primary-button-full" type="button">➕ Добавить запись в медкарту</button>
       </section>
     </main>
   </div>
@@ -1126,6 +931,13 @@
     const removeRecordPhotoButton = document.getElementById('remove-record-photo-button');
     const saveRecordButton = document.getElementById('save-record-button');
     const recordDateInput = document.getElementById('record-date');
+    const vaccinationStatusNode = document.getElementById('vaccination-status');
+    const vaccinationDateNode = document.getElementById('vaccination-date');
+    const healthScoreNode = document.getElementById('health-score');
+    const healthNoteNode = document.getElementById('health-note');
+    const foodValueNode = document.getElementById('food-value');
+    const foodNoteNode = document.getElementById('food-note');
+    const weightStatusNode = document.getElementById('weight-status');
 
     let currentUser = null;
     let pets = [];
@@ -1444,6 +1256,116 @@
       };
     }
 
+    function parseAgeYears(value) {
+      const raw = String(value ?? '').trim().replace(',', '.');
+      if (!raw) return null;
+      const match = raw.match(/\d+(?:\.\d+)?/);
+      if (!match) return null;
+      const years = Number.parseFloat(match[0]);
+      return Number.isFinite(years) ? years : null;
+    }
+
+    function getHumanAgeValue(pet) {
+      const years = parseAgeYears(pet?.age);
+      if (years === null) return null;
+      const species = String(pet?.species || '').trim().toLowerCase();
+      if (species === 'кошка') {
+        if (years <= 1) return Math.round(15 * years);
+        if (years <= 2) return Math.round(15 + (years - 1) * 9);
+        return Math.round(24 + (years - 2) * 4);
+      }
+      if (species === 'собака') {
+        const dogRange = getDogWeightRange(pet?.breed);
+        const isLarge = dogRange.label === 'Крупная порода';
+        const firstYear = isLarge ? 12 : 15;
+        const yearlyStep = isLarge ? 7 : 4;
+        if (years <= 1) return Math.round(firstYear * years);
+        return Math.round(firstYear + (years - 1) * yearlyStep);
+      }
+      return Math.round(years * 7);
+    }
+
+    function getHumanAgeBadgeText(pet) {
+      const humanAge = getHumanAgeValue(pet);
+      return humanAge === null ? '👤 Возраст не указан' : `👤 ${humanAge} человеческих лет`;
+    }
+
+    function getLatestCategoryRecord(petId, category) {
+      return getPetRecords(petId, category)[0] || null;
+    }
+
+    function getVaccinationSummary(petId) {
+      const record = getLatestCategoryRecord(petId, 'Прививки');
+      if (!record) {
+        return { status: 'Нет данных', date: 'Добавьте первую запись' };
+      }
+      const rawDate = new Date(record.date || record.created_at);
+      let status = 'Есть запись';
+      if (!Number.isNaN(rawDate.getTime())) {
+        const days = Math.round((Date.now() - rawDate.getTime()) / 86400000);
+        status = days > 365 ? 'Проверьте срок' : 'Актуально';
+      }
+      return { status, date: formatDate(record.date) };
+    }
+
+    function clampNumber(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function getHealthScoreSummary(pet, records) {
+      const analysis = getWeightAnalysis(pet);
+      const vaccination = getVaccinationSummary(pet.id);
+      let score = analysis.hasWeight ? (analysis.message.includes('✅') ? 9 : 6) : 5;
+      if (vaccination.status === 'Актуально') score += 1;
+      if (records.length >= 3) score += 0.5;
+      if (!records.length) score -= 0.5;
+      const ageYears = parseAgeYears(pet?.age);
+      if (ageYears !== null && ageYears >= 10) score -= 1;
+      score = clampNumber(Math.round(score), 1, 10);
+
+      let note = 'Нужны ещё данные для точной оценки';
+      if (score >= 9) note = 'Показатели выглядят стабильно';
+      else if (score >= 7) note = 'Хорошее состояние, продолжайте наблюдение';
+      else if (score >= 5) note = 'Стоит обновить данные и проверить рекомендации';
+      else note = 'Нужен более внимательный контроль';
+
+      return { score, note };
+    }
+
+    function getFoodNormSummary(pet) {
+      const weight = parseWeightNumber(pet?.weight);
+      if (weight === null) {
+        return { value: '—', note: 'Укажите вес питомца' };
+      }
+      const species = String(pet?.species || '').trim().toLowerCase();
+      const ageYears = parseAgeYears(pet?.age);
+      let grams = null;
+      let note = 'Ориентир на сутки';
+
+      if (species === 'кошка') {
+        grams = weight * (ageYears !== null && ageYears < 1 ? 65 : 50);
+      } else if (species === 'собака') {
+        const dogRange = getDogWeightRange(pet?.breed);
+        note = 'Ориентир сухого корма на сутки';
+        if (dogRange.label === 'Маленькая порода') grams = weight * 30;
+        else if (dogRange.label === 'Крупная порода') grams = weight * 18;
+        else grams = weight * 22;
+      }
+
+      if (grams === null) {
+        return { value: '—', note: 'Расчёт доступен для кошек и собак' };
+      }
+      return { value: `≈ ${Math.round(grams)} г`, note };
+    }
+
+    function getWeightStatusText(analysis) {
+      if (!analysis.hasWeight) return 'Нужны данные для оценки';
+      if (analysis.message.includes('✅')) return 'Статус: в норме';
+      if (analysis.message.toLowerCase().includes('ожир')) return 'Статус: выше нормы';
+      if (analysis.message.toLowerCase().includes('недостаток')) return 'Статус: ниже нормы';
+      return 'Статус: нужно наблюдение';
+    }
+
     function formatSexValue(value) {
       const raw = String(value ?? '').trim().toLowerCase();
       if (!raw) return '—';
@@ -1547,21 +1469,32 @@
       const ageText = pet.age || 'Возраст не указан';
       const breedText = pet.breed || 'Порода не указана';
       const analysis = getWeightAnalysis(pet);
+      const vaccination = getVaccinationSummary(pet.id);
+      const health = getHealthScoreSummary(pet, allRecords);
+      const food = getFoodNormSummary(pet);
 
       profileAvatarNode.innerHTML = buildPetAvatarMarkup(pet, 'large');
       profileTitleNode.textContent = pet.name;
       profileSubtitleNode.textContent = `${speciesMeta.label} • ${breedText} • ${ageText}`;
       profileWeightPillNode.textContent = `Вес: ${weightText}`;
       profileSexPillNode.textContent = `Пол: ${sexText}`;
-      profileAgePillNode.textContent = `Возраст: ${ageText}`;
-      analysisWeightLineNode.textContent = `Вес: ${weightText}`;
+      profileAgePillNode.textContent = getHumanAgeBadgeText(pet);
+      analysisWeightLineNode.textContent = weightText;
+      weightStatusNode.textContent = getWeightStatusText(analysis);
+      vaccinationStatusNode.textContent = vaccination.status;
+      vaccinationDateNode.textContent = vaccination.date;
+      healthScoreNode.textContent = `${health.score}/10`;
+      healthNoteNode.textContent = health.note;
+      foodValueNode.textContent = food.value;
+      foodNoteNode.textContent = food.note;
       analysisMessageNode.textContent = analysis.message;
       profileNoteNode.textContent = analysis.note;
-      analysisEditWeightButton.classList.toggle('hidden', analysis.hasWeight);
+      analysisEditWeightButton.textContent = analysis.hasWeight ? '✏️ Обновить данные' : '✏️ Указать вес и пол';
+      analysisEditWeightButton.classList.remove('hidden');
 
       reminderTextNode.textContent = lastRecord
-        ? `Последняя активность в медкарте — запись «${lastRecord.category}». Добавь новую запись или напоминание, чтобы не пропустить следующий важный этап лечения или ухода.`
-        : 'Пока записей нет. Начните с кнопки «Добавить запись», чтобы сохранить визит, прививку, анализ или важную заметку.';
+        ? `Последняя активность — «${lastRecord.category}» от ${formatDate(lastRecord.date)}. Добавьте новую запись или напоминание, чтобы ничего не пропустить.`
+        : 'Пока записей нет. Начните с добавления первой записи в медкарту питомца.';
     }
 
     function renderFilters() {
