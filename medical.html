@@ -606,6 +606,222 @@
     .hidden,
     [hidden] { display: none !important; }
 
+
+    .record-attachments-field {
+      display: grid;
+      gap: 12px;
+    }
+
+    .record-attachments-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .record-attachments-dropzone {
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+      padding: 20px;
+      background: #FFF3EE;
+      border: 2px dashed #FF6B35;
+      border-radius: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .record-attachments-dropzone:hover,
+    .record-attachments-dropzone:focus-visible,
+    .record-attachments-dropzone.is-dragover {
+      background: #FFE8DC;
+      box-shadow: 0 2px 10px rgba(255, 107, 53, 0.12);
+      outline: none;
+    }
+
+    .record-attachments-icon {
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .record-attachments-button {
+      width: 100%;
+      min-height: 48px;
+    }
+
+    .record-attachments-preview-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .record-attachment-chip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 107, 53, 0.14);
+    }
+
+    .record-attachment-chip-thumb,
+    .record-attachment-chip-icon {
+      width: 60px;
+      height: 60px;
+      flex-shrink: 0;
+      border-radius: 14px;
+      background: #FFF3EE;
+      border: 1px solid rgba(255, 107, 53, 0.14);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .record-attachment-chip-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .record-attachment-chip-icon {
+      font-size: 1.6rem;
+    }
+
+    .record-attachment-chip-copy {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .record-attachment-chip-name {
+      font-weight: 700;
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+
+    .record-attachment-chip-meta {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+    }
+
+    .record-attachment-remove {
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 50%;
+      background: #FFF3EE;
+      color: var(--accent);
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .record-attachment-remove:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .record-attachment-gallery {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    }
+
+    .record-attachment-photo,
+    .record-attachment-file {
+      border: none;
+      border-radius: 16px;
+      background: #FFF3EE;
+      cursor: pointer;
+      text-align: left;
+      color: var(--text);
+    }
+
+    .record-attachment-photo {
+      display: grid;
+      gap: 8px;
+      padding: 8px;
+    }
+
+    .record-attachment-photo-thumb {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--surface-soft);
+      border: 1px solid rgba(255, 107, 53, 0.14);
+    }
+
+    .record-attachment-photo-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .record-attachment-file {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    .record-attachment-file-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border: 1px solid rgba(255, 107, 53, 0.14);
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+
+    .record-attachment-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .attachment-viewer-modal {
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(36, 19, 12, 0.76);
+    }
+
+    .attachment-viewer-shell {
+      position: relative;
+      width: min(92vw, 860px);
+      max-height: 90vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .attachment-viewer-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .attachment-viewer-image {
+      max-width: 100%;
+      max-height: 90vh;
+      border-radius: 20px;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+      background: #fff;
+    }
+
     @media (max-width: 480px) {
       .page-shell {
         width: calc(100% - 24px);
@@ -801,23 +1017,6 @@
       </div>
 
       <form id="record-form" class="form-grid">
-        <div class="photo-upload-card">
-          <input id="record-photo-input" type="file" accept="image/*" hidden>
-          <div class="photo-actions">
-            <button id="record-photo-picker" class="photo-picker" type="button" aria-label="Выбрать фото документа">
-              <div id="record-photo-placeholder" class="photo-picker-fallback">
-                <span style="font-size: 1.8rem;">📷</span>
-                <strong>Фото</strong>
-                <span class="helper">Нажмите, чтобы выбрать</span>
-              </div>
-              <div id="record-photo-preview" class="photo-preview hidden"></div>
-            </button>
-            <div>
-              <p class="field-hint" style="margin: 0 0 10px;">Добавьте фото справки, анализа, рецепта или другого документа. Файл будет храниться в Supabase Storage.</p>
-              <button id="remove-record-photo-button" class="secondary-button" type="button">Убрать фото</button>
-            </div>
-          </div>
-        </div>
 
         <div class="modal-fields-row">
           <div class="field">
@@ -843,12 +1042,32 @@
           <textarea id="record-description" class="textarea" name="description" placeholder="Например: ежегодная вакцинация, плановый осмотр, результат анализа, рекомендации врача."></textarea>
         </div>
 
+        <div class="record-attachments-field">
+          <div class="record-attachments-title">📎 Прикрепить файлы</div>
+          <input id="record-attachments-input" type="file" accept="image/*,.pdf,.doc,.docx" multiple hidden>
+          <div id="record-attachments-dropzone" class="record-attachments-dropzone" tabindex="0" role="button" aria-label="Прикрепить файлы">
+            <span class="record-attachments-icon" aria-hidden="true">📁</span>
+            <strong>Нажмите или перетащите файл сюда</strong>
+            <span class="helper">Фото, PDF, документы</span>
+          </div>
+          <button id="record-attachments-button" class="secondary-button record-attachments-button" type="button">Выбрать с телефона / компьютера</button>
+          <div id="record-attachments-preview" class="record-attachments-preview-list hidden"></div>
+          <p class="field-hint" style="margin: 0;">Можно прикрепить до 5 файлов. Изображения сохраняются с миниатюрой, документы — с быстрым скачиванием.</p>
+        </div>
+
         <div class="modal-fields-row">
           <button id="save-record-button" class="primary-button" type="submit">Сохранить запись</button>
           <button id="cancel-record-button" class="secondary-button" type="button">Отмена</button>
         </div>
         <div id="modal-status" class="status" aria-live="polite"></div>
       </form>
+    </div>
+  </div>
+
+  <div id="attachment-viewer-modal" class="modal attachment-viewer-modal" aria-hidden="true">
+    <div class="attachment-viewer-shell" role="dialog" aria-modal="true" aria-label="Просмотр прикреплённого изображения">
+      <button id="close-attachment-viewer-button" class="close-button attachment-viewer-close" type="button" aria-label="Закрыть просмотр">✕</button>
+      <img id="attachment-viewer-image" class="attachment-viewer-image" alt="Полноразмерное изображение вложения">
     </div>
   </div>
 
@@ -924,12 +1143,14 @@
     const cancelRecordButton = document.getElementById('cancel-record-button');
     const recordForm = document.getElementById('record-form');
     const recordModalSubtitle = document.getElementById('record-modal-subtitle');
-    const recordPhotoInput = document.getElementById('record-photo-input');
-    const recordPhotoPicker = document.getElementById('record-photo-picker');
-    const recordPhotoPlaceholder = document.getElementById('record-photo-placeholder');
-    const recordPhotoPreview = document.getElementById('record-photo-preview');
-    const removeRecordPhotoButton = document.getElementById('remove-record-photo-button');
+    const recordAttachmentsInput = document.getElementById('record-attachments-input');
+    const recordAttachmentsDropzone = document.getElementById('record-attachments-dropzone');
+    const recordAttachmentsButton = document.getElementById('record-attachments-button');
+    const recordAttachmentsPreview = document.getElementById('record-attachments-preview');
     const saveRecordButton = document.getElementById('save-record-button');
+    const attachmentViewerModal = document.getElementById('attachment-viewer-modal');
+    const attachmentViewerImage = document.getElementById('attachment-viewer-image');
+    const closeAttachmentViewerButton = document.getElementById('close-attachment-viewer-button');
     const recordDateInput = document.getElementById('record-date');
     const vaccinationStatusNode = document.getElementById('vaccination-status');
     const vaccinationDateNode = document.getElementById('vaccination-date');
@@ -939,13 +1160,16 @@
     const foodNoteNode = document.getElementById('food-note');
     const weightStatusNode = document.getElementById('weight-status');
 
+    const MAX_RECORD_ATTACHMENTS = 5;
+    const MAX_RECORD_ATTACHMENT_SIZE_BYTES = 5 * 1024 * 1024;
+    const LOCAL_MEDICAL_CACHE_KEY_PREFIX = 'lubimka-medical-cache:';
+
     let currentUser = null;
     let pets = [];
     let medicalRecords = {};
     let selectedPetId = '';
     let activeFilter = 'Все';
-    let selectedRecordPhotoFile = null;
-    let previewObjectUrl = '';
+    let selectedRecordAttachments = [];
     let isSubmittingRecord = false;
     let isSubmittingPetDetails = false;
 
@@ -1017,6 +1241,7 @@
         description: String(entry?.description || entry?.note || '').trim(),
         photo_url: String(entry?.photo_url || '').trim(),
         photo_path: String(entry?.photo_path || '').trim(),
+        attachments: normalizeRecordAttachments(entry?.attachments),
         created_at: entry?.created_at || new Date().toISOString(),
         updated_at: entry?.updated_at || entry?.created_at || new Date().toISOString()
       };
@@ -1098,18 +1323,219 @@
       if (tone === 'success') target.classList.add('is-success');
     }
 
-    function revokePreviewObjectUrl() {
-      if (previewObjectUrl) {
-        URL.revokeObjectURL(previewObjectUrl);
-        previewObjectUrl = '';
+    function getLocalMedicalCacheKey(userId = currentUser?.id) {
+      return userId ? `${LOCAL_MEDICAL_CACHE_KEY_PREFIX}${userId}` : '';
+    }
+
+    function saveMedicalCache(nextPets, nextMedicalRecords) {
+      const key = getLocalMedicalCacheKey();
+      if (!key) return;
+      try {
+        localStorage.setItem(key, JSON.stringify({
+          pets: nextPets,
+          medical_records: nextMedicalRecords,
+          saved_at: new Date().toISOString()
+        }));
+      } catch (error) {
+        console.warn('Не удалось сохранить локальный кэш медкарты:', error);
       }
     }
 
-    function validateImageFile(file) {
+    function loadMedicalCache(userId) {
+      const key = getLocalMedicalCacheKey(userId);
+      if (!key) return null;
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch (error) {
+        console.warn('Не удалось прочитать локальный кэш медкарты:', error);
+        return null;
+      }
+    }
+
+    function normalizeRecordAttachments(rawAttachments) {
+      if (!Array.isArray(rawAttachments)) return [];
+      return rawAttachments.map((attachment) => {
+        const dataUrl = String(attachment?.data_url || attachment?.dataUrl || '').trim();
+        if (!dataUrl) return null;
+        const type = String(attachment?.type || '').trim() || 'application/octet-stream';
+        return {
+          id: attachment?.id || createId(),
+          name: String(attachment?.name || 'Файл').trim() || 'Файл',
+          type,
+          size: Number(attachment?.size || 0) || 0,
+          kind: String(attachment?.kind || '').trim() || (type.startsWith('image/') ? 'image' : 'document'),
+          data_url: dataUrl,
+          created_at: attachment?.created_at || new Date().toISOString()
+        };
+      }).filter(Boolean);
+    }
+
+    function isImageAttachment(attachment) {
+      return String(attachment?.kind || '').trim() === 'image' || String(attachment?.type || '').startsWith('image/');
+    }
+
+    function validateRecordAttachmentFile(file) {
       if (!file) return 'Файл не выбран.';
-      if (!file.type.startsWith('image/')) return 'Можно загрузить только изображение.';
-      if (file.size > MAX_IMAGE_SIZE_BYTES) return 'Файл должен быть не больше 5 МБ.';
+      const fileName = String(file.name || '').toLowerCase();
+      const isImage = String(file.type || '').startsWith('image/');
+      const isDocument = /\.(pdf|doc|docx)$/.test(fileName);
+      if (!isImage && !isDocument) return 'Можно прикреплять только изображения, PDF, DOC и DOCX.';
+      if (file.size > MAX_RECORD_ATTACHMENT_SIZE_BYTES) return 'Каждый файл должен быть не больше 5 МБ.';
       return '';
+    }
+
+    function readFileAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(new Error(`Не удалось прочитать файл ${file.name || ''}`.trim()));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function buildAttachmentsFromFiles(files) {
+      return Promise.all(files.map(async (file) => ({
+        id: createId(),
+        name: String(file.name || 'Файл').trim() || 'Файл',
+        type: String(file.type || '').trim() || 'application/octet-stream',
+        size: Number(file.size || 0) || 0,
+        kind: String(file.type || '').startsWith('image/') ? 'image' : 'document',
+        data_url: await readFileAsDataUrl(file),
+        created_at: new Date().toISOString()
+      })));
+    }
+
+    function formatAttachmentSize(size) {
+      if (!size) return 'Размер не указан';
+      if (size >= 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(1)} МБ`;
+      if (size >= 1024) return `${Math.round(size / 1024)} КБ`;
+      return `${size} Б`;
+    }
+
+    function renderRecordAttachmentPreviews() {
+      if (!selectedRecordAttachments.length) {
+        recordAttachmentsPreview.innerHTML = '';
+        recordAttachmentsPreview.classList.add('hidden');
+        return;
+      }
+      recordAttachmentsPreview.innerHTML = selectedRecordAttachments.map((attachment, index) => {
+        const preview = isImageAttachment(attachment)
+          ? `<div class="record-attachment-chip-thumb"><img src="${escapeHtml(attachment.data_url)}" alt="${escapeHtml(attachment.name)}"></div>`
+          : `<div class="record-attachment-chip-icon" aria-hidden="true">📄</div>`;
+        return `
+          <div class="record-attachment-chip">
+            ${preview}
+            <div class="record-attachment-chip-copy">
+              <div class="record-attachment-chip-name">${escapeHtml(attachment.name)}</div>
+              <div class="record-attachment-chip-meta">${escapeHtml(formatAttachmentSize(attachment.size))}</div>
+            </div>
+            <button class="record-attachment-remove" type="button" data-remove-selected-attachment="${index}" aria-label="Убрать файл ${escapeHtml(attachment.name)}" ${isSubmittingRecord ? 'disabled' : ''}>✕</button>
+          </div>
+        `;
+      }).join('');
+      recordAttachmentsPreview.classList.remove('hidden');
+    }
+
+    async function appendRecordAttachments(fileList) {
+      const files = Array.from(fileList || []);
+      if (!files.length) return;
+      const validationMessage = files.map(validateRecordAttachmentFile).find(Boolean);
+      if (validationMessage) {
+        recordAttachmentsInput.value = '';
+        setStatus(modalStatusNode, validationMessage, 'error');
+        return;
+      }
+      const freeSlots = MAX_RECORD_ATTACHMENTS - selectedRecordAttachments.length;
+      if (freeSlots <= 0) {
+        recordAttachmentsInput.value = '';
+        setStatus(modalStatusNode, 'Можно прикрепить не больше 5 файлов.', 'error');
+        return;
+      }
+      const filesToAppend = files.slice(0, freeSlots);
+      try {
+        const prepared = await buildAttachmentsFromFiles(filesToAppend);
+        selectedRecordAttachments = [...selectedRecordAttachments, ...prepared];
+        renderRecordAttachmentPreviews();
+        const extraHint = files.length > filesToAppend.length ? ' Добавлены только первые пять файлов.' : '';
+        setStatus(modalStatusNode, `Файлы подготовлены и будут сохранены в этом браузере.${extraHint}`, 'success');
+      } catch (error) {
+        setStatus(modalStatusNode, error?.message || 'Не удалось подготовить вложения.', 'error');
+      } finally {
+        recordAttachmentsInput.value = '';
+      }
+    }
+
+    function getRecordAttachments(record) {
+      if (Array.isArray(record?.attachments) && record.attachments.length) return record.attachments;
+      if (record?.photo_url) {
+        return [{
+          id: `${record.id}-legacy-photo`,
+          name: 'Фото записи',
+          type: 'image/*',
+          size: 0,
+          kind: 'image',
+          data_url: record.photo_url,
+          created_at: record.created_at || new Date().toISOString()
+        }];
+      }
+      return [];
+    }
+
+    function buildRecordAttachmentsMarkup(record) {
+      const attachments = getRecordAttachments(record);
+      if (!attachments.length) {
+        return `<div class="record-preview"><div class="record-preview-fallback">${escapeHtml(getCategoryMeta(record.category).icon)}</div></div>`;
+      }
+      return `<div class="record-attachment-gallery">${attachments.map((attachment, index) => isImageAttachment(attachment)
+        ? `<button class="record-attachment-photo" type="button" data-view-record-attachment="${escapeHtml(`${record.id}:${index}`)}"><span class="record-attachment-photo-thumb"><img src="${escapeHtml(attachment.data_url)}" alt="${escapeHtml(attachment.name)}"></span><span class="record-attachment-name">${escapeHtml(attachment.name)}</span></button>`
+        : `<button class="record-attachment-file" type="button" data-download-record-attachment="${escapeHtml(`${record.id}:${index}`)}"><span class="record-attachment-file-icon" aria-hidden="true">📄</span><span class="record-attachment-name">${escapeHtml(attachment.name)}</span></button>`
+      ).join('')}</div>`;
+    }
+
+    function parseRecordAttachmentReference(value) {
+      const raw = String(value || '');
+      const separatorIndex = raw.lastIndexOf(':');
+      if (separatorIndex <= 0) return null;
+      const recordId = raw.slice(0, separatorIndex);
+      const index = Number.parseInt(raw.slice(separatorIndex + 1), 10);
+      if (!recordId || Number.isNaN(index) || index < 0) return null;
+      return { recordId, index };
+    }
+
+    function getRecordAttachmentByReference(value) {
+      const reference = parseRecordAttachmentReference(value);
+      const pet = getSelectedPet();
+      if (!reference || !pet) return null;
+      const record = getPetRecords(pet.id, 'Все').find((item) => item.id === reference.recordId);
+      if (!record) return null;
+      const attachment = getRecordAttachments(record)[reference.index] || null;
+      return attachment ? { record, attachment } : null;
+    }
+
+    function openAttachmentViewer(attachment) {
+      if (!attachment || !isImageAttachment(attachment) || !attachment.data_url) return;
+      attachmentViewerImage.src = attachment.data_url;
+      attachmentViewerImage.alt = attachment.name ? `Полноразмерное изображение ${attachment.name}` : 'Полноразмерное изображение вложения';
+      attachmentViewerModal.classList.add('is-open');
+      attachmentViewerModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeAttachmentViewer() {
+      attachmentViewerModal.classList.remove('is-open');
+      attachmentViewerModal.setAttribute('aria-hidden', 'true');
+      attachmentViewerImage.removeAttribute('src');
+      attachmentViewerImage.alt = 'Полноразмерное изображение вложения';
+    }
+
+    function downloadRecordAttachment(attachment) {
+      if (!attachment?.data_url) return;
+      const link = document.createElement('a');
+      link.href = attachment.data_url;
+      link.download = attachment.name || 'document';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
     }
 
     function getSelectedPet() {
@@ -1135,6 +1561,7 @@
       currentUser = data.user || currentUser;
       pets = normalizePets(getUserMetadata(currentUser).pets);
       medicalRecords = normalizeMedicalRecords(getUserMetadata(currentUser).medical_records);
+      saveMedicalCache(pets, medicalRecords);
       if (!pets.find((pet) => pet.id === selectedPetId)) selectedPetId = pets[0]?.id || '';
       renderAll();
       setStatus(sidebarStatusNode, successMessage, 'success');
@@ -1508,9 +1935,7 @@
     function buildRecordCard(record) {
       const meta = getCategoryMeta(record.category);
       const title = record.description || `${meta.singular} без описания`;
-      const previewMarkup = record.photo_url
-        ? `<div class="record-preview"><img src="${escapeHtml(record.photo_url)}" alt="${escapeHtml(`${meta.singular}: ${title}`)}"></div><a class="record-image-link" href="${escapeHtml(record.photo_url)}" target="_blank" rel="noreferrer">📷 Открыть фото</a>`
-        : `<div class="record-preview"><div class="record-preview-fallback">${escapeHtml(meta.icon)}</div></div>`;
+      const attachmentsMarkup = buildRecordAttachmentsMarkup(record);
       return `
         <article class="record-card" data-record-id="${escapeHtml(record.id)}">
           <div class="record-head">
@@ -1521,7 +1946,7 @@
             </div>
             <button class="record-delete" type="button" data-delete-record="${escapeHtml(record.id)}" aria-label="Удалить запись">🗑</button>
           </div>
-          <div style="display:grid;gap:14px;">${previewMarkup}</div>
+          <div style="display:grid;gap:14px;">${attachmentsMarkup}</div>
         </article>
       `;
     }
@@ -1576,36 +2001,25 @@
       resetRecordForm();
     }
 
-    function setRecordPhotoPreview(url) {
-      if (url) {
-        recordPhotoPreview.innerHTML = `<img src="${escapeHtml(url)}" alt="Предпросмотр фото записи">`;
-        recordPhotoPreview.classList.remove('hidden');
-        recordPhotoPlaceholder.classList.add('hidden');
-      } else {
-        recordPhotoPreview.innerHTML = '';
-        recordPhotoPreview.classList.add('hidden');
-        recordPhotoPlaceholder.classList.remove('hidden');
-      }
-    }
-
     function resetRecordForm() {
       recordForm.reset();
       recordDateInput.value = formatDateForInput();
-      selectedRecordPhotoFile = null;
-      revokePreviewObjectUrl();
-      setRecordPhotoPreview('');
+      selectedRecordAttachments = [];
+      renderRecordAttachmentPreviews();
+      recordAttachmentsDropzone.classList.remove('is-dragover');
       setStatus(modalStatusNode, '', '');
       saveRecordButton.disabled = false;
-      removeRecordPhotoButton.disabled = false;
-      recordPhotoPicker.disabled = false;
+      recordAttachmentsButton.disabled = false;
+      recordAttachmentsDropzone.tabIndex = 0;
       isSubmittingRecord = false;
     }
 
     function setRecordFormBusy(isBusy, message = '') {
       isSubmittingRecord = isBusy;
       saveRecordButton.disabled = isBusy;
-      removeRecordPhotoButton.disabled = isBusy;
-      recordPhotoPicker.disabled = isBusy;
+      recordAttachmentsButton.disabled = isBusy;
+      recordAttachmentsDropzone.tabIndex = isBusy ? -1 : 0;
+      renderRecordAttachmentPreviews();
       if (isBusy) setStatus(modalStatusNode, message || 'Сохраняем запись...', '');
     }
 
@@ -1688,9 +2102,22 @@
     });
 
     recordsPanelNode.addEventListener('click', (event) => {
-      const button = event.target.closest('[data-delete-record]');
-      if (!button) return;
-      handleDeleteRecord(button.dataset.deleteRecord || '');
+      const deleteButton = event.target.closest('[data-delete-record]');
+      if (deleteButton) {
+        handleDeleteRecord(deleteButton.dataset.deleteRecord || '');
+        return;
+      }
+      const viewButton = event.target.closest('[data-view-record-attachment]');
+      if (viewButton) {
+        const resolved = getRecordAttachmentByReference(viewButton.dataset.viewRecordAttachment || '');
+        if (resolved) openAttachmentViewer(resolved.attachment);
+        return;
+      }
+      const downloadButton = event.target.closest('[data-download-record-attachment]');
+      if (downloadButton) {
+        const resolved = getRecordAttachmentByReference(downloadButton.dataset.downloadRecordAttachment || '');
+        if (resolved) downloadRecordAttachment(resolved.attachment);
+      }
     });
 
     downloadDataButton.addEventListener('click', downloadDataArchive);
@@ -1725,8 +2152,16 @@
       if (event.target === recordModal) closeRecordModal();
     });
 
+    attachmentViewerModal.addEventListener('click', (event) => {
+      if (event.target === attachmentViewerModal) closeAttachmentViewer();
+    });
+
     document.addEventListener('keydown', (event) => {
       if (event.key !== 'Escape') return;
+      if (attachmentViewerModal.classList.contains('is-open')) {
+        closeAttachmentViewer();
+        return;
+      }
       if (petDetailsModal.classList.contains('is-open') && !isSubmittingPetDetails) {
         closePetDetailsModal();
         return;
@@ -1734,32 +2169,55 @@
       if (recordModal.classList.contains('is-open')) closeRecordModal();
     });
 
-    recordPhotoPicker.addEventListener('click', () => {
-      if (!isSubmittingRecord) recordPhotoInput.click();
+    closeAttachmentViewerButton.addEventListener('click', closeAttachmentViewer);
+
+    recordAttachmentsButton.addEventListener('click', () => {
+      if (!isSubmittingRecord) recordAttachmentsInput.click();
     });
 
-    removeRecordPhotoButton.addEventListener('click', () => {
-      selectedRecordPhotoFile = null;
-      recordPhotoInput.value = '';
-      revokePreviewObjectUrl();
-      setRecordPhotoPreview('');
-      setStatus(modalStatusNode, 'Фото удалено из формы.', 'success');
+    recordAttachmentsDropzone.addEventListener('click', () => {
+      if (!isSubmittingRecord) recordAttachmentsInput.click();
     });
 
-    recordPhotoInput.addEventListener('change', (event) => {
-      const file = event.target.files && event.target.files[0];
-      if (!file) return;
-      const validationMessage = validateImageFile(file);
-      if (validationMessage) {
-        recordPhotoInput.value = '';
-        setStatus(modalStatusNode, validationMessage, 'error');
-        return;
-      }
-      revokePreviewObjectUrl();
-      previewObjectUrl = URL.createObjectURL(file);
-      selectedRecordPhotoFile = file;
-      setRecordPhotoPreview(previewObjectUrl);
-      setStatus(modalStatusNode, 'Фото выбрано. После сохранения оно загрузится в Supabase Storage.', 'success');
+    recordAttachmentsDropzone.addEventListener('keydown', (event) => {
+      if (isSubmittingRecord) return;
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      recordAttachmentsInput.click();
+    });
+
+    ['dragenter', 'dragover'].forEach((eventName) => {
+      recordAttachmentsDropzone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        if (isSubmittingRecord) return;
+        recordAttachmentsDropzone.classList.add('is-dragover');
+      });
+    });
+
+    ['dragleave', 'dragend', 'drop'].forEach((eventName) => {
+      recordAttachmentsDropzone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        recordAttachmentsDropzone.classList.remove('is-dragover');
+      });
+    });
+
+    recordAttachmentsDropzone.addEventListener('drop', async (event) => {
+      if (isSubmittingRecord) return;
+      await appendRecordAttachments(event.dataTransfer?.files || []);
+    });
+
+    recordAttachmentsPreview.addEventListener('click', (event) => {
+      const removeButton = event.target.closest('[data-remove-selected-attachment]');
+      if (!removeButton || isSubmittingRecord) return;
+      const index = Number.parseInt(removeButton.dataset.removeSelectedAttachment || '', 10);
+      if (Number.isNaN(index) || index < 0) return;
+      selectedRecordAttachments = selectedRecordAttachments.filter((_, itemIndex) => itemIndex !== index);
+      renderRecordAttachmentPreviews();
+      setStatus(modalStatusNode, 'Файл удалён из формы.', 'success');
+    });
+
+    recordAttachmentsInput.addEventListener('change', async (event) => {
+      await appendRecordAttachments(event.target.files || []);
     });
 
     petDetailsForm.addEventListener('submit', async (event) => {
@@ -1804,38 +2262,28 @@
         return;
       }
       const recordId = createId();
-      let uploadedPhotoPath = '';
+      const attachments = selectedRecordAttachments.map((attachment) => ({ ...attachment }));
+      const firstImageAttachment = attachments.find((attachment) => isImageAttachment(attachment) && attachment.data_url);
       const nextRecord = {
         id: recordId,
         pet_id: pet.id,
         category,
         date,
         description,
-        photo_url: '',
+        photo_url: firstImageAttachment?.data_url || '',
         photo_path: '',
+        attachments,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
       setRecordFormBusy(true, 'Сохраняем запись...');
       try {
-        if (selectedRecordPhotoFile) {
-          setStatus(modalStatusNode, 'Загружаем фото в Supabase Storage...');
-          const uploaded = await uploadMedicalImage(selectedRecordPhotoFile, pet.id, recordId);
-          nextRecord.photo_url = uploaded.photo_url;
-          nextRecord.photo_path = uploaded.photo_path;
-          uploadedPhotoPath = uploaded.photo_path;
-        }
         const nextMedicalRecords = { ...medicalRecords, [pet.id]: [...getPetRecords(pet.id, 'Все'), nextRecord] };
+        saveMedicalCache(pets, nextMedicalRecords);
         await persistState(pets, nextMedicalRecords, 'Запись добавлена в медкарту.');
         closeRecordModal();
       } catch (error) {
-        if (uploadedPhotoPath) {
-          try { await removeStorageFile(uploadedPhotoPath); } catch (_) {}
-        }
-        const storageHint = error?.message && String(error.message).includes('row-level security')
-          ? ' Проверьте, что bucket pets разрешает загрузку для авторизованных пользователей.'
-          : '';
-        setStatus(modalStatusNode, (error?.message || 'Не удалось сохранить запись.') + storageHint, 'error');
+        setStatus(modalStatusNode, error?.message || 'Не удалось сохранить запись.', 'error');
       } finally {
         setRecordFormBusy(false);
       }
@@ -1871,8 +2319,10 @@
       }
 
       const metadata = getUserMetadata(currentUser);
-      pets = normalizePets(metadata.pets);
-      medicalRecords = normalizeMedicalRecords(metadata.medical_records);
+      const localCache = loadMedicalCache(currentUser.id);
+      pets = normalizePets(localCache?.pets?.length ? localCache.pets : metadata.pets);
+      medicalRecords = normalizeMedicalRecords(Object.keys(localCache?.medical_records || {}).length ? localCache.medical_records : metadata.medical_records);
+      saveMedicalCache(pets, medicalRecords);
       selectedPetId = pets[0]?.id || '';
       renderAll();
     })();
