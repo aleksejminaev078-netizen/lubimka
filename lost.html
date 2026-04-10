@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Любимка — Потеряшки</title>
+  <meta name="theme-color" content="#FF6B35">
+  <style>
+    :root {
+      --bg: #FFF8F5;
+      --card: #FFFFFF;
+      --text: #1F1A17;
+      --muted: #7C6F68;
+      --border: rgba(31, 26, 23, 0.08);
+      --orange: #FF6B35;
+      --orange-soft: #FFF1EA;
+      --red: #FF3B30;
+      --green: #34C759;
+      --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      --radius: 20px;
+      --radius-sm: 16px;
+      --safe-bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    body {
+      padding: 0 16px calc(104px + var(--safe-bottom));
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: none;
+      background: none;
+      cursor: pointer;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      width: min(100%, 480px);
+      margin: 0 auto;
+      padding: 16px 0 0;
+    }
+
+    .header {
+      display: grid;
+      grid-template-columns: 44px 1fr 44px;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .icon-btn,
+    .plus-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      font-size: 1.2rem;
+    }
+
+    .plus-btn {
+      color: var(--orange);
+      font-size: 1.35rem;
+      font-weight: 800;
+    }
+
+    .title-wrap {
+      min-width: 0;
+      text-align: center;
+    }
+
+    .title-wrap h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+    }
+
+    .title-wrap p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      position: relative;
+      padding: 14px 12px 16px;
+      border-radius: 16px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .tab-btn.is-active {
+      color: var(--orange);
+    }
+
+    .tab-btn.is-active::after {
+      content: "";
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 8px;
+      height: 3px;
+      border-radius: 999px;
+      background: var(--orange);
+    }
+
+    .search-row {
+      margin-bottom: 14px;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .search-box span {
+      font-size: 1rem;
+      color: var(--muted);
+    }
+
+    .search-box input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font-size: 0.98rem;
+    }
+
+    .search-box input::placeholder {
+      color: #A0948C;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .post-card,
+    .empty-card,
+    .modal-sheet {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .post-card {
+      position: relative;
+      display: grid;
+      grid-template-columns: 80px minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px;
+      align-items: start;
+    }
+
+    .post-media {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--orange-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--orange);
+      font-size: 2rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .post-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .post-body {
+      min-width: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      width: fit-content;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: #fff;
+    }
+
+    .badge.lost {
+      background: var(--red);
+    }
+
+    .badge.found {
+      background: var(--green);
+    }
+
+    .post-meta {
+      display: grid;
+      gap: 4px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .post-meta strong {
+      font-weight: 700;
+    }
+
+    .post-meta span {
+      color: var(--muted);
+    }
+
+    .post-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 2px;
+    }
+
+    .post-date {
+      color: var(--muted);
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    .contact-btn {
+      min-height: 38px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--orange);
+      color: #fff;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: rgba(31, 26, 23, 0.06);
+      color: #544A44;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .empty-card {
+      display: grid;
+      justify-items: center;
+      gap: 10px;
+      padding: 28px 20px;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .empty-card .empty-emoji {
+      font-size: 2.2rem;
+    }
+
+    .empty-card h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+    }
+
+    .empty-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .empty-card .empty-btn,
+    .submit-btn,
+    .fixed-submit-btn,
+    .upload-btn {
+      min-height: 48px;
+      border-radius: 16px;
+      background: var(--orange);
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 8px 18px rgba(255, 107, 53, 0.18);
+    }
+
+    .empty-card .empty-btn,
+    .upload-btn {
+      width: 100%;
+      max-width: 260px;
+      padding: 0 18px;
+    }
+
+    .fixed-submit-wrap {
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: var(--safe-bottom);
+      z-index: 30;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .fixed-submit-inner {
+      width: min(100%, 480px);
+      pointer-events: auto;
+    }
+
+    .fixed-submit-btn {
+      width: 100%;
+      height: 52px;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      background: rgba(26, 18, 15, 0.34);
+      padding: 16px;
+    }
+
+    .modal.is-open {
+      display: flex;
+    }
+
+    .modal-sheet {
+      width: min(100%, 480px);
+      max-height: min(88vh, 820px);
+      overflow: auto;
+      padding: 18px 16px 20px;
+    }
+
+    .sheet-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .sheet-head h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      letter-spacing: -0.03em;
+    }
+
+    .sheet-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: rgba(31, 26, 23, 0.06);
+      color: #544A44;
+      font-size: 1rem;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #564A43;
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      border: 1px solid rgba(31, 26, 23, 0.1);
+      border-radius: 14px;
+      padding: 13px 14px;
+      background: #fff;
+      color: var(--text);
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .segmented input {
+      display: none;
+    }
+
+    .segmented label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      border-radius: 14px;
+      background: #F8F1ED;
+      color: #6C5F58;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0 12px;
+    }
+
+    .segmented input:checked + label {
+      background: var(--orange-soft);
+      color: var(--orange);
+      box-shadow: inset 0 0 0 1px rgba(255, 107, 53, 0.18);
+    }
+
+    .upload-preview {
+      display: none;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      background: #FFF3EE;
+      border-radius: 14px;
+    }
+
+    .upload-preview.is-visible {
+      display: flex;
+    }
+
+    .upload-preview img {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .upload-preview-content {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    .upload-preview-content strong {
+      font-size: 0.95rem;
+    }
+
+    .upload-preview-content span {
+      font-size: 0.85rem;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+
+    .helper {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .submit-btn {
+      width: 100%;
+      height: 52px;
+      margin-top: 6px;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (hover: hover) {
+      .contact-btn:hover,
+      .empty-btn:hover,
+      .submit-btn:hover,
+      .fixed-submit-btn:hover,
+      .upload-btn:hover,
+      .plus-btn:hover {
+        filter: brightness(0.98);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .page {
+        width: 100%;
+      }
+
+      .post-card {
+        grid-template-columns: 80px minmax(0, 1fr);
+      }
+
+      .post-footer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .contact-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <a class="icon-btn" href="index.html" aria-label="Вернуться на главную">←</a>
+      <div class="title-wrap">
+        <h1>🐾 Потеряшки</h1>
+        <p>Объявления о пропавших и найденных питомцах</p>
+      </div>
+      <button class="plus-btn" type="button" id="openModalTop" aria-label="Подать объявление">➕</button>
+    </header>
+
+    <div class="tabs" role="tablist" aria-label="Переключение объявлений">
+      <button class="tab-btn is-active" type="button" data-tab="lost" aria-selected="true">🔴 Потерялись</button>
+      <button class="tab-btn" type="button" data-tab="found" aria-selected="false">🟢 Нашлись</button>
+    </div>
+
+    <div class="search-row">
+      <label class="search-box" for="searchInput">
+        <span>🔎</span>
+        <input id="searchInput" type="search" placeholder="Поиск по городу или району">
+      </label>
+    </div>
+
+    <section>
+      <div class="list" id="postsList"></div>
+      <div class="empty-card" id="emptyState" hidden>
+        <div class="empty-emoji">🐾</div>
+        <h2>Пока объявлений нет</h2>
+        <p>Будьте первым — помогите питомцу найти дом!</p>
+        <button class="empty-btn" type="button" id="openModalEmpty">➕ Подать объявление</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="fixed-submit-wrap">
+    <div class="fixed-submit-inner">
+      <button class="fixed-submit-btn" type="button" id="openModalBottom">➕ Подать объявление</button>
+    </div>
+  </div>
+
+  <div class="modal" id="postModal" aria-hidden="true">
+    <div class="modal-sheet">
+      <div class="sheet-head">
+        <h2>➕ Подать объявление</h2>
+        <button class="sheet-close" type="button" id="closeModal" aria-label="Закрыть">✕</button>
+      </div>
+
+      <form class="form-grid" id="postForm">
+        <div class="field">
+          <label>Статус объявления</label>
+          <div class="segmented">
+            <input id="statusLost" type="radio" name="status" value="lost" checked>
+            <label for="statusLost">🔴 Потерялся</label>
+            <input id="statusFound" type="radio" name="status" value="found">
+            <label for="statusFound">🟢 Нашёлся</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="petType">Вид питомца</label>
+          <select id="petType" name="petType">
+            <option value="cat">Кошка</option>
+            <option value="dog">Собака</option>
+            <option value="other">Другое животное</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="petName">Имя питомца</label>
+          <input id="petName" name="petName" type="text" placeholder="Например, Барсик" required>
+        </div>
+
+        <div class="field">
+          <label for="petBreed">Порода</label>
+          <input id="petBreed" name="petBreed" type="text" placeholder="Например, Мейн-кун" required>
+        </div>
+
+        <div class="field">
+          <label for="petLocation">Город / район</label>
+          <input id="petLocation" name="petLocation" type="text" placeholder="Например, Центр, Москва" required>
+        </div>
+
+        <div class="field">
+          <label for="petContact">Контакты для связи</label>
+          <input id="petContact" name="petContact" type="text" placeholder="Телефон, Telegram или email" required>
+        </div>
+
+        <div class="field">
+          <label for="petDescription">Описание</label>
+          <textarea id="petDescription" name="petDescription" placeholder="Кратко опишите, где пропал или был найден питомец"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="petPhoto">Фото питомца</label>
+          <input id="petPhoto" name="petPhoto" type="file" accept="image/*" hidden>
+          <button class="upload-btn" type="button" id="pickPhoto">Выбрать фото с телефона / компьютера</button>
+          <div class="upload-preview" id="uploadPreview">
+            <img id="uploadPreviewImage" alt="Предпросмотр фото">
+            <div class="upload-preview-content">
+              <strong id="uploadPreviewName">Фото выбрано</strong>
+              <span id="uploadPreviewHint">Изображение будет добавлено в карточку объявления</span>
+            </div>
+          </div>
+          <div class="helper">Фото необязательно. Если его нет, в карточке будет показан эмодзи питомца.</div>
+        </div>
+
+        <button class="submit-btn" type="submit">Опубликовать объявление</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'lubimka_lost_posts_v1';
+    const CLIENT_KEY = 'lubimka_lost_client_id';
+    const postsList = document.getElementById('postsList');
+    const emptyState = document.getElementById('emptyState');
+    const searchInput = document.getElementById('searchInput');
+    const tabButtons = Array.from(document.querySelectorAll('[data-tab]'));
+    const modal = document.getElementById('postModal');
+    const postForm = document.getElementById('postForm');
+    const openButtons = [
+      document.getElementById('openModalTop'),
+      document.getElementById('openModalBottom'),
+      document.getElementById('openModalEmpty')
+    ].filter(Boolean);
+    const closeModalButton = document.getElementById('closeModal');
+    const pickPhotoButton = document.getElementById('pickPhoto');
+    const photoInput = document.getElementById('petPhoto');
+    const uploadPreview = document.getElementById('uploadPreview');
+    const uploadPreviewImage = document.getElementById('uploadPreviewImage');
+    const uploadPreviewName = document.getElementById('uploadPreviewName');
+
+    const clientId = getClientId();
+    let activeTab = 'lost';
+    let selectedPhoto = null;
+    let posts = loadPosts();
+
+    openButtons.forEach((button) => {
+      button.addEventListener('click', () => openModal());
+    });
+
+    closeModalButton.addEventListener('click', closeModal);
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+        closeModal();
+      }
+    });
+
+    tabButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        activeTab = button.dataset.tab;
+        tabButtons.forEach((tabButton) => {
+          const isActive = tabButton === button;
+          tabButton.classList.toggle('is-active', isActive);
+          tabButton.setAttribute('aria-selected', String(isActive));
+        });
+        renderPosts();
+      });
+    });
+
+    searchInput.addEventListener('input', renderPosts);
+    pickPhotoButton.addEventListener('click', () => photoInput.click());
+    photoInput.addEventListener('change', handlePhotoChange);
+    postForm.addEventListener('submit', handleFormSubmit);
+    postsList.addEventListener('click', handleListClick);
+
+    renderPosts();
+
+    function getClientId() {
+      const existingId = localStorage.getItem(CLIENT_KEY);
+      if (existingId) {
+        return existingId;
+      }
+      const newId = `client_${Math.random().toString(36).slice(2, 10)}`;
+      localStorage.setItem(CLIENT_KEY, newId);
+      return newId;
+    }
+
+    function loadPosts() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        console.error('Не удалось прочитать объявления', error);
+        return [];
+      }
+    }
+
+    function savePosts() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+    }
+
+    function openModal() {
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(() => {
+        document.getElementById('petName').focus();
+      });
+    }
+
+    function closeModal() {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function handlePhotoChange(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) {
+        selectedPhoto = null;
+        updatePhotoPreview();
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        alert('Можно выбрать только изображение.');
+        photoInput.value = '';
+        selectedPhoto = null;
+        updatePhotoPreview();
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        selectedPhoto = {
+          name: file.name,
+          type: file.type,
+          dataUrl: reader.result
+        };
+        updatePhotoPreview();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function updatePhotoPreview() {
+      if (!selectedPhoto) {
+        uploadPreview.classList.remove('is-visible');
+        uploadPreviewImage.removeAttribute('src');
+        uploadPreviewName.textContent = 'Фото выбрано';
+        return;
+      }
+      uploadPreview.classList.add('is-visible');
+      uploadPreviewImage.src = selectedPhoto.dataUrl;
+      uploadPreviewName.textContent = selectedPhoto.name;
+    }
+
+    function handleFormSubmit(event) {
+      event.preventDefault();
+      const formData = new FormData(postForm);
+      const newPost = {
+        id: `post_${Date.now()}`,
+        authorId: clientId,
+        status: formData.get('status') || 'lost',
+        petType: formData.get('petType') || 'cat',
+        name: String(formData.get('petName') || '').trim(),
+        breed: String(formData.get('petBreed') || '').trim(),
+        location: String(formData.get('petLocation') || '').trim(),
+        contact: String(formData.get('petContact') || '').trim(),
+        description: String(formData.get('petDescription') || '').trim(),
+        photo: selectedPhoto,
+        createdAt: new Date().toISOString()
+      };
+
+      posts.unshift(newPost);
+      savePosts();
+      postForm.reset();
+      selectedPhoto = null;
+      photoInput.value = '';
+      updatePhotoPreview();
+      activeTab = newPost.status;
+      tabButtons.forEach((button) => {
+        const isActive = button.dataset.tab === activeTab;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-selected', String(isActive));
+      });
+      closeModal();
+      renderPosts();
+    }
+
+    function handleListClick(event) {
+      const deleteButton = event.target.closest('[data-delete-id]');
+      if (deleteButton) {
+        const postId = deleteButton.dataset.deleteId;
+        posts = posts.filter((post) => post.id !== postId);
+        savePosts();
+        renderPosts();
+        return;
+      }
+
+      const contactButton = event.target.closest('[data-contact]');
+      if (contactButton) {
+        const value = contactButton.dataset.contact || '';
+        const normalized = value.trim();
+        if (!normalized) return;
+        if (/^[+\d\s()-]{6,}$/.test(normalized)) {
+          window.location.href = `tel:${normalized.replace(/\s+/g, '')}`;
+          return;
+        }
+        if (normalized.includes('@')) {
+          window.location.href = `mailto:${normalized}`;
+          return;
+        }
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(normalized).then(() => {
+            alert(`Контакт скопирован: ${normalized}`);
+          }).catch(() => {
+            alert(`Связаться: ${normalized}`);
+          });
+          return;
+        }
+        alert(`Связаться: ${normalized}`);
+      }
+    }
+
+    function renderPosts() {
+      const query = searchInput.value.trim().toLowerCase();
+      const filteredPosts = posts.filter((post) => {
+        const sameTab = post.status === activeTab;
+        const searchable = `${post.location} ${post.name} ${post.breed} ${post.description}`.toLowerCase();
+        const matchesQuery = !query || searchable.includes(query);
+        return sameTab && matchesQuery;
+      });
+
+      postsList.innerHTML = filteredPosts.map(renderPostCard).join('');
+      emptyState.hidden = filteredPosts.length > 0;
+    }
+
+    function renderPostCard(post) {
+      const badgeClass = post.status === 'found' ? 'found' : 'lost';
+      const badgeText = post.status === 'found' ? '🟢 Нашёлся' : '🔴 Потерялся';
+      const media = post.photo && post.photo.dataUrl
+        ? `<div class="post-media"><img src="${escapeHtml(post.photo.dataUrl)}" alt="${escapeHtml(post.name)}"></div>`
+        : `<div class="post-media">${getAnimalEmoji(post.petType)}</div>`;
+      const deleteButton = post.authorId === clientId
+        ? `<button class="delete-btn" type="button" data-delete-id="${escapeHtml(post.id)}" aria-label="Удалить объявление">✕</button>`
+        : '';
+
+      return `
+        <article class="post-card">
+          ${deleteButton}
+          ${media}
+          <div class="post-body">
+            <div class="badge ${badgeClass}">${badgeText}</div>
+            <div class="post-meta">
+              <div><strong>Имя:</strong> <span>${escapeHtml(post.name)}</span></div>
+              <div><strong>Порода:</strong> <span>${escapeHtml(post.breed)}</span></div>
+              <div><strong>Район:</strong> <span>${escapeHtml(post.location)}</span></div>
+            </div>
+            <div class="post-footer">
+              <div class="post-date">📅 ${formatRelativeDate(post.createdAt)}</div>
+              <button class="contact-btn" type="button" data-contact="${escapeHtml(post.contact)}">📞 Связаться</button>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function formatRelativeDate(dateString) {
+      const createdAt = new Date(dateString).getTime();
+      if (Number.isNaN(createdAt)) return 'только что';
+      const diffMs = Date.now() - createdAt;
+      const diffMinutes = Math.max(1, Math.floor(diffMs / 60000));
+      if (diffMinutes < 60) {
+        return `${diffMinutes} ${pluralize(diffMinutes, ['минуту', 'минуты', 'минут'])} назад`;
+      }
+      const diffHours = Math.floor(diffMinutes / 60);
+      if (diffHours < 24) {
+        return `${diffHours} ${pluralize(diffHours, ['час', 'часа', 'часов'])} назад`;
+      }
+      const diffDays = Math.floor(diffHours / 24);
+      return `${diffDays} ${pluralize(diffDays, ['день', 'дня', 'дней'])} назад`;
+    }
+
+    function pluralize(value, forms) {
+      const mod10 = value % 10;
+      const mod100 = value % 100;
+      if (mod10 === 1 && mod100 !== 11) return forms[0];
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
+      return forms[2];
+    }
+
+    function getAnimalEmoji(type) {
+      if (type === 'dog') return '🐶';
+      if (type === 'cat') return '🐱';
+      return '🐾';
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+  </script>
+</body>
+</html>
