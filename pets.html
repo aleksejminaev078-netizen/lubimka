@@ -810,7 +810,7 @@
           <h2 class="section-title">Личная картотека питомцев</h2>
           <p class="section-subtitle">Фотографии, основные параметры и заметки сохраняются в вашей учётной записи после входа.</p>
         </div>
-        <button id="header-add-button" class="button button-secondary button-inline" type="button" hidden>Добавить питомца</button>
+        <button id="header-add-button" class="button button-secondary button-inline" type="button" hidden>Мед карта</button>
       </div>
 
       <div id="loading-note" class="loading-note">Загружаем список питомцев...</div>
@@ -1585,7 +1585,11 @@
       }
     });
 
-    [headerAddButton, actionsAddButton, emptyAddButton].forEach((button) => {
+    headerAddButton.addEventListener('click', () => {
+      redirectToMedicalCard();
+    });
+
+    [actionsAddButton, emptyAddButton].forEach((button) => {
       button.addEventListener('click', () => {
         openCreateForm();
       });
