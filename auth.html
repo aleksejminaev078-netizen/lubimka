@@ -134,6 +134,10 @@
     .submit-button:hover {
       opacity: 0.92;
     }
+    .submit-button:disabled {
+      cursor: wait;
+      opacity: 0.8;
+    }
     .helper {
       margin-top: 18px;
       font-size: 13px;
@@ -212,7 +216,7 @@
       </section>
 
       <div id="status" class="status" aria-live="polite"></div>
-      <p class="helper">Для реальной авторизации укажите свои значения <strong>SUPABASE_URL</strong> и <strong>SUPABASE_ANON_KEY</strong> внизу файла или через глобальные переменные окна.</p>
+      <p class="helper">Используйте email и пароль для входа или регистрации. После подтверждения почты вы сможете сразу продолжить работу в сервисе.</p>
     </div>
 
     <a class="back-link" href="index.html">← Вернуться на главную</a>
@@ -225,6 +229,18 @@
       register: document.getElementById('register-panel')
     };
     const statusNode = document.getElementById('status');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const SUPABASE_URL = window.SUPABASE_URL || 'https://afnlrgfamcaxnnpqgxev.supabase.co';
+    const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmbmxyZ2ZhbWNheG5ucHFneGV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NzAwMjQsImV4cCI6MjA5MTM0NjAyNH0.O9g34xXE0K4GKzaMN857wPEHMTUK8V5LnhLS_V0yhDw';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    });
+    const emailRedirectTo = new URL('auth.html', window.location.href).toString();
 
     function setStatus(message, type = '') {
       statusNode.textContent = message;
@@ -241,73 +257,132 @@
       setStatus('');
     }
 
+    function setFormLoading(form, isLoading, pendingLabel) {
+      const submitButton = form.querySelector('.submit-button');
+      if (!submitButton) return;
+
+      if (!submitButton.dataset.defaultLabel) {
+        submitButton.dataset.defaultLabel = submitButton.textContent;
+      }
+
+      submitButton.disabled = isLoading;
+      submitButton.textContent = isLoading ? pendingLabel : submitButton.dataset.defaultLabel;
+    }
+
+    function normalizeErrorMessage(message) {
+      if (!message) {
+        return 'Произошла ошибка. Попробуйте ещё раз.';
+      }
+
+      const lowerMessage = message.toLowerCase();
+
+      if (lowerMessage.includes('invalid login credentials')) {
+        return 'Неверный email или пароль.';
+      }
+
+      if (lowerMessage.includes('email not confirmed')) {
+        return 'Подтвердите email по письму от Supabase, затем повторите вход.';
+      }
+
+      if (lowerMessage.includes('user already registered')) {
+        return 'Пользователь с таким email уже зарегистрирован.';
+      }
+
+      return message;
+    }
+
+    function redirectToHome() {
+      window.location.replace('index.html');
+    }
+
     tabButtons.forEach((button) => {
       button.addEventListener('click', () => switchTab(button.dataset.tab));
     });
 
-    const SUPABASE_URL = window.SUPABASE_URL || 'https://YOUR_PROJECT.supabase.co';
-    const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
-    const supabaseClientReady =
-      typeof window.supabase !== 'undefined' &&
-      !SUPABASE_URL.includes('YOUR_PROJECT') &&
-      SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY';
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION')) {
+        redirectToHome();
+      }
+    });
 
-    const supabase = supabaseClientReady
-      ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-      : null;
-
-    document.getElementById('login-form').addEventListener('submit', async (event) => {
+    loginForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       const form = new FormData(event.currentTarget);
       const email = String(form.get('email') || '').trim();
       const password = String(form.get('password') || '').trim();
 
-      if (!supabase) {
-        setStatus('Подключите рабочие ключи Supabase, чтобы включить вход.', 'error');
-        return;
-      }
-
+      setFormLoading(event.currentTarget, true, 'Входим...');
       setStatus('Выполняется вход...');
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-      if (error) {
-        setStatus(error.message, 'error');
-        return;
+      try {
+        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          setStatus(normalizeErrorMessage(error.message), 'error');
+          return;
+        }
+
+        setStatus('Вход выполнен успешно. Перенаправляем...', 'success');
+        redirectToHome();
+      } finally {
+        setFormLoading(event.currentTarget, false);
       }
-
-      setStatus('Вход выполнен успешно.', 'success');
-      window.location.href = 'index.html';
     });
 
-    document.getElementById('register-form').addEventListener('submit', async (event) => {
+    registerForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       const form = new FormData(event.currentTarget);
       const name = String(form.get('name') || '').trim();
       const email = String(form.get('email') || '').trim();
       const password = String(form.get('password') || '').trim();
 
-      if (!supabase) {
-        setStatus('Подключите рабочие ключи Supabase, чтобы включить регистрацию.', 'error');
-        return;
-      }
-
+      setFormLoading(event.currentTarget, true, 'Создаём...');
       setStatus('Создаём аккаунт...');
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { full_name: name }
+
+      try {
+        const { data, error } = await supabaseClient.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { full_name: name },
+            emailRedirectTo
+          }
+        });
+
+        if (error) {
+          setStatus(normalizeErrorMessage(error.message), 'error');
+          return;
         }
-      });
+
+        if (data.session) {
+          setStatus('Аккаунт создан. Перенаправляем...', 'success');
+          redirectToHome();
+          return;
+        }
+
+        document.getElementById('login-email').value = email;
+        loginForm.reset();
+        document.getElementById('login-email').value = email;
+        switchTab('login');
+        setStatus('Аккаунт создан. Подтвердите email по письму, затем войдите в аккаунт.', 'success');
+        event.currentTarget.reset();
+      } finally {
+        setFormLoading(event.currentTarget, false);
+      }
+    });
+
+    (async () => {
+      const { data, error } = await supabaseClient.auth.getSession();
 
       if (error) {
-        setStatus(error.message, 'error');
+        setStatus('Не удалось проверить текущую сессию. Обновите страницу и попробуйте снова.', 'error');
         return;
       }
 
-      setStatus('Регистрация прошла успешно. Проверьте почту для подтверждения.', 'success');
-      event.currentTarget.reset();
-    });
+      if (data.session) {
+        redirectToHome();
+      }
+    })();
   </script>
 </body>
 </html>

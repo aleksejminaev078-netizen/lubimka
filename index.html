@@ -1070,5 +1070,45 @@ t: 1.75;
       </div>
     </footer>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = window.SUPABASE_URL || 'https://afnlrgfamcaxnnpqgxev.supabase.co';
+    const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFmbmxyZ2ZhbWNheG5ucHFneGV2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NzAwMjQsImV4cCI6MjA5MTM0NjAyNH0.O9g34xXE0K4GKzaMN857wPEHMTUK8V5LnhLS_V0yhDw';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true
+      }
+    });
+
+    async function requireAuth() {
+      const { data, error } = await supabaseClient.auth.getSession();
+
+      if (error || !data.session) {
+        window.location.replace('auth.html');
+        return;
+      }
+
+      const headerAuthButton = document.querySelector('.topbar .btn[href="auth.html"]');
+      if (headerAuthButton) {
+        headerAuthButton.textContent = 'Выйти';
+        headerAuthButton.href = '#logout';
+        headerAuthButton.addEventListener('click', async (event) => {
+          event.preventDefault();
+          await supabaseClient.auth.signOut();
+          window.location.replace('auth.html');
+        });
+      }
+    }
+
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        window.location.replace('auth.html');
+      }
+    });
+
+    requireAuth();
+  </script>
 </body>
 </html>
